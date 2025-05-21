@@ -82,7 +82,7 @@ function HomeContent() {
                     delay={0.3}
                   >
                   <h1 className="flex items-center justify-center gap-2 text-4xl font-[700] text-black">
-                    Hello<AnimatedText text={memberData ? ', ' + memberData?.church_name : ', there'} textClassName="text-4xl font-[800] text-black" underlinePath="M 0,10 Q 75,0 150,10 Q 225,20 300,10" underlineHoverPath="M 0,10 Q 75,20 150,10 Q 225,0 300,10" underlineDuration={1.5} />
+                    Hello, <AnimatedText text={memberData ? memberData?.church_name : 'there'} textClassName="text-4xl font-[800] text-black" underlinePath="M 0,10 Q 75,0 150,10 Q 225,20 300,10" underlineHoverPath="M 0,10 Q 75,20 150,10 Q 225,0 300,10" underlineDuration={1.5} />
                   </h1>
                 </AnimatedGroup>
               <div className="flex justify-center">
