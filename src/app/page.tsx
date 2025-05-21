@@ -91,12 +91,18 @@ function HomeContent() {
                     className="w-full flex justify-center items-center"
                     delay={0.3}
                   >
-                <Badge className="items-baseline gap-2 mt-8 text-[0.9rem] px-3">
+                {memberData?.queue_num ? (
+                  <Badge className="items-baseline gap-2 mt-8 text-[0.9rem] px-3">
                     Current Queue Number
                     <span className="text-primary-foreground/60 text-[0.9rem] font-medium">
-                    {memberData?.queue_num}
+                      {memberData.queue_num}
                     </span>
-                </Badge>
+                  </Badge>
+                ) : (
+                  <Badge className="items-baseline gap-2 mt-8 text-[0.9rem] px-3">
+                    No Queue Number
+                  </Badge>
+                )}
                 </AnimatedGroup>
               </div>
               </div>
