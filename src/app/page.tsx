@@ -100,7 +100,7 @@ function HomeContent() {
                   </Badge>
                 ) : (
                   <Badge className="items-baseline gap-2 mt-8 text-[0.9rem] px-3">
-                    No Queue Number
+                    Not in Web Queue
                   </Badge>
                 )}
                 </AnimatedGroup>
