@@ -35,6 +35,11 @@ export const getStrategyMemberData = cache(async (accountId?: string): Promise<S
     const { data, error } = await query.single();
 
     if (error) {
+      // If no rows returned error, just return null without logging
+      if (error.code === 'PGRST116') {
+        console.log(`No strategy member found for account: ${accountId}`);
+        return null;
+      }
       console.error('Error fetching strategy member data:', error);
       return null;
     }

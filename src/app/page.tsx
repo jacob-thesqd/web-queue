@@ -1,6 +1,6 @@
 "use client";
 
-import { StrategyMemberData, getStrategyMemberData } from '@/lib/supabase/getStrategyMemberData';
+import { StrategyMemberData } from '@/lib/supabase/getStrategyMemberData';
 import { useSearchParams } from 'next/navigation';
 import { siteConfig } from "@/config/site";
 import { useEffect, useState, Suspense } from 'react';
@@ -10,6 +10,7 @@ import { AnimatedGroup } from "@/components/ui/animated-group";
 import { fadeInVariants } from "@/lib/animation-variants";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BentoGridDemo } from "@/components/ui/bento-grid";
+import { fetchStrategyMember } from '@/lib/api-helpers';
 
 // Create a cache object to store data
 const dataCache: Record<string, StrategyMemberData> = {};
@@ -32,7 +33,8 @@ function HomeContent() {
       try {
         setLoading(true);
         
-        const data = await getStrategyMemberData(accountId);
+        // Use the new serverless API function
+        const data = await fetchStrategyMember(accountId);
         
         if (data) {
           setMemberData(data);

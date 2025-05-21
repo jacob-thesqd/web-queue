@@ -58,7 +58,7 @@ const AnimatedText = React.forwardRef<HTMLDivElement, AnimatedTextProps>(
             height="20"
             viewBox="0 0 300 20"
             className={cn(
-              useSearchParams().get('account') ? "ml-9 mt-4 absolute -bottom-4 left-0" : "mt-4 absolute -bottom-4 left-0", 
+              "mt-4 absolute -bottom-4 left-0", 
               underlineClassName
             )}
           >
