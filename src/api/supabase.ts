@@ -45,6 +45,7 @@ export async function fetchStrategyMemberData(accountId?: string): Promise<Strat
       brand_guide: data.brand_guide || '',
       discovery_call: data.discovery_call || '',
       status: data.status || '',
+      queue_num: data.queue_num || 0,
     };
   } catch (err) {
     console.error('Unexpected error fetching strategy member data:', err);

@@ -6,6 +6,12 @@ export type StrategyMemberData = {
   account: number;
   church_name: string;
   queue_num: number;
+  address?: string;
+  website?: string;
+  brand_guide?: string;
+  discovery_call?: string;
+  status?: string;
+  primary_email?: any[];
 };
 
 export const getStrategyMemberData = cache(async (accountId?: string): Promise<StrategyMemberData | null> => {
@@ -43,6 +49,12 @@ export const getStrategyMemberData = cache(async (accountId?: string): Promise<S
       account: data.account,
       church_name: data.accounts?.church_name || '',
       queue_num: data.queue_num,
+      address: data.accounts?.address || '',
+      website: data.accounts?.website || '',
+      brand_guide: data.brand_guide || '',
+      discovery_call: data.discovery_call || '',
+      status: data.status || '',
+      primary_email: data.accounts?.primary_email || [],
     };
   } catch (err) {
     console.error('Unexpected error fetching strategy member data:', err);

@@ -8,6 +8,8 @@ import {
     Globe,
 } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
 
 export interface BentoItem {
     title: string;
@@ -26,41 +28,7 @@ interface BentoGridProps {
     items: BentoItem[];
 }
 
-const itemsSample: BentoItem[] = [
-    {
-        title: "Web Squad Resources",
-        description:
-            "Read up on some Web Squad resources while you wait.",
-        icon: <TrendingUp className="w-4 h-4 text-blue-500" />,
-        status: "Web Resources",
-        colSpan: 2,
-        url: "https://churchmediasquad.com/websites",
-    },
-    {
-        title: "Squad Website",
-        description: "Visit our site for the latest on TheSquad.",
-        icon: <Globe className="w-4 h-4 text-emerald-500" />,
-        status: "TheSquad",
-        url: "https://churchmediasquad.com",
-    },
-    {
-        title: "Web Squad Feedback",
-        description: "Your feedback is crucial as we continually strive to elevate our website support for churches.",
-        icon: <Info className="w-4 h-4 text-sky-500" />,
-        status: "Feedback",
-        url: `https://forms.thesqd.com/website-feedback?memberid=${new URLSearchParams(window.location.search).get('account') || ''}`,
-    },
-    {
-        title: "Remix",
-        description: "Premade graphics and templates for your church.",
-        icon: <Palette className="w-4 h-4 text-purple-500" />,
-        status: "Graphics",
-        colSpan: 2,
-        url: "https://remixchurchmedia.com/",
-    },
-];
-
-function BentoGrid({ items = itemsSample }: BentoGridProps) {
+function BentoGrid({ items }: BentoGridProps) {
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 p-4 max-w-7xl mx-auto">
             {items.map((item, index) => {
@@ -150,7 +118,7 @@ function BentoGrid({ items = itemsSample }: BentoGridProps) {
                             item.url ? "cursor-pointer" : ""
                         )}
                         onClick={() => {
-                            if (item.url) {
+                            if (item.url && typeof window !== 'undefined') {
                                 window.open(item.url, "_blank", "noopener,noreferrer");
                             }
                         }}
@@ -163,8 +131,71 @@ function BentoGrid({ items = itemsSample }: BentoGridProps) {
     );
 }
 
+function BentoGridContent() {
+    const searchParams = useSearchParams();
+    const accountId = searchParams.get('account') || '';
+    
+    const [items, setItems] = useState<BentoItem[]>([]);
+    
+    useEffect(() => {
+        // Only set items after component is mounted (client-side)
+        setItems([
+            {
+                title: "Web Squad Resources",
+                description:
+                    "Read up on some Web Squad resources while you wait.",
+                icon: <TrendingUp className="w-4 h-4 text-blue-500" />,
+                status: "Web Resources",
+                colSpan: 2,
+                url: "https://churchmediasquad.com/websites",
+            },
+            {
+                title: "Squad Website",
+                description: "Visit our site for the latest on TheSquad.",
+                icon: <Globe className="w-4 h-4 text-emerald-500" />,
+                status: "TheSquad",
+                url: "https://churchmediasquad.com",
+            },
+            {
+                title: "Web Squad Feedback",
+                description: "Your feedback is crucial as we continually strive to elevate our website support for churches.",
+                icon: <Info className="w-4 h-4 text-sky-500" />,
+                status: "Feedback",
+                url: `https://forms.thesqd.com/website-feedback?memberid=${accountId}`,
+            },
+            {
+                title: "Remix",
+                description: "Premade graphics and templates for your church.",
+                icon: <Palette className="w-4 h-4 text-purple-500" />,
+                status: "Graphics",
+                colSpan: 2,
+                url: "https://remixchurchmedia.com/",
+            },
+        ]);
+    }, [accountId]);
+
+    return <BentoGrid items={items} />;
+}
+
 function BentoGridDemo() {
-    return <BentoGrid items={itemsSample} />
+    return (
+        <Suspense fallback={
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 p-4 max-w-7xl mx-auto">
+                {Array(4).fill(0).map((_, index) => (
+                    <div
+                        key={index}
+                        className={cn(
+                            "group relative p-4 rounded-xl overflow-hidden h-40",
+                            "border border-gray-100/80 dark:border-white/10 bg-white/50 dark:bg-black/50 animate-pulse",
+                            index === 0 || index === 3 ? "md:col-span-2" : "col-span-1"
+                        )}
+                    />
+                ))}
+            </div>
+        }>
+            <BentoGridContent />
+        </Suspense>
+    );
 }
 
 export { BentoGrid, BentoGridDemo } 

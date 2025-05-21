@@ -3,7 +3,7 @@
 import { StrategyMemberData, getStrategyMemberData } from '@/lib/supabase/getStrategyMemberData';
 import { useSearchParams } from 'next/navigation';
 import { siteConfig } from "@/config/site";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { Badge } from "@/components/ui/badge"
 import { AnimatedText } from "@/components/ui/animated-underline-text-one";
 import { AnimatedGroup } from "@/components/ui/animated-group";
@@ -14,7 +14,7 @@ import { BentoGridDemo } from "@/components/ui/bento-grid";
 // Create a cache object to store data
 const dataCache: Record<string, StrategyMemberData> = {};
 
-export default function Home() {
+function HomeContent() {
   const searchParams = useSearchParams();
   const accountId = searchParams.get('account') || undefined;
   const [memberData, setMemberData] = useState<StrategyMemberData | null>(null);
@@ -112,5 +112,27 @@ export default function Home() {
             </>
           )}
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen dot-grid-background">
+        <div className="container mx-auto px-4 py-20 bg-transparent max-w-2xl z-50">
+          <div className="w-full flex flex-col items-center">
+            <div className="flex items-center justify-center gap-2">
+              <Skeleton className="h-10 w-24" />
+              <Skeleton className="h-10 w-48" />
+            </div>
+            <div className="flex justify-center mt-8">
+              <Skeleton className="h-6 w-36" />
+            </div>
+          </div>
+        </div>
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   );
 }
