@@ -31,7 +31,7 @@ const AnimatedText = React.forwardRef<HTMLDivElement, AnimatedTextProps>(
         opacity: 0,
       },
       visible: {
-        pathLength: 0.8,
+        pathLength: 1,
         opacity: 0.7,
         transition: {
           duration: underlineDuration,
