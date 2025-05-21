@@ -1,6 +1,7 @@
 import * as React from "react";
 import { motion, Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useSearchParams } from "next/navigation";
 
 interface AnimatedTextProps extends React.HTMLAttributes<HTMLDivElement> {
   text: string;
@@ -56,7 +57,10 @@ const AnimatedText = React.forwardRef<HTMLDivElement, AnimatedTextProps>(
             width="100%"
             height="20"
             viewBox="0 0 300 20"
-            className={cn("ml-9 mt-4 absolute -bottom-4 left-0", underlineClassName)}
+            className={cn(
+              useSearchParams().get('account') ? "ml-9 mt-4 absolute -bottom-4 left-0" : "mt-4 absolute -bottom-4 left-0", 
+              underlineClassName
+            )}
           >
             <motion.path
               d={underlinePath}
