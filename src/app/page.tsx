@@ -9,7 +9,7 @@ import { AnimatedText } from "@/components/ui/animated-underline-text-one";
 import { AnimatedGroup } from "@/components/ui/animated-group";
 import { fadeInVariants } from "@/lib/animation-variants";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BentoGridDemo } from "@/components/ui/bento-grid-demo";
+import { BentoGridDemo } from "@/components/ui/bento-grid";
 
 // Create a cache object to store data
 const dataCache: Record<string, StrategyMemberData> = {};
