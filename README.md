@@ -1,4 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Web Queue Application
+
+A Next.js application that displays strategy member data from Supabase with a modern design.
+
+## Features
+
+- CalSans font implementation
+- Dynamic header with church name
+- Squad logo display
+- Dot grid background pattern
+- Supabase data integration
+- Responsive design
+
+## Setup
+
+1. Clone the repository
+2. Install dependencies:
+   ```
+   npm install
+   ```
+3. Create a `.env.local` file with your Supabase credentials:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url_here
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+   ```
+4. Run the development server:
+   ```
+   npm run dev
+   ```
+
+## Configuration
+
+The application uses a global configuration file located at `src/config/globalConfig.ts`. You can modify this file to enable/disable features or change basic settings:
+
+```typescript
+export const globalConfig = {
+  logoPath: "/squad-logo.svg",
+  faviconPath: "/favicon.ico",
+  siteTitle: "Web Queue",
+  fontFamily: "CalSans",
+  components: {
+    header: true,
+    logo: true,
+    dotGridBackground: true,
+  }
+};
+```
+
+## Project Structure
+
+- `src/app` - Next.js app router files
+- `src/components` - React components
+- `src/lib/supabase` - Supabase client and API functions
+- `src/config` - Application configuration
+- `public` - Static assets and fonts
+
+## Technologies Used
+
+- Next.js 14
+- TypeScript
+- Tailwind CSS
+- Supabase
+- CalSans font
 
 ## Getting Started
 

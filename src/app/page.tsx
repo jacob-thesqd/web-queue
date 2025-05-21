@@ -1,103 +1,116 @@
-import Image from "next/image";
+"use client";
+
+import { StrategyMemberData, getStrategyMemberData } from '@/lib/supabase/getStrategyMemberData';
+import { useSearchParams } from 'next/navigation';
+import { siteConfig } from "@/config/site";
+import { useEffect, useState } from 'react';
+import { Badge } from "@/components/ui/badge"
+import { AnimatedText } from "@/components/ui/animated-underline-text-one";
+import { AnimatedGroup } from "@/components/ui/animated-group";
+import { fadeInVariants } from "@/lib/animation-variants";
+import { Skeleton } from "@/components/ui/skeleton";
+import { BentoGridDemo } from "@/components/ui/bento-grid-demo";
+
+// Create a cache object to store data
+const dataCache: Record<string, StrategyMemberData> = {};
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const searchParams = useSearchParams();
+  const accountId = searchParams.get('account') || undefined;
+  const [memberData, setMemberData] = useState<StrategyMemberData | null>(null);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    async function fetchData() {
+      // Check if data is already in cache
+      if (accountId && dataCache[accountId]) {
+        setMemberData(dataCache[accountId]);
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        setLoading(true);
+        
+        const data = await getStrategyMemberData(accountId);
+        
+        if (data) {
+          setMemberData(data);
+          
+          // Save to cache
+          if (accountId) {
+            dataCache[accountId] = data;
+          }
+        } else {
+          setMemberData(null);
+        }
+      } catch (err) {
+        console.error('Unexpected error fetching strategy member data:', err);
+        setMemberData(null);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+    fetchData();
+  }, [accountId]);
+
+  return (
+    <div className="min-h-screen dot-grid-background">
+          {loading ? (
+            siteConfig.features.skeletonLoading ? (
+              <div className="container mx-auto px-4 py-20 bg-transparent max-w-2xl z-50">
+                <div className="w-full flex flex-col items-center">
+                  <div className="flex items-center justify-center gap-2">
+                    <Skeleton className="h-10 w-24" />
+                    <Skeleton className="h-10 w-48" />
+                  </div>
+                  <div className="flex justify-center mt-8">
+                    <Skeleton className="h-6 w-36" />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="text-center">Loading...</p>
+            )
+          ) : (
+            <>
+              <div className="container mx-auto px-4 pt-20 pb-8 bg-transparent max-w-2xl z-50">
+                <AnimatedGroup
+                    variants={fadeInVariants}
+                    className="w-full"
+                    delay={0.3}
+                  >
+                  <h1 className="flex items-center justify-center gap-2 text-4xl font-[700] text-black">
+                    Hello <AnimatedText text={',' + memberData?.church_name || ', there'} textClassName="text-4xl font-[800] text-black" underlinePath="M 0,10 Q 75,0 150,10 Q 225,20 300,10" underlineHoverPath="M 0,10 Q 75,20 150,10 Q 225,0 300,10" underlineDuration={1.5} />
+                  </h1>
+                </AnimatedGroup>
+              <div className="flex justify-center">
+              <AnimatedGroup
+                    variants={fadeInVariants}
+                    className="w-full flex justify-center items-center"
+                    delay={0.3}
+                  >
+                <Badge className="items-baseline gap-2 mt-8 text-[0.9rem] px-3">
+                    Current Queue Number
+                    <span className="text-primary-foreground/60 text-[0.9rem] font-medium">
+                    {memberData?.queue_num}
+                    </span>
+                </Badge>
+                </AnimatedGroup>
+              </div>
+              </div>
+              {siteConfig.features.bentoGrid && (<div className="container mx-auto px-4 bg-transparent max-w-4xl z-50">        
+                <AnimatedGroup
+                  variants={fadeInVariants}
+                  className="w-full mt-8"
+                  delay={0.5}
+                >
+                  <BentoGridDemo />
+                </AnimatedGroup>
+              </div>)}
+            </>
+          )}
     </div>
   );
 }
