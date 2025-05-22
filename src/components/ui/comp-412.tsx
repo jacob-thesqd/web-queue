@@ -1,4 +1,4 @@
-export default function Component() {
+export default function AvatarComponent() {
   return (
     <div className="bg-background flex items-center rounded-full border p-1 shadow-sm">
       <div className="flex -space-x-1.5">

@@ -8,9 +8,10 @@ import { AnimatedText } from "@/components/ui/animated-underline-text-one";
 import { AnimatedGroup } from "@/components/ui/animated-group";
 import { fadeInVariants } from "@/lib/animation-variants";
 import { Skeleton } from "@/components/ui/skeleton";
-import { fetchStrategyMember } from '@/lib/api-helpers';
 import WebCard from "@/components/dept-cards/WebCard";
 import SMCard from "@/components/dept-cards/SMCard";
+import { useStrategyData } from '@/hooks/use-strategy-data';
+import AvatarComponent from '@/components/ui/comp-412';
 
 // Create a cache object to store data
 const dataCache: Record<string, StrategyMemberData> = {};
@@ -18,44 +19,7 @@ const dataCache: Record<string, StrategyMemberData> = {};
 function HomeContent() {
   const searchParams = useSearchParams();
   const accountId = searchParams.get('account') || undefined;
-  const [memberData, setMemberData] = useState<StrategyMemberData | null>(null);
-  const [loading, setLoading] = useState(true);
-  
-  useEffect(() => {
-    async function fetchData() {
-      // Check if data is already in cache
-      if (accountId && dataCache[accountId]) {
-        setMemberData(dataCache[accountId]);
-        setLoading(false);
-        return;
-      }
-      
-      try {
-        setLoading(true);
-        
-        // Use the new serverless API function
-        const data = await fetchStrategyMember(accountId);
-        
-        if (data) {
-          setMemberData(data);
-          
-          // Save to cache
-          if (accountId) {
-            dataCache[accountId] = data;
-          }
-        } else {
-          setMemberData(null);
-        }
-      } catch (err) {
-        console.error('Unexpected error fetching strategy member data:', err);
-        setMemberData(null);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchData();
-  }, [accountId]);
+  const { data: strategyMemberData, loading } = useStrategyData(accountId);
 
   return (
     <div className="min-h-screen dot-grid-background">
@@ -77,15 +41,22 @@ function HomeContent() {
             )
           ) : (
             <>
-              <div className="container mx-auto px-4 pt-20 pb-8 bg-transparent max-w-2xl z-50">
+              <div className="container mx-auto px-4 pt-20 pb-8 bg-transparent max-w-2xl z-50 space-y-8">
                 <AnimatedGroup
                     variants={fadeInVariants}
                     className="w-full"
                     delay={0.3}
                   >
                   <h1 className="flex items-center justify-center gap-2 text-4xl font-[600] text-black">
-                    Hello, <AnimatedText text={memberData ? memberData?.church_name : 'there'} textClassName="text-4xl font-[800] text-black" underlinePath="M 0,10 Q 75,0 150,10 Q 225,20 300,10" underlineHoverPath="M 0,10 Q 75,20 150,10 Q 225,0 300,10" underlineDuration={1.5} />
+                    Hello, <AnimatedText text={strategyMemberData ? strategyMemberData?.church_name : 'there'} textClassName="text-4xl font-[800] text-black" underlinePath="M 0,10 Q 75,0 150,10 Q 225,20 300,10" underlineHoverPath="M 0,10 Q 75,20 150,10 Q 225,0 300,10" underlineDuration={1.5} />
                   </h1>
+                </AnimatedGroup>
+                <AnimatedGroup
+                    variants={fadeInVariants}
+                    className="flex justify-center max-h-10 w-full"
+                    delay={0.3}
+                  >
+                  <AvatarComponent />
                 </AnimatedGroup>
               </div>
               <div className="container mx-auto px-4 bg-transparent max-w-4xl z-50">        
@@ -94,7 +65,7 @@ function HomeContent() {
                   className="w-full flex justify-center"
                   delay={0.5}
                 >
-                  <WebCard {...memberData} />
+                  <WebCard {...strategyMemberData} />
                 </AnimatedGroup>
               </div>
 

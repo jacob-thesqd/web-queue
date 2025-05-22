@@ -1,21 +1,11 @@
-"use client";
-
-import { useEffect, useState, ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { StrategyMemberData } from '@/lib/supabase/getStrategyMemberData';
 import { fetchStrategyMemberData } from '@/api/supabase';
 
 // Create a cache object to store data
 const dataCache: Record<string, StrategyMemberData> = {};
 
-type StrategyDataFetcherProps = {
-  accountId?: string;
-  children: (data: StrategyMemberData | null, loading: boolean) => ReactNode;
-};
-
-export default function StrategyDataFetcher({ 
-  accountId, 
-  children 
-}: StrategyDataFetcherProps) {
+export function useStrategyData(accountId?: string) {
   const [memberData, setMemberData] = useState<StrategyMemberData | null>(null);
   const [loading, setLoading] = useState(true);
   
@@ -54,7 +44,5 @@ export default function StrategyDataFetcher({
     fetchData();
   }, [accountId]);
 
-  // Make sure to call the function and return its result
-  const renderedContent = children(memberData, loading);
-  return <>{renderedContent}</>;
+  return { data: memberData, loading };
 } 
