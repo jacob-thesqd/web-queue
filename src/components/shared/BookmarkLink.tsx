@@ -89,11 +89,11 @@ export default function BookmarkLink() {
           const isParentFolder = itemData?.type === 'folder' && item?.getId() !== 'root'
           
           return (
-            <TreeItem key={item.getId()} item={item} className={isParentFolder ? "mb-2" : ""}>
+            <TreeItem key={item.getId()} item={item} className={isParentFolder ? "mb-0" : ""}>
               <div className="flex flex-col gap-2 w-full">
                 {itemData?.type === 'item' ? (
                   <div className="flex items-left justify-between gap-4 py-1 px-2 rounded">
-                    <div className="text-sm text-gray-600 italic ml-8">
+                    <div className="text-sm text-gray-600 italic ml-8 flex items-center">
                       {itemData?.name}
                     </div>
                     <Button 
@@ -105,7 +105,7 @@ export default function BookmarkLink() {
                         console.log(`Navigate to: ${itemData?.link}`)
                       }}
                     >
-                      Access Link →
+                      View →
                     </Button>
                   </div>
                 ) : (

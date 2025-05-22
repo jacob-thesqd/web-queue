@@ -67,7 +67,7 @@ export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
                   console.log(`Navigate to`);
                 }}
               >
-                Access Link →
+                View →
               </Button>
             </div>
           </AccordionContent>

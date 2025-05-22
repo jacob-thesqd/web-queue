@@ -54,7 +54,7 @@ export default function BrandCard(
                   console.log(`Navigate to`);
                 }}
               >
-                Access Link →
+                View →
               </Button>
             </div>
           </AccordionContent>
