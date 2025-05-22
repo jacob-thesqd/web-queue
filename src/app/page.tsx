@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import WebCard from "@/components/dept-cards/WebCard";
 import SMCard from "@/components/dept-cards/SMCard";
 import { useStrategyData } from '@/hooks/use-strategy-data';
-import AvatarComponent from '@/components/ui/comp-412';
+import AccountManager from '@/components/squad-components/AccountManager';
 
 // Create a cache object to store data
 const dataCache: Record<string, StrategyMemberData> = {};
@@ -25,7 +25,7 @@ function HomeContent() {
     <div className="min-h-screen dot-grid-background">
           {loading ? (
             siteConfig.features.skeletonLoading ? (
-              <div className="container mx-auto px-4 py-20 bg-transparent max-w-2xl z-50">
+              <div className="container mx-auto px-4 py-20 bg-transparent max-w-4xl z-50">
                 <div className="w-full flex flex-col items-center">
                   <div className="flex items-center justify-center gap-2">
                     <Skeleton className="h-10 w-24" />
@@ -41,7 +41,7 @@ function HomeContent() {
             )
           ) : (
             <>
-              <div className="container mx-auto px-4 pt-20 pb-8 bg-transparent max-w-2xl z-50 space-y-8">
+              <div className="container mx-auto px-4 pt-20 pb-8 bg-transparent max-w-4xl z-50 space-y-8">
                 <AnimatedGroup
                     variants={fadeInVariants}
                     className="w-full"
@@ -56,7 +56,7 @@ function HomeContent() {
                     className="flex justify-center max-h-10 w-full"
                     delay={0.3}
                   >
-                  <AvatarComponent />
+                  <AccountManager accountNumber={parseInt(accountId || '306')} />
                 </AnimatedGroup>
               </div>
               <div className="container mx-auto px-4 bg-transparent max-w-4xl z-50">        

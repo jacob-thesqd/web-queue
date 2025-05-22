@@ -13,9 +13,9 @@ export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
         </h2>
       </CardHeader>
 
-      <span className="text-muted-foreground text-sm px-8">
+      <h2 className="flex gap-2 text-md font-[600] text-black text-left px-8">
         Upload photos from Sunday
-      </span>
+      </h2>
       <div className="px-8 py-2 max-w-4xl mx-auto">
         <Component />
       </div>

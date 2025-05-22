@@ -8,7 +8,8 @@ export const globalConfig = {
     logo: true,
     dotGridBackground: true,
     clientSideDataFetching: true,
-    churchWelcome: true
+    churchWelcome: true,
+    accountManager: true
   },
   dropbox: {
     devMode: true, // Set to false in production
