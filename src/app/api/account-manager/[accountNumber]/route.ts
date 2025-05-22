@@ -6,6 +6,7 @@ export interface AccountManagerData {
   account_manager_name: string;
   employee_email: string;
   profile_picture: string;
+  am_calendly: string;
 }
 
 export async function GET(

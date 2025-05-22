@@ -1,6 +1,7 @@
 import AvatarComponent from '@/components/ui/comp-412';
 import { useAccountManagerData } from '@/hooks/useAccountManagerData';
 import { Skeleton } from "@/components/ui/skeleton";
+import CalendlyDialog from '@/components/ui/CalendlyDialog';
 
 interface AccountManagerProps {
   accountNumber: number;
@@ -31,6 +32,13 @@ export default function AccountManager({ accountNumber }: AccountManagerProps) {
   const accountManagerNames = data
     .map(item => item.account_manager_name)
     .filter(Boolean);
+
+  // Extract calendly URL (use the first available one)
+  const calendlyUrl = data
+    .find(item => item.am_calendly)?.am_calendly || "https://www.google.com";
+
+  console.log('Account Manager Data:', data);
+  console.log('Calendly URL:', calendlyUrl);
 
   // Create display JSX based on account managers
   const getDisplayContent = () => {
@@ -64,7 +72,7 @@ export default function AccountManager({ accountNumber }: AccountManagerProps) {
       profilePictures={profilePictures.length > 0 ? profilePictures : fallbackPictures}
       displayContent={getDisplayContent()}
     />
-    <a href="https://www.google.com" className="text-blue-500 font-semibold text-xs">Book a call</a>
+    <CalendlyDialog calendlyUrl={calendlyUrl} />
     </div>
   );
 }

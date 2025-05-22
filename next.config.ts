@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
   experimental: {
     // Enable server actions for form submissions
     serverActions: {
-      allowedOrigins: ['localhost:3000', 'localhost:3002']
+      allowedOrigins: ['localhost:3000', 'localhost:3002', 'https://calendly.com']
     },
   },
 };

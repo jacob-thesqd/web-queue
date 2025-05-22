@@ -21,6 +21,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href={globalConfig.faviconPath} />
+        <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
       </head>
       <body className="min-h-screen bg-background font-sans antialiased">
         <div className="fixed top-4 right-4 z-50">
