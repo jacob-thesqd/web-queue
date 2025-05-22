@@ -7,6 +7,6 @@ export const siteConfig = {
   },
   features: {
     skeletonLoading: true, // Toggle skeleton loading instead of text
-    bentoGrid: true, // Toggle bento grid component
+    smSquad: true, // Toggle bento grid component
   }
 }; 
