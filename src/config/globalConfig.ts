@@ -1,7 +1,7 @@
 export const globalConfig = {
   logoPath: "/squad-logo.svg",
   faviconPath: "/squad-logo.svg",
-  siteTitle: "Web Queue",
+  siteTitle: "Strategy Squad Manager",
   fontFamily: "CalSans",
   components: {
     header: true,
@@ -9,5 +9,12 @@ export const globalConfig = {
     dotGridBackground: true,
     clientSideDataFetching: true,
     churchWelcome: true
+  },
+  dropbox: {
+    devMode: true, // Set to false in production
+    devModeDBPath: "/Church Media Company Team Folder/2. Client Accounts/306 - Bogus Summit Sanctuary",
+    productionPath: "/Church Media Company Team Folder/2. Client Accounts/306 - Bogus Summit Sanctuary",
+    chunkSize: 149 * 1024 * 1024, // 149 MB chunks
+    maxRetries: 3 // Number of retries for 409 errors
   }
 }; 

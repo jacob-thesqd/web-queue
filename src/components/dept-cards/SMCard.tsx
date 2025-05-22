@@ -30,9 +30,23 @@ export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
             <p>
               Vista Social is a social media platform that allows you to upload photos from Sunday.
             </p>
-            <Button className="mt-4">
-              Access Vista Social
-            </Button>
+            <Button className="mt-4" asChild>
+                <a href="https://vistasocial.com/login" target="_blank" rel="noopener noreferrer">
+                  Login
+                </a>
+              </Button>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="item-2">
+          <AccordionTrigger>
+            <h2 className="flex gap-2 text-lg font-[600] text-black text-left">
+            Key Bookmark Links
+            </h2>
+          </AccordionTrigger>
+          <AccordionContent>
+            <p>
+              Test content.
+            </p>
           </AccordionContent>
         </AccordionItem>
       </Accordion>

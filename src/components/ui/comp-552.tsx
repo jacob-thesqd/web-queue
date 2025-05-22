@@ -1,7 +1,9 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import {
   AlertCircleIcon,
+  CheckCircle2Icon,
   FileArchiveIcon,
   FileIcon,
   FileSpreadsheetIcon,
@@ -9,6 +11,7 @@ import {
   HeadphonesIcon,
   ImageIcon,
   Trash2Icon,
+  UploadCloudIcon,
   UploadIcon,
   VideoIcon,
   XIcon,
@@ -18,7 +21,9 @@ import {
   formatBytes,
   useFileUpload,
 } from "@/hooks/use-file-upload"
+import { useDropboxUpload } from "@/hooks/use-dropbox-upload"
 import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
 
 // Create some dummy initial files
 const initialFiles: never[] = []
@@ -110,9 +115,23 @@ const getFilePreview = (file: {
 }
 
 export default function Component() {
-  const maxSizeMB = 5
+  const maxSizeMB = 2000
   const maxSize = maxSizeMB * 1024 * 1024 // 5MB default
-  const maxFiles = 6
+  const maxFiles = 10
+  const [uploading, setUploading] = useState(false)
+  const [allUploadsComplete, setAllUploadsComplete] = useState(false)
+
+  const { uploadProgress, uploadToDropbox } = useDropboxUpload({
+    onProgress: (fileId, progress) => {
+      console.log(`File ${fileId} upload progress: ${progress}%`)
+    },
+    onComplete: (fileId, filePath) => {
+      console.log(`File ${fileId} uploaded to: ${filePath}`)
+    },
+    onError: (fileId, error) => {
+      console.error(`File ${fileId} upload error: ${error}`)
+    }
+  })
 
   const [
     { files, isDragging, errors },
@@ -132,6 +151,51 @@ export default function Component() {
     maxSize,
     initialFiles,
   })
+
+  // Check if all uploads are complete
+  useEffect(() => {
+    if (files.length > 0 && uploading) {
+      const uploadedFiles = files.filter(file => 
+        uploadProgress[file.id] && uploadProgress[file.id].status === 'completed'
+      );
+      
+      if (uploadedFiles.length === files.length) {
+        setAllUploadsComplete(true);
+        setUploading(false);
+      }
+    }
+  }, [files, uploadProgress, uploading]);
+
+  // Reset completion state when files change
+  useEffect(() => {
+    setAllUploadsComplete(false);
+  }, [files.length]);
+
+  const handleUpload = async () => {
+    if (files.length === 0) return
+    
+    setUploading(true)
+    setAllUploadsComplete(false)
+    
+    try {
+      const uploadPromises = files.map((file) => {
+        if (file.file instanceof File) {
+          return uploadToDropbox(file.id, file.file)
+        }
+        return Promise.resolve()
+      })
+      
+      await Promise.all(uploadPromises)
+      
+    } catch (error) {
+      console.error("Upload failed:", error)
+    }
+  }
+
+  const handleNewUpload = () => {
+    clearFiles();
+    setAllUploadsComplete(false);
+  }
 
   return (
     <div className="flex flex-col gap-2">
@@ -157,49 +221,104 @@ export default function Component() {
                 Files ({files.length})
               </h3>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={openFileDialog}>
-                  <UploadIcon
-                    className="-ms-0.5 size-3.5 opacity-60"
-                    aria-hidden="true"
-                  />
-                  Add files
-                </Button>
-                <Button variant="outline" size="sm" onClick={clearFiles}>
-                  <Trash2Icon
-                    className="-ms-0.5 size-3.5 opacity-60"
-                    aria-hidden="true"
-                  />
-                  Remove all
-                </Button>
+                {allUploadsComplete ? (
+                  <Button variant="outline" size="sm" onClick={handleNewUpload}>
+                    <UploadIcon
+                      className="-ms-0.5 size-3.5 opacity-60"
+                      aria-hidden="true"
+                    />
+                    New Upload
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="outline" size="sm" onClick={openFileDialog} disabled={uploading}>
+                      <UploadIcon
+                        className="-ms-0.5 size-3.5 opacity-60"
+                        aria-hidden="true"
+                      />
+                      Add files
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={clearFiles}
+                      disabled={uploading}
+                    >
+                      <Trash2Icon
+                        className="-ms-0.5 size-3.5 opacity-60"
+                        aria-hidden="true"
+                      />
+                      Remove all
+                    </Button>
+                    <Button 
+                      variant="default" 
+                      size="sm" 
+                      onClick={handleUpload}
+                      disabled={uploading || files.length === 0}
+                    >
+                      <UploadCloudIcon
+                        className="-ms-0.5 size-3.5 mr-1"
+                        aria-hidden="true"
+                      />
+                      {uploading ? 'Uploading...' : 'Upload to Dropbox'}
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-              {files.map((file) => (
-                <div
-                  key={file.id}
-                  className="bg-background relative flex flex-col rounded-md border"
-                >
-                  {getFilePreview(file)}
-                  <Button
-                    onClick={() => removeFile(file.id)}
-                    size="icon"
-                    className="border-background focus-visible:border-background absolute -top-2 -right-2 size-6 rounded-full border-2 shadow-none"
-                    aria-label="Remove image"
+            {allUploadsComplete ? (
+              <div className="flex flex-col items-center justify-center py-8">
+                <CheckCircle2Icon className="size-6 text-green-500 mb-2" />
+                <p className="text-green-600 font-medium text-sm mt-1">
+                  {files.length === 1 ? 'Your file has' : 'All ' + files.length + ' files have'} been uploaded successfully
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+                {files.map((file) => (
+                  <div
+                    key={file.id}
+                    className="bg-background relative flex flex-col rounded-md border"
                   >
-                    <XIcon className="size-3.5" />
-                  </Button>
-                  <div className="flex min-w-0 flex-col gap-0.5 border-t p-3">
-                    <p className="truncate text-[13px] font-medium">
-                      {file.file.name}
-                    </p>
-                    <p className="text-muted-foreground truncate text-xs">
-                      {formatBytes(file.file.size)}
-                    </p>
+                    {getFilePreview(file)}
+                    <Button
+                      onClick={() => removeFile(file.id)}
+                      size="icon"
+                      className="border-background focus-visible:border-background absolute -top-2 -right-2 size-6 rounded-full border-2 shadow-none"
+                      aria-label="Remove image"
+                      disabled={uploading}
+                    >
+                      <XIcon className="size-3.5" />
+                    </Button>
+                    <div className="flex min-w-0 flex-col gap-0.5 border-t p-3">
+                      <p className="truncate text-[13px] font-medium">
+                        {file.file.name}
+                      </p>
+                      <p className="text-muted-foreground truncate text-xs">
+                        {formatBytes(file.file.size)}
+                      </p>
+                      {uploadProgress[file.id] && (
+                        <div className="mt-2">
+                          <Progress 
+                            value={uploadProgress[file.id].progress} 
+                            className="h-1" 
+                          />
+                          <p className="text-muted-foreground text-xs mt-1">
+                            {uploadProgress[file.id].status === 'error' 
+                              ? `Error: ${uploadProgress[file.id].error}` 
+                              : uploadProgress[file.id].status === 'completed'
+                                ? 'Upload complete'
+                                : `${uploadProgress[file.id].progress}%`
+                            }
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center px-4 py-3 text-center">
@@ -211,7 +330,7 @@ export default function Component() {
             </div>
             <p className="mb-1.5 text-sm font-medium">Drop your files here</p>
             <p className="text-muted-foreground text-xs">
-              Max {maxFiles} files ∙ Up to {maxSizeMB}MB
+              Max {maxFiles} files ∙ Up to {maxSizeMB/1000}GB each
             </p>
             <Button variant="outline" className="mt-4" onClick={openFileDialog}>
               <UploadIcon className="-ms-1 opacity-60" aria-hidden="true" />

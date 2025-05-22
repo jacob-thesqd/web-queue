@@ -4,9 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { StrategyMemberData } from "@/lib/supabase/getStrategyMemberData";
 
-export default function WebCard(memberData: Partial<StrategyMemberData> | null = null) {
-    const data = memberData || {};
-    
+export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
     return (
         <Card>
         <CardHeader className="flex flex-row justify-between items-center">
@@ -16,11 +14,11 @@ export default function WebCard(memberData: Partial<StrategyMemberData> | null =
             </h2>
           </div>
           <div className="flex-shrink-0">
-            {data.queue_num ? (
+            {memberData?.queue_num ? (
               <Badge className="items-baseline gap-2 text-[0.9rem] px-3">
                 Current Queue Number
                 <span className="text-primary-foreground/60 text-[0.9rem] font-medium">
-                  {data.queue_num}
+                  {memberData.queue_num}
                 </span>
               </Badge>
             ) : (
@@ -35,16 +33,13 @@ export default function WebCard(memberData: Partial<StrategyMemberData> | null =
           <AccordionItem value="item-1">
             <AccordionTrigger>
               <h2 className="flex gap-2 text-lg font-[600] text-black text-left">
-                Access Vista Social
+                Key Bookmark Links
               </h2>
             </AccordionTrigger>
             <AccordionContent>
               <p>
-                Vista Social is a social media platform that allows you to upload photos from Sunday.
+                Test content.
               </p>
-              <Button className="mt-4">
-                Access Vista Social
-              </Button>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
