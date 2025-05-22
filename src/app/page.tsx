@@ -94,7 +94,7 @@ function HomeContent() {
                   className="w-full flex justify-center"
                   delay={0.5}
                 >
-                  <WebCard />
+                  <WebCard {...memberData} />
                 </AnimatedGroup>
               </div>
 
