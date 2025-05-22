@@ -1,20 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { InlineWidget } from "react-calendly";
+import { useEffect } from "react";
+import { PopupWidget } from "react-calendly";
+
+// Declare Calendly global type
+declare global {
+  interface Window {
+    Calendly?: {
+      initPopupWidget: (options: { url: string }) => void;
+    };
+  }
+}
 
 interface CalendlyDialogProps {
   calendlyUrl: string;
   triggerText?: string;
   triggerClassName?: string;
+  textColor?: string;
+  color?: string;
   children?: React.ReactNode;
 }
 
@@ -22,28 +25,66 @@ export default function CalendlyDialog({
   calendlyUrl, 
   triggerText = "Book a call",
   triggerClassName = "text-blue-500 font-semibold text-xs",
+  textColor = "#ffffff",
+  color = "#00a2ff",
   children 
 }: CalendlyDialogProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  
+  useEffect(() => {
+    // Add custom styles for blur effect behind Calendly popup
+    const style = document.createElement('style');
+    style.textContent = `
+      .calendly-overlay {
+        backdrop-filter: blur(8px) !important;
+        background-color: rgba(0, 0, 0, 0.6) !important;
+      }
+      
+      /* Target Calendly's popup overlay */
+      div[style*="position: fixed"][style*="z-index"] {
+        backdrop-filter: blur(8px) !important;
+        background-color: rgba(0, 0, 0, 0.6) !important;
+      }
+    `;
+    document.head.appendChild(style);
+
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
+  const openCalendlyPopup = () => {
+    // Use Calendly's global method to open popup
+    if (window.Calendly) {
+      window.Calendly.initPopupWidget({ url: calendlyUrl });
+    }
+  };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        {children || (
-          <button className={triggerClassName}>
-            {triggerText}
-          </button>
-        )}
-      </DialogTrigger>
-      <DialogContent className="max-w-5xl px-0">
-        <DialogHeader className="px-6 pt-6 pb-0">
-          <DialogTitle>Schedule a Call</DialogTitle>
-          <DialogClose />
-        </DialogHeader>
-        <div className="flex-1 h-full mt-0 mb-8">
-        <InlineWidget styles={{ height: '700px', width: '100%', padding: '0px', margin: '0px' }} url={calendlyUrl} />
+    <>
+      {/* Hidden PopupWidget to load Calendly scripts */}
+      <div style={{ display: 'none' }}>
+        <PopupWidget
+          url={calendlyUrl}
+          rootElement={document.getElementById("root") || document.body}
+          text=""
+          textColor={textColor}
+          color={color}
+        />
+      </div>
+      
+      {/* Custom trigger button in original position */}
+      {children ? (
+        <div onClick={openCalendlyPopup} style={{ cursor: 'pointer' }}>
+          {children}
         </div>
-      </DialogContent>
-    </Dialog>
+      ) : (
+        <button 
+          className={triggerClassName}
+          onClick={openCalendlyPopup}
+        >
+          {triggerText}
+        </button>
+      )}
+    </>
   );
 } 
