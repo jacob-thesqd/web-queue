@@ -10,8 +10,14 @@ import { Button } from "@/components/ui/button";
 import { StrategyMemberData } from "@/lib/supabase/getStrategyMemberData";
 import BookmarkLink from "@/components/shared/BookmarkLink";
 import MilestoneStepperComponent from "@/components/ui/comp-525";
+import { useMilestoneData } from "@/hooks/use-milestone-data";
+import { globalConfig } from "@/config/globalConfig";
 
 export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
+  const { steps, currentStep, loading, error } = useMilestoneData(
+    globalConfig.components.milestoneTracking ? memberData.account : undefined
+  );
+
   return (
     <Card>
       <CardHeader className="flex flex-row justify-between items-center">
@@ -37,9 +43,24 @@ export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
         </div>
       </CardHeader>
 
-      <div className="flex items-center justify-center w-full px-12">
-        <MilestoneStepperComponent />
-      </div>
+      {globalConfig.components.milestoneTracking && (
+        <div className="flex flex-col w-full px-12 pb-4">
+          <h2 className="flex gap-2 text-lg font-[600] text-black text-left mb-4">
+            Web Milestones
+          </h2>
+          {error ? (
+            <div className="text-center text-red-500 py-8">
+              <p>Error loading milestones: {error}</p>
+            </div>
+          ) : (
+            <MilestoneStepperComponent 
+              steps={steps} 
+              currentStep={currentStep} 
+              loading={loading}
+            />
+          )}
+        </div>
+      )}
 
       <Accordion type="single" collapsible className="px-12 mt-4">
         <AccordionItem value="item-1">

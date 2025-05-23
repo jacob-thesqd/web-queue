@@ -11,7 +11,8 @@ export const globalConfig = {
     churchWelcome: true,
     accountManager: true,
     layoutToggle: true,
-    customScrollbar: true
+    customScrollbar: true,
+    milestoneTracking: true
   },
   dropbox: {
     devMode: true, // Set to false in production
