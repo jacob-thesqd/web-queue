@@ -212,7 +212,7 @@ export default function Home() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-transparent">
+        <div className="min-h-screen dot-grid-background">
           <div className="container mx-auto px-4 py-20 bg-transparent max-w-2xl z-50">
             <div className="w-full flex flex-col items-center">
               <div className="flex items-center justify-center gap-2">

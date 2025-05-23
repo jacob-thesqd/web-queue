@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { StrategyMemberData } from "@/lib/supabase/getStrategyMemberData";
 import BookmarkLink from "@/components/shared/BookmarkLink";
+import MilestoneStepperComponent from "@/components/ui/comp-525";
 
 export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
   return (
@@ -35,6 +36,10 @@ export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
           )}
         </div>
       </CardHeader>
+
+      <div className="flex items-center justify-center w-full px-12">
+        <MilestoneStepperComponent />
+      </div>
 
       <Accordion type="single" collapsible className="px-12 mt-4">
         <AccordionItem value="item-1">
