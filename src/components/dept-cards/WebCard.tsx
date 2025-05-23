@@ -57,6 +57,7 @@ export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
               steps={steps} 
               currentStep={currentStep} 
               loading={loading}
+              mode="grid"
             />
           )}
         </div>

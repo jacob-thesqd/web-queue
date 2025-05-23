@@ -38,9 +38,6 @@ export default function AccountManager({ accountNumber }: AccountManagerProps) {
   const calendlyUrl = data
     .find(item => item.am_calendly)?.am_calendly || "https://www.google.com";
 
-  console.log('Account Manager Data:', data);
-  console.log('Calendly URL:', calendlyUrl);
-
   // Create display JSX based on account managers
   const getDisplayContent = () => {
     if (error) return "Error loading account managers";
