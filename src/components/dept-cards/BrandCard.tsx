@@ -15,7 +15,8 @@ export default function BrandCard(
   return (
     <Card>
       <CardHeader className="flex flex-row justify-between items-center">
-        <div className="flex-grow">
+      <div className="flex flex-row items-center">
+        <img src="/dept_icons/brand.png" alt="Squad Logo" className="w-9 h-9 mr-1" />
           <h2 className="flex gap-2 text-2xl font-[600] text-black text-left">
             Brand Squad
           </h2>

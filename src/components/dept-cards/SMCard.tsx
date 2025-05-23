@@ -8,9 +8,12 @@ export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
     return (
       <Card>
       <CardHeader>
+      <div className="flex flex-row items-center">
+      <img src="/dept_icons/social.png" alt="Squad Logo" className="w-9 h-9 mr-1" />
         <h2 className="flex gap-2 text-2xl font-[600] text-black text-left">
           Social Media Squad
         </h2>
+        </div>
       </CardHeader>
 
       <h2 className="flex gap-2 text-md font-[600] text-black text-left px-8">
