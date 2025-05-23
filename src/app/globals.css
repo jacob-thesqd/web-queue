@@ -36,7 +36,18 @@ h1 {
   background-size: 20px 20px; /* Adjust size as needed */
 }
 
-
+.fixed-dot-grid-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-attachment: fixed;
+  pointer-events: none;
+  z-index: -1;
+}
 
 @layer base {
   :root {
@@ -94,8 +105,6 @@ h1 {
   }
 }
 
-
-
 @layer base {
   * {
     @apply border-border;
@@ -104,3 +113,82 @@ h1 {
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom Scrollbar Styles */
+/* Hide scrollbar by default */
+::-webkit-scrollbar {
+  width: 14px;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 7px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.6);
+  background-clip: content-box;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.4);
+  background-clip: content-box;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.6);
+  background-clip: content-box;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
+}
+
+/* Show scrollbar when scrolling */
+.scrolling ::-webkit-scrollbar {
+  opacity: 1;
+}
+
+/* Firefox scrollbar */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+  transition: scrollbar-color 0.3s ease-in-out;
+}
+
+html.scrolling {
+  scrollbar-color: rgba(0, 0, 0, 0.5) transparent;
+}
+
+.dark html {
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.dark html.scrolling {
+  scrollbar-color: rgba(255, 255, 255, 0.5) transparent;
+}
+
+/* Ensure scrollbar overlay behavior */
+html {
+  overflow-y: overlay;
+}
+
+/* Fallback for browsers that don't support overlay */
+@supports not (overflow: overlay) {
+  html {
+    overflow-y: auto;
+    scrollbar-gutter: stable both-edges;
+  }
+}
+

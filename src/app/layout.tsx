@@ -6,6 +6,7 @@ import { globalConfig } from "@/config/globalConfig";
 import Image from "next/image";
 import SettingsComponent from "@/components/shared/Settings";
 import { LayoutProvider } from "@/hooks/use-layout";
+import { CustomScrollbarProvider } from "@/components/providers/CustomScrollbarProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -26,6 +27,8 @@ export default function RootLayout({
         <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
       </head>
       <body className="min-h-screen bg-background font-sans antialiased">
+        <CustomScrollbarProvider />
+        <div className="fixed-dot-grid-background" />
         <LayoutProvider>
           <div className="fixed top-4 left-4 z-[60] pointer-events-auto">
             <SettingsComponent />

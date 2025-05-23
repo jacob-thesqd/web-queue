@@ -78,7 +78,7 @@ function HomeContent() {
   const headerTranslateY = !isHeaderVisible ? -100 : Math.min(0, -scrollY * 0.3);
 
   return (
-    <div className="min-h-screen dot-grid-background">
+    <div className="min-h-screen bg-transparent">
       {loading ? (
         siteConfig.features.skeletonLoading ? (
           <div className="container mx-auto px-4 py-20 bg-transparent max-w-4xl z-50">
@@ -212,7 +212,7 @@ export default function Home() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen dot-grid-background">
+        <div className="min-h-screen bg-transparent">
           <div className="container mx-auto px-4 py-20 bg-transparent max-w-2xl z-50">
             <div className="w-full flex flex-col items-center">
               <div className="flex items-center justify-center gap-2">

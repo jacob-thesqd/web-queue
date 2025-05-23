@@ -10,7 +10,8 @@ export const globalConfig = {
     clientSideDataFetching: true,
     churchWelcome: true,
     accountManager: true,
-    layoutToggle: true
+    layoutToggle: true,
+    customScrollbar: true
   },
   dropbox: {
     devMode: true, // Set to false in production
