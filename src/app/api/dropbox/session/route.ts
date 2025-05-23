@@ -19,7 +19,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const dbx = getDropboxClient();
+    // Get Dropbox client with token from vault
+    let dbx;
+    try {
+      dbx = await getDropboxClient();
+    } catch (error: any) {
+      return NextResponse.json(
+        { error: 'Failed to initialize Dropbox client', details: error.message },
+        { status: 500 }
+      );
+    }
+    
     const filePath = getUploadPath(fileName);
     
     const arrayBuffer = await file.arrayBuffer();
@@ -67,7 +77,7 @@ export async function POST(req: NextRequest) {
           // Finish the session and commit the file
           const commitInfo = {
             path: filePath,
-            mode: 'add' as const,
+            mode: { '.tag': 'add' } as const,
             autorename: true,
             mute: false,
           };

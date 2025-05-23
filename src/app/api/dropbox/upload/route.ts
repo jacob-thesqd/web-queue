@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUploadPath } from '@/lib/dropbox-client';
+import { getDropboxAccessToken } from '@/lib/supabase/vault';
 import { logError } from '@/lib/debug-utils';
 import { globalConfig } from '@/config/globalConfig';
 
@@ -17,10 +18,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const accessToken = process.env.DROPBOX_ACCESS_TOKEN;
-    if (!accessToken) {
+    // Get access token from Supabase vault
+    let accessToken: string;
+    try {
+      accessToken = await getDropboxAccessToken();
+    } catch (error: any) {
       return NextResponse.json(
-        { error: 'Dropbox token not configured' },
+        { error: 'Failed to get Dropbox token from vault', details: error.message },
         { status: 500 }
       );
     }

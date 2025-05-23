@@ -1,20 +1,26 @@
 import { Dropbox } from 'dropbox';
 import { globalConfig } from '@/config/globalConfig';
+import { getDropboxAccessToken } from '@/lib/supabase/vault';
 // Import isomorphic-fetch for universal fetch support
 import 'isomorphic-fetch';
 
 // Initialize Dropbox client with app key
-export const getDropboxClient = () => {
-  const accessToken = process.env.DROPBOX_ACCESS_TOKEN;
-  
-  if (!accessToken) {
-    throw new Error('Dropbox access token is not configured');
+export const getDropboxClient = async () => {
+  try {
+    const accessToken = await getDropboxAccessToken();
+    
+    if (!accessToken) {
+      throw new Error('Dropbox access token not found in vault');
+    }
+    
+    // Using isomorphic-fetch, we don't need to provide fetch implementation
+    return new Dropbox({ 
+      accessToken
+    });
+  } catch (error) {
+    console.error('Failed to initialize Dropbox client:', error);
+    throw new Error('Failed to initialize Dropbox client with token from vault');
   }
-  
-  // Using isomorphic-fetch, we don't need to provide fetch implementation
-  return new Dropbox({ 
-    accessToken
-  });
 };
 
 /**
