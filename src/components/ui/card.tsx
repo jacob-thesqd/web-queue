@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const cardVariants = cva(
-  "mt-8 bg-background z-50 w-full rounded-md border shadow-lg text-left pb-4",
+  "bg-background z-50 w-full rounded-md border shadow-lg text-left pb-4",
   {
     variants: {
       variant: {

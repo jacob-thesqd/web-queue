@@ -13,6 +13,7 @@ import SMCard from "@/components/dept-cards/SMCard";
 import BrandCard from "@/components/dept-cards/BrandCard";
 import { useStrategyData } from "@/hooks/use-strategy-data";
 import AccountManager from "@/components/squad-components/AccountManager";
+import { useLayout } from "@/hooks/use-layout";
 
 // Create a cache object to store data
 const dataCache: Record<string, StrategyMemberData> = {};
@@ -21,6 +22,7 @@ function HomeContent() {
   const searchParams = useSearchParams();
   const accountId = searchParams.get("account") || undefined;
   const { data: strategyMemberData, loading } = useStrategyData(accountId);
+  const { effectiveLayout } = useLayout();
   const [scrollY, setScrollY] = useState(0);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -140,35 +142,61 @@ function HomeContent() {
           <div className="h-40"></div>
 
           {/* Cards Section - will scroll behind header */}
-          <div className="relative z-10 space-y-4 mt-12">
-            <div className="container mx-auto px-4 bg-transparent max-w-4xl">
-              <AnimatedGroup
-                variants={fadeInVariants}
-                className="w-full flex justify-center"
-                delay={0.5}
-              >
-                <WebCard {...strategyMemberData} />
-              </AnimatedGroup>
-            </div>
+          <div className="relative z-10 mt-20">
+            <div className={`container mx-auto px-4 bg-transparent ${effectiveLayout === "grid" ? "max-w-8xl" : "max-w-4xl"}`}>
+              {effectiveLayout === "list" ? (
+                <div className="space-y-4">
+                  <AnimatedGroup
+                    variants={fadeInVariants}
+                    className="w-full flex justify-center"
+                    delay={0.5}
+                  >
+                    <WebCard {...strategyMemberData} />
+                  </AnimatedGroup>
 
-            <div className="container mx-auto px-4 bg-transparent max-w-4xl">
-              <AnimatedGroup
-                variants={fadeInVariants}
-                className="w-full flex justify-center"
-                delay={0.5}
-              >
-                <BrandCard />
-              </AnimatedGroup>
-            </div>
+                  <AnimatedGroup
+                    variants={fadeInVariants}
+                    className="w-full flex justify-center"
+                    delay={0.5}
+                  >
+                    <BrandCard />
+                  </AnimatedGroup>
 
-            <div className="container mx-auto px-4 bg-transparent max-w-4xl">
-              <AnimatedGroup
-                variants={fadeInVariants}
-                className="w-full flex justify-center"
-                delay={0.5}
-              >
-                <SMCard />
-              </AnimatedGroup>
+                  <AnimatedGroup
+                    variants={fadeInVariants}
+                    className="w-full flex justify-center"
+                    delay={0.5}
+                  >
+                    <SMCard />
+                  </AnimatedGroup>
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-4 justify-start">
+                  <AnimatedGroup
+                    variants={fadeInVariants}
+                    className="flex-shrink-0 w-[calc(50%-0.5rem)]"
+                    delay={0.5}
+                  >
+                    <WebCard {...strategyMemberData} />
+                  </AnimatedGroup>
+
+                  <AnimatedGroup
+                    variants={fadeInVariants}
+                    className="flex-shrink-0 w-[calc(50%-0.5rem)]"
+                    delay={0.5}
+                  >
+                    <BrandCard />
+                  </AnimatedGroup>
+
+                  <AnimatedGroup
+                    variants={fadeInVariants}
+                    className="flex-shrink-0 w-[calc(50%-0.5rem)]"
+                    delay={0.5}
+                  >
+                    <SMCard />
+                  </AnimatedGroup>
+                </div>
+              )}
             </div>
 
             {/* Extra space at bottom for better scroll experience */}

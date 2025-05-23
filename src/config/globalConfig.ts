@@ -9,7 +9,8 @@ export const globalConfig = {
     dotGridBackground: true,
     clientSideDataFetching: true,
     churchWelcome: true,
-    accountManager: true
+    accountManager: true,
+    layoutToggle: true
   },
   dropbox: {
     devMode: true, // Set to false in production

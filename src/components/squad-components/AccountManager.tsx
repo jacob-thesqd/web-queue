@@ -2,6 +2,7 @@ import AvatarComponent from '@/components/ui/comp-412';
 import { useAccountManagerData } from '@/hooks/useAccountManagerData';
 import { Skeleton } from "@/components/ui/skeleton";
 import CalendlyDialog from '@/components/ui/CalendlyDialog';
+import { PersonStanding } from "lucide-react";
 
 interface AccountManagerProps {
   accountNumber: number;
@@ -63,7 +64,7 @@ export default function AccountManager({ accountNumber }: AccountManagerProps) {
 
   // Use fallback profile pictures if none are available
   const fallbackPictures = [
-    "/public/squad-logo.svg",
+    <PersonStanding className="w-5 h-5" />,
   ];
 
   return (

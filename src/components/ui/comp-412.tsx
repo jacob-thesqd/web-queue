@@ -1,15 +1,14 @@
+import { PersonStanding } from "lucide-react"
+
 interface AvatarComponentProps {
-  profilePictures?: string[];
+  profilePictures?: (string | React.ReactNode)[];
   displayText?: string;
   displayContent?: React.ReactNode;
 }
 
 export default function AvatarComponent({ 
   profilePictures = [
-    "/avatar-80-03.jpg",
-    "/avatar-80-04.jpg", 
-    "/avatar-80-05.jpg",
-    "/avatar-80-06.jpg"
+    <PersonStanding className="w-4 h-4" />,
   ],
   displayText = "No account manager found",
   displayContent
@@ -17,15 +16,23 @@ export default function AvatarComponent({
   return (
     <div className="bg-background flex items-center rounded-full border py-1 px-1.5 shadow-sm h-10">
       <div className="flex -space-x-1.5">
-        {profilePictures.map((src, index) => (
-          <img
+        {profilePictures.map((item, index) => (
+          <div
             key={index}
-            className="ring-background rounded-full ring-1"
-            src={src}
-            width={30}
-            height={30}
-            alt={`Avatar ${index + 1}`}
-          />
+            className="ring-background rounded-full ring-1 w-[30px] h-[30px] flex items-center justify-center"
+          >
+            {typeof item === 'string' ? (
+              <img
+                className="rounded-full w-full h-full object-cover"
+                src={item}
+                width={30}
+                height={30}
+                alt={`Avatar ${index + 1}`}
+              />
+            ) : (
+              item
+            )}
+          </div>
         ))}
       </div>
       <p className="text-muted-foreground px-2 text-xs">

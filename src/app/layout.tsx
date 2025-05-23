@@ -4,6 +4,8 @@ import "./globals.css";
 import { siteConfig } from "@/config/site";
 import { globalConfig } from "@/config/globalConfig";
 import Image from "next/image";
+import SettingsComponent from "@/components/shared/Settings";
+import { LayoutProvider } from "@/hooks/use-layout";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -24,16 +26,21 @@ export default function RootLayout({
         <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
       </head>
       <body className="min-h-screen bg-background font-sans antialiased">
-        <div className="fixed top-4 right-4 z-50">
-          <Image 
-            src="/squad-logo.svg" 
-            alt="Squad Logo" 
-            width={48} 
-            height={48} 
-            priority
-          />
-        </div>
-        {children}
+        <LayoutProvider>
+          <div className="fixed top-4 left-4 z-[60] pointer-events-auto">
+            <SettingsComponent />
+          </div>
+          <div className="fixed top-4 right-4 z-50">
+            <Image 
+              src="/squad-logo.svg" 
+              alt="Squad Logo" 
+              width={48} 
+              height={48} 
+              priority
+            />
+          </div>
+          {children}
+        </LayoutProvider>
       </body>
     </html>
   );
