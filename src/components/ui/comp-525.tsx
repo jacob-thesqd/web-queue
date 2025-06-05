@@ -100,7 +100,7 @@ export default function MilestoneStepperComponent({
               step={step}
               className="relative items-start not-last:flex-1"
             >
-              <StepperTrigger className="items-start rounded pb-8 last:pb-0">
+                             <StepperTrigger className="items-start rounded pb-8 last:pb-0 pointer-events-none">
                 <StepperIndicator />
                 <div className="mt-0.5 px-3 text-left min-w-0 flex-1">
                   <StepperTitle className="whitespace-nowrap overflow-hidden text-ellipsis">{title}</StepperTitle>
@@ -121,7 +121,7 @@ export default function MilestoneStepperComponent({
                   step={step}
                   className="max-md:items-start flex-shrink-0 min-w-0"
                 >
-                  <div className="gap-4 rounded max-md:flex-col bg-white border border-gray-200 shadow-sm p-4 h-24 relative flex items-start min-w-0 w-full">
+                                     <div className="gap-4 rounded max-md:flex-col bg-white border border-gray-200 shadow-sm p-4 h-24 relative flex items-start min-w-0 w-full pointer-events-none">
                     <div className="text-center md:text-left mr-10 min-w-0 flex-1">
                       <StepperTitle className="mb-2 break-words whitespace-normal max-w-[16ch] hyphens-auto text-sm">
                         {title || `[DEBUG: Missing title for step ${step}]`}
