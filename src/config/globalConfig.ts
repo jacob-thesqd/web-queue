@@ -12,7 +12,14 @@ export const globalConfig = {
     accountManager: true,
     layoutToggle: true,
     customScrollbar: true,
-    milestoneTracking: true
+    milestoneTracking: true,
+    airtableMilestoneStepper: true, // Enable Airtable data source for milestone stepper
+    airtableQueueNumber: true // Enable Airtable queue number integration
+  },
+  airtable: {
+    cacheDuration: 60 * 60 * 1000, // 1 hour in milliseconds
+    retryAttempts: 3, // Number of retry attempts for failed requests
+    timeoutMs: 10000 // Request timeout in milliseconds
   },
   dropbox: {
     devMode: true, // Set to false in production

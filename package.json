@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@floating-ui/react": "^0.27.8",
     "@headless-tree/core": "^1.0.1",
     "@headless-tree/react": "^1.0.1",
     "@radix-ui/react-accordion": "^1.2.11",
@@ -20,6 +21,8 @@
     "@radix-ui/react-scroll-area": "^1.2.9",
     "@radix-ui/react-slot": "^1.2.3",
     "@supabase/supabase-js": "^2.49.7",
+    "@types/airtable": "^0.10.5",
+    "airtable": "^0.12.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dropbox": "^10.34.0",
@@ -31,7 +34,6 @@
     "react": "^19.0.0",
     "react-calendly": "^4.3.1",
     "react-dom": "^19.0.0",
-    "@floating-ui/react": "^0.27.8",
     "tailwind-merge": "^3.3.0",
     "tailwindcss-animate": "^1.0.7"
   },

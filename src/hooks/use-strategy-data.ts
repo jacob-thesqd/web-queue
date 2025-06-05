@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StrategyMemberData } from '@/lib/supabase/getStrategyMemberData';
-import { fetchStrategyMemberData } from '@/api/supabase';
+import { fetchStrategyMember } from '@/lib/api-helpers';
 
 // Create a cache object to store data
 const dataCache: Record<string, StrategyMemberData> = {};
@@ -11,17 +11,16 @@ export function useStrategyData(accountId?: string) {
   
   useEffect(() => {
     async function fetchData() {
-      // Check if data is already in cache
-      if (accountId && dataCache[accountId]) {
-        setMemberData(dataCache[accountId]);
-        setLoading(false);
-        return;
-      }
+      // Check if data is already in cache - TEMPORARILY DISABLED FOR TESTING
+      // if (accountId && dataCache[accountId]) {
+      //   setMemberData(dataCache[accountId]);
+      //   setLoading(false);
+      //   return;
+      // }
       
       try {
         setLoading(true);
-        
-        const data = await fetchStrategyMemberData(accountId);
+        const data = await fetchStrategyMember(accountId);
         
         if (data) {
           setMemberData(data);

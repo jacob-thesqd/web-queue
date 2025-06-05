@@ -7,19 +7,17 @@ import {
   StepperTitle,
   StepperTrigger,
 } from "@/components/ui/stepper"
+import { Skeleton } from "@/components/ui/skeleton"
 import React from "react"
-
-interface MilestoneStep {
-  step: number;
-  title: string;
-  description: string;
-}
+import { MilestoneStep } from "@/api/airtable"
+import { useTaskTemplates } from "@/hooks/useTaskTemplates"
 
 interface MilestoneStepperComponentProps {
   steps?: MilestoneStep[];
   currentStep?: number;
   loading?: boolean;
   mode?: 'grid' | 'list';
+  useAirtable?: boolean; // New prop to enable Airtable data fetching
 }
 
 const defaultSteps: MilestoneStep[] = [
@@ -41,47 +39,50 @@ const defaultSteps: MilestoneStep[] = [
 ];
 
 export default function MilestoneStepperComponent({ 
-  steps = defaultSteps, 
+  steps: externalSteps, 
   currentStep = 2,
-  loading = false,
-  mode = 'list'
+  loading: externalLoading = false,
+  mode = 'list',
+  useAirtable = false
 }: MilestoneStepperComponentProps) {
+  
+  // Conditionally use Airtable data if enabled
+  const airtableData = useAirtable ? useTaskTemplates() : { steps: [], loading: false, error: null };
+  
+  const steps = useAirtable ? airtableData.steps : (externalSteps || defaultSteps);
+  const loading = useAirtable ? airtableData.loading : externalLoading;
   
   const isGridMode = mode === 'grid';
   
+  // Show error state if Airtable fails to load
+  if (useAirtable && airtableData.error && !loading) {
+    return (
+      <div className="text-center p-4 text-red-600">
+        <p>Failed to load task templates from Airtable</p>
+        <p className="text-sm text-gray-500 mt-1">{airtableData.error}</p>
+      </div>
+    );
+  }
+  
   if (loading) {
     return (
-      <div className={`${isGridMode ? 'space-y-2' : 'space-y-8'} text-center w-full ${isGridMode ? 'max-w-xs' : 'max-w-4xl'} mx-auto`}>
+      <div className={`${isGridMode ? 'space-y-2' : 'space-y-4'} ${isGridMode ? 'text-left' : 'text-center'} w-full ${isGridMode ? 'max-w-sm' : 'max-w-4xl'} ${isGridMode ? 'mx-0' : 'mx-auto'} ml-2`}>
         {isGridMode ? (
           <div className="space-y-2">
             {[1, 2, 3].map((index) => (
-              <div key={index} className="w-full">
-                <div className="gap-2 rounded bg-white border border-gray-200 shadow-sm p-2 animate-pulse flex items-center">
-                  <div className="w-3 h-3 bg-gray-200 rounded-full flex-shrink-0"></div>
-                  <div className="flex-1 text-left">
-                    <div className="h-2 bg-gray-200 rounded w-16 mb-1"></div>
-                  </div>
-                </div>
+              <div key={index} className="flex items-center gap-3">
+                <Skeleton className="w-3 h-3 rounded-full flex-shrink-0" />
+                <Skeleton className="h-4 w-24" />
               </div>
             ))}
           </div>
         ) : (
-          <div className="w-full flex justify-between items-center">
+          <div className="flex justify-between items-center gap-4">
             {[1, 2, 3].map((_, index) => (
-              <div key={index} className="flex items-center">
-                <div className="max-md:items-start flex-shrink-0">
-                  <div className="gap-4 rounded max-md:flex-col bg-white border border-gray-200 shadow-sm p-4 animate-pulse">
-                    <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-                    <div className="text-center md:-order-1 md:text-left">
-                      <div className="h-4 bg-gray-200 rounded w-20 mb-2"></div>
-                      <div className="h-3 bg-gray-200 rounded w-32 max-sm:hidden"></div>
-                    </div>
-                  </div>
-                </div>
-                {index < 2 && (
-                  <div className="flex-1 mx-4 h-px bg-gray-200"></div>
-                )}
-              </div>
+              <React.Fragment key={index}>
+                <Skeleton className="h-24 flex-1 min-w-0" />
+                {index < 2 && <div className="w-8" />}
+              </React.Fragment>
             ))}
           </div>
         )}
