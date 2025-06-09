@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fillout/api": "^1.5.0",
     "@floating-ui/react": "^0.27.8",
     "@headless-tree/core": "^1.0.1",
     "@headless-tree/react": "^1.0.1",

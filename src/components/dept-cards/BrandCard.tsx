@@ -32,7 +32,7 @@ export default function BrandCard(
             </h2>
           </AccordionTrigger>
           <AccordionContent>
-            <BookmarkLink />
+            <BookmarkLink memberData={memberData} />
           </AccordionContent>
         </AccordionItem>
 

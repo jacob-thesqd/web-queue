@@ -99,7 +99,7 @@ export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
             </h2>
           </AccordionTrigger>
           <AccordionContent>
-            <BookmarkLink />
+            <BookmarkLink memberData={memberData} />
           </AccordionContent>
         </AccordionItem>
 
