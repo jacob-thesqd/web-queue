@@ -37,10 +37,7 @@ h1 {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-image: 
-    radial-gradient(circle, rgba(0, 0, 0, 0.1) 1px, transparent 1px),
-    linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5)),
-    url('/bg-gradient-2.jpeg');
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
   background-size: 20px 20px, cover, cover;
   background-position: 0 0, center center, center center;
   background-repeat: repeat, no-repeat, no-repeat;
