@@ -1,6 +1,6 @@
 import { Card, CardHeader } from "@/components/ui/card";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
-import Component from "@/components/ui/comp-552";
+import SocialMediaUploader from "@/components/ui/SocialMediaUploader";
 import { Button } from "@/components/ui/button";
 import { StrategyMemberData } from "@/lib/supabase/getStrategyMemberData";
 
@@ -20,7 +20,7 @@ export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
         Upload photos from Sunday
       </h2>
       <div className="px-8 py-2 max-w-4xl mx-auto">
-        <Component />
+        <SocialMediaUploader accountNumber={memberData.account} />
       </div>
       <Accordion type="single" collapsible className="px-12 mt-4">
         <AccordionItem value="item-1">

@@ -29,12 +29,11 @@ const bookmarkItems: BookmarkItem[] = [
 
 export default function BookmarkLink() {
   return (
-    <div className="flex h-full flex-col gap-4">
-      
+    <div className="flex h-full flex-col gap-4">      
       {bookmarkItems.map((item, index) => (
-        <div key={index} className="flex flex-col gap-2 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors rounded-md p-2">
+        <div key={index} className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <h3 className="font-medium text-[14px]">{item.name}</h3>
+            <h3 className="font-[9px] font-sm">{item.name}</h3>
             <Button 
               variant="outline" 
               size="sm"

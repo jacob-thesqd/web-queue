@@ -13,6 +13,7 @@ interface UploadOptions {
   onProgress?: (fileId: string, progress: number) => void;
   onComplete?: (fileId: string, filePath: string) => void;
   onError?: (fileId: string, error: string) => void;
+  accountNumber?: number; // Optional account number for social media uploads
 }
 
 export const useDropboxUpload = (options?: UploadOptions) => {
@@ -35,6 +36,18 @@ export const useDropboxUpload = (options?: UploadOptions) => {
           // Create a safe file name for HTTP headers
           const fileName = file.name;
           formData.append('fileName', fileName);
+          
+          // Add account number if provided (for social media uploads)
+          console.log('🔍 Upload Hook Debug:');
+          console.log('- Options account number:', options?.accountNumber);
+          console.log('- Will append account number:', !!options?.accountNumber);
+          
+          if (options?.accountNumber) {
+            formData.append('accountNumber', options.accountNumber.toString());
+            console.log('- Account number appended to form data:', options.accountNumber.toString());
+          } else {
+            console.log('- No account number provided to upload hook');
+          }
 
           // Set up upload with progress tracking
           const xhr = new XMLHttpRequest();

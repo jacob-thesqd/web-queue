@@ -14,7 +14,8 @@ export const globalConfig = {
     customScrollbar: true,
     milestoneTracking: true,
     airtableMilestoneStepper: true, // Enable Airtable data source for milestone stepper
-    airtableQueueNumber: true // Enable Airtable queue number integration
+    airtableQueueNumber: true, // Enable Airtable queue number integration
+    socialMediaUploader: true // Enable social media uploader with dynamic Dropbox paths
   },
   airtable: {
     cacheDuration: 60 * 60 * 1000, // 1 hour in milliseconds
@@ -22,10 +23,31 @@ export const globalConfig = {
     timeoutMs: 10000 // Request timeout in milliseconds
   },
   dropbox: {
-    devMode: true, // Set to false in production
+    devMode: false, // Set to false in production
     devModeDBPath: "/Church Media Company Team Folder/2. Client Accounts/306 - Bogus Summit Sanctuary",
     productionPath: "/Church Media Company Team Folder/2. Client Accounts/306 - Bogus Summit Sanctuary",
     chunkSize: 149 * 1024 * 1024, // 149 MB chunks
     maxRetries: 3 // Number of retries for 409 errors
+  },
+  socialMediaUploader: {
+    enabled: true, // Master toggle for social media uploader
+    showDestinationInfo: false, // Show the blue upload destination info box
+    showChurchName: false, // Show church name in upload destination
+    showQueuePosition: true, // Show queue position in upload info
+    showUploadPath: false, // Show full upload path to user
+    customUploadText: "Drop your Sunday photos here", // Custom text for upload area
+    customButtonText: "Select photos", // Custom text for file selection button
+    showSuccessDetails: true, // Show detailed success message with destination
+    showFilePreview: true, // Show file previews in upload area
+    maxFileSizeMB: 20, // Maximum file size in MB
+    maxFiles: 50, // Maximum number of files per upload
+    autoDateFolder: true, // Automatically create date-based folders
+    dateFormat: "YYYY-MM-DD", // Date format for folder creation
+    targetSubfolder: "1. Client Assets/Sunday Photos", // Subfolder path within client directory
+    allowedFileTypes: ["image/jpeg", "image/png", "image/webp", "image/heic"], // Allowed file types
+    enforceFileTypeRestriction: false, // Strictly enforce file type restrictions
+    showFileSizeInUI: true, // Show max file size info in UI
+    showDebugLogs: true, // Show debug logs in console
+    fallbackToGlobalPath: false // Whether to fall back to global path if account lookup fails
   }
 }; 
