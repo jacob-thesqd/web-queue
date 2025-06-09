@@ -55,4 +55,17 @@ export function getDepartmentCardVisibility(department: string | null): Departme
  */
 export function hasVisibleCards(visibility: DepartmentCardVisibility): boolean {
   return visibility.showWebCard || visibility.showBrandCard || visibility.showSMCard;
+}
+
+/**
+ * Counts the number of visible cards
+ * @param visibility The visibility object
+ * @returns The number of cards that should be shown
+ */
+export function countVisibleCards(visibility: DepartmentCardVisibility): number {
+  let count = 0;
+  if (visibility.showWebCard) count++;
+  if (visibility.showBrandCard) count++;
+  if (visibility.showSMCard) count++;
+  return count;
 } 

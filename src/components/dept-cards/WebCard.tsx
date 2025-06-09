@@ -110,20 +110,14 @@ export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
             </h2>
           </AccordionTrigger>
           <AccordionContent>
-            <div className="flex items-left justify-between gap-4 py-1 px-2 rounded">
-              <div className="text-sm text-gray-600 italic ml-4">
-                Terms & Conditions
-              </div>
+            <div className="flex items-left justify-between gap-4 py-1 rounded">
               <Button
-                variant="outline"
-                size="sm"
                 className="w-fit flex-shrink-0"
                 onClick={() => {
-                  // Handle navigation or action
-                  console.log(`Navigate to`);
+                  window.open(globalConfig.termsUrl, '_blank');
                 }}
               >
-                View →
+                Click here to view our T&Cs <span className="text-[14px] font-bold">→</span>
               </Button>
             </div>
           </AccordionContent>

@@ -43,7 +43,7 @@ export default function BookmarkLink() {
                 console.log(`Navigate to: ${item.link}`)
               }}
             >
-              View →
+              View <span className="text-[14px] font-bold">→</span>
             </Button>
           </div>
         </div>

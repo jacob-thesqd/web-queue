@@ -66,7 +66,11 @@ function CustomDialogContent({
   )
 }
 
-export default function SettingsComponent() {
+interface SettingsComponentProps {
+  visibleCardCount?: number;
+}
+
+export default function SettingsComponent({ visibleCardCount = 3 }: SettingsComponentProps) {
   const id = useId()
   const [open, setOpen] = useState(false)
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -87,6 +91,11 @@ export default function SettingsComponent() {
 
   // Hide settings button if no options are available (i.e., on mobile where only list is available)
   if (isMobile) {
+    return null
+  }
+  
+  // Hide settings button if only 1 card is showing (only layout toggle available, but limited usefulness)
+  if (visibleCardCount === 1) {
     return null
   }
   

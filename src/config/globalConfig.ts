@@ -3,6 +3,7 @@ export const globalConfig = {
   faviconPath: "/squad-logo.svg",
   siteTitle: "Strategy Squad Manager",
   fontFamily: "CalSans",
+  termsUrl: "https://churchmediasquad.com/terms-of-service",
   components: {
     header: true,
     logo: true,
@@ -16,7 +17,7 @@ export const globalConfig = {
     airtableMilestoneStepper: true, // Enable Airtable data source for milestone stepper
     airtableQueueNumber: true, // Enable Airtable queue number integration
     socialMediaUploader: true, // Enable social media uploader with dynamic Dropbox paths
-    airtableDepartmentFiltering: false // Temporarily disabled for debugging
+    airtableDepartmentFiltering: true // Enable department-based card filtering
   },
   airtable: {
     cacheDuration: 60 * 60 * 1000, // 1 hour in milliseconds

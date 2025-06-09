@@ -35,7 +35,7 @@ export default function SMCard(memberData: Partial<StrategyMemberData> = {}) {
             </p>
             <Button className="mt-4" asChild>
                 <a href="https://vistasocial.com/login" target="_blank" rel="noopener noreferrer">
-                  Login
+                  Login <span className="text-[14px] font-bold">→</span>
                 </a>
               </Button>
           </AccordionContent>

@@ -15,8 +15,9 @@ import { useStrategyData } from "@/hooks/use-strategy-data";
 import AccountManager from "@/components/squad-components/AccountManager";
 import { useLayout } from "@/hooks/use-layout";
 import { useAirtableDepartment } from "@/hooks/useAirtableDepartment";
-import { getDepartmentCardVisibility, hasVisibleCards } from "@/lib/departmentUtils";
+import { getDepartmentCardVisibility, hasVisibleCards, countVisibleCards } from "@/lib/departmentUtils";
 import { globalConfig } from "@/config/globalConfig";
+import SettingsComponent from "@/components/shared/Settings";
 
 // Create a cache object to store data
 const dataCache: Record<string, StrategyMemberData> = {};
@@ -93,9 +94,16 @@ function HomeContent() {
 
   // Check if we're still loading any required data
   const isLoading = loading || (globalConfig.components.airtableDepartmentFiltering && departmentLoading);
+  
+  // Calculate the number of visible cards
+  const visibleCardCount = countVisibleCards(cardVisibility);
 
   return (
     <div className="min-h-screen bg-transparent">
+      {/* Settings Component - positioned fixed */}
+      <div className="fixed top-4 left-4 z-[60] pointer-events-auto">
+        <SettingsComponent visibleCardCount={visibleCardCount} />
+      </div>
       {isLoading ? (
         siteConfig.features.skeletonLoading ? (
           <div className="container mx-auto px-4 py-20 bg-transparent max-w-4xl z-50">

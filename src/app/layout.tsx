@@ -4,7 +4,7 @@ import "./globals.css";
 import { siteConfig } from "@/config/site";
 import { globalConfig } from "@/config/globalConfig";
 import Image from "next/image";
-import SettingsComponent from "@/components/shared/Settings";
+
 import { LayoutProvider } from "@/hooks/use-layout";
 import { CustomScrollbarProvider } from "@/components/providers/CustomScrollbarProvider";
 
@@ -30,9 +30,6 @@ export default function RootLayout({
         <CustomScrollbarProvider />
         <div className="fixed-dot-grid-background" />
         <LayoutProvider>
-          <div className="fixed top-4 left-4 z-[60] pointer-events-auto">
-            <SettingsComponent />
-          </div>
           <div className="fixed top-4 right-4 z-50">
             <Image 
               src="/squad-logo.svg" 
