@@ -35,6 +35,15 @@ export function getDepartmentCardVisibility(department: string | null): Departme
     };
   }
 
+  // If contains "Strategy" then show all 3 cards
+  if (deptLower.includes('strategy')) {
+    return {
+      showWebCard: true,
+      showBrandCard: true,
+      showSMCard: true
+    };
+  }
+
   // Otherwise, check individual department conditions
   return {
     // If contains "Social" but not "Strategy" then show SMCard

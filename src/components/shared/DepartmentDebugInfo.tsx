@@ -41,6 +41,7 @@ export default function DepartmentDebugInfo({ accountNumber, showDebug = false }
         <div className="mt-2 text-gray-300">
           <p className="text-[10px]">Rules:</p>
           <p className="text-[10px]">• "All-In" → Show all cards</p>
+          <p className="text-[10px]">• "Strategy" → Show all cards</p>
           <p className="text-[10px]">• "Social" (no "Strategy") → SM Card</p>
           <p className="text-[10px]">• "Brand" (no "All-In") → Brand Card</p>
           <p className="text-[10px]">• "Web" (no "All-In") → Web Card</p>
