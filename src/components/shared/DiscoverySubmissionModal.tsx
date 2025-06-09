@@ -378,7 +378,7 @@ export default function DiscoverySubmissionModal({
           {submission?.editLink && (
             <Button asChild>
               <a
-                href={submission.editLink}
+                href={submission.editLink + '?editing=true'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2"
