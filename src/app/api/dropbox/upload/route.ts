@@ -9,6 +9,94 @@ function getTodaysDate(): string {
   return new Date().toISOString().split('T')[0];
 }
 
+/**
+ * Helper function to create Airtable upload record after successful Dropbox upload
+ * This function:
+ * 1. Finds the Account record in Airtable by Member # 
+ * 2. Creates a new record in the uploads table (tblOOAiWm98GlyAO5) with:
+ *    - Account: linked record to the account
+ *    - Upload Path: the Dropbox path where the file was uploaded
+ *    - Timestamp: current timestamp
+ * 
+ * Note: This function does not throw errors to avoid affecting upload success
+ */
+async function createAirtableUploadRecord(accountNumber: number, uploadPath: string): Promise<void> {
+  if (!globalConfig.airtable?.createUploadRecords) {
+    console.log('📋 Airtable upload record creation disabled in config');
+    return;
+  }
+
+  try {
+    console.log('📋 Creating Airtable upload record for account:', accountNumber);
+    
+    const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
+    const baseId = 'appjHSW7sGtitxoHf';
+    const accountTableId = 'tblAIXogbNPuIRMOo';  // Main accounts table
+    const uploadTableId = 'tblOOAiWm98GlyAO5';   // Upload records table
+    
+    if (!AIRTABLE_API_KEY) {
+      throw new Error('Airtable API key not configured');
+    }
+
+    // First, find the Account record ID by Member #
+    const accountUrl = `https://api.airtable.com/v0/${baseId}/${accountTableId}`;
+    const filterFormula = `{Member #} = ${accountNumber}`;
+    
+    const accountResponse = await fetch(`${accountUrl}?filterByFormula=${encodeURIComponent(filterFormula)}`, {
+      headers: {
+        'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      }
+    });
+
+    if (!accountResponse.ok) {
+      throw new Error(`Failed to find account record: ${accountResponse.statusText}`);
+    }
+
+    const accountData = await accountResponse.json();
+    const accountRecords = accountData.records || [];
+
+    if (accountRecords.length === 0) {
+      console.log(`📭 No account record found for member ${accountNumber}, skipping upload record creation`);
+      return;
+    }
+
+    const accountRecordId = accountRecords[0].id;
+    console.log('- Found account record ID:', accountRecordId);
+
+    // Create the upload record with only the required fields: Account and Upload Path
+    const uploadUrl = `https://api.airtable.com/v0/${baseId}/${uploadTableId}`;
+    const recordData = {
+      fields: {
+        'Account': [accountRecordId],        // Linked record field
+        'Upload Path': uploadPath,           // Text field with Dropbox path
+        'Timestamp': new Date().toISOString(), // Additional timestamp for reference
+      }
+    };
+
+    const uploadResponse = await fetch(uploadUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(recordData)
+    });
+
+    if (!uploadResponse.ok) {
+      const errorText = await uploadResponse.text();
+      throw new Error(`Failed to create upload record: ${uploadResponse.statusText} - ${errorText}`);
+    }
+
+    const uploadResult = await uploadResponse.json();
+    console.log('✅ Created Airtable upload record:', uploadResult.id);
+
+  } catch (error) {
+    console.error('❌ Error creating Airtable upload record:', error);
+    // Don't throw the error - we don't want Airtable failures to affect file upload success
+  }
+}
+
 // Helper function to fetch dropbox path from Airtable using our generic account API
 async function fetchDropboxPathFromAirtable(accountNumber: number): Promise<string | null> {
   try {
@@ -179,6 +267,11 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await response.json();
+    
+    // Create Airtable upload record if account number is provided
+    if (accountNumber) {
+      await createAirtableUploadRecord(parseInt(accountNumber), data.path_display);
+    }
     
     return NextResponse.json({
       success: true,

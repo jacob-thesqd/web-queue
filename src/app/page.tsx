@@ -14,6 +14,9 @@ import BrandCard from "@/components/dept-cards/BrandCard";
 import { useStrategyData } from "@/hooks/use-strategy-data";
 import AccountManager from "@/components/squad-components/AccountManager";
 import { useLayout } from "@/hooks/use-layout";
+import { useAirtableDepartment } from "@/hooks/useAirtableDepartment";
+import { getDepartmentCardVisibility, hasVisibleCards } from "@/lib/departmentUtils";
+import { globalConfig } from "@/config/globalConfig";
 
 // Create a cache object to store data
 const dataCache: Record<string, StrategyMemberData> = {};
@@ -26,6 +29,17 @@ function HomeContent() {
   const [scrollY, setScrollY] = useState(0);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Fetch department data from Airtable if department filtering is enabled
+  const { department, loading: departmentLoading, error: departmentError } = useAirtableDepartment(
+    globalConfig.components.airtableDepartmentFiltering && strategyMemberData?.account ? 
+      strategyMemberData.account : undefined
+  );
+
+  // Determine which cards should be visible based on department
+  const cardVisibility = globalConfig.components.airtableDepartmentFiltering ? 
+    getDepartmentCardVisibility(department) : 
+    { showWebCard: true, showBrandCard: true, showSMCard: true }; // Show all if filtering disabled
 
   useEffect(() => {
     const handleScroll = () => {
@@ -77,9 +91,12 @@ function HomeContent() {
   const headerBlur = scrollPercentage > 25 ? Math.min(10, (scrollPercentage - 25) / 5) : 0;
   const headerTranslateY = !isHeaderVisible ? -100 : Math.min(0, -scrollY * 0.3);
 
+  // Check if we're still loading any required data
+  const isLoading = loading || (globalConfig.components.airtableDepartmentFiltering && departmentLoading);
+
   return (
     <div className="min-h-screen bg-transparent">
-      {loading ? (
+      {isLoading ? (
         siteConfig.features.skeletonLoading ? (
           <div className="container mx-auto px-4 py-20 bg-transparent max-w-4xl z-50">
             <div className="w-full flex flex-col items-center">
@@ -144,57 +161,85 @@ function HomeContent() {
           {/* Cards Section - will scroll behind header */}
           <div className="relative z-10 mt-20">
             <div className={`container mx-auto px-4 bg-transparent ${effectiveLayout === "grid" ? "max-w-8xl" : "max-w-4xl"}`}>
+              {/* Show error message if department filtering is enabled but there's an error */}
+              {globalConfig.components.airtableDepartmentFiltering && departmentError && (
+                <div className="text-center text-red-500 py-8">
+                  <p>Error loading department data: {departmentError}</p>
+                </div>
+              )}
+
+              {/* Show message if no cards should be visible */}
+              {globalConfig.components.airtableDepartmentFiltering && !hasVisibleCards(cardVisibility) && !departmentError && (
+                <div className="text-center text-gray-500 py-8">
+                  <p>No department cards available for your current configuration.</p>
+                  {department && <p className="text-sm mt-2">Department: {department}</p>}
+                </div>
+              )}
+
+              {/* Render cards based on layout and visibility */}
               {effectiveLayout === "list" ? (
                 <div className="space-y-4">
-                  <AnimatedGroup
-                    variants={fadeInVariants}
-                    className="w-full flex justify-center"
-                    delay={0.5}
-                  >
-                    <WebCard {...strategyMemberData} />
-                  </AnimatedGroup>
+                  {cardVisibility.showWebCard && (
+                    <AnimatedGroup
+                      variants={fadeInVariants}
+                      className="w-full flex justify-center"
+                      delay={0.5}
+                    >
+                      <WebCard {...strategyMemberData} />
+                    </AnimatedGroup>
+                  )}
 
-                  <AnimatedGroup
-                    variants={fadeInVariants}
-                    className="w-full flex justify-center"
-                    delay={0.5}
-                  >
-                    <BrandCard />
-                  </AnimatedGroup>
+                  {cardVisibility.showBrandCard && (
+                    <AnimatedGroup
+                      variants={fadeInVariants}
+                      className="w-full flex justify-center"
+                      delay={0.5}
+                    >
+                      <BrandCard />
+                    </AnimatedGroup>
+                  )}
 
-                  <AnimatedGroup
-                    variants={fadeInVariants}
-                    className="w-full flex justify-center"
-                    delay={0.5}
-                  >
-                    <SMCard />
-                  </AnimatedGroup>
+                  {cardVisibility.showSMCard && (
+                    <AnimatedGroup
+                      variants={fadeInVariants}
+                      className="w-full flex justify-center"
+                      delay={0.5}
+                    >
+                      <SMCard />
+                    </AnimatedGroup>
+                  )}
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-4 justify-start">
-                  <AnimatedGroup
-                    variants={fadeInVariants}
-                    className="flex-shrink-0 w-[calc(50%-0.5rem)]"
-                    delay={0.5}
-                  >
-                    <WebCard {...strategyMemberData} />
-                  </AnimatedGroup>
+                  {cardVisibility.showWebCard && (
+                    <AnimatedGroup
+                      variants={fadeInVariants}
+                      className="flex-shrink-0 w-[calc(50%-0.5rem)]"
+                      delay={0.5}
+                    >
+                      <WebCard {...strategyMemberData} />
+                    </AnimatedGroup>
+                  )}
 
-                  <AnimatedGroup
-                    variants={fadeInVariants}
-                    className="flex-shrink-0 w-[calc(50%-0.5rem)]"
-                    delay={0.5}
-                  >
-                    <BrandCard />
-                  </AnimatedGroup>
+                  {cardVisibility.showBrandCard && (
+                    <AnimatedGroup
+                      variants={fadeInVariants}
+                      className="flex-shrink-0 w-[calc(50%-0.5rem)]"
+                      delay={0.5}
+                    >
+                      <BrandCard />
+                    </AnimatedGroup>
+                  )}
 
-                  <AnimatedGroup
-                    variants={fadeInVariants}
-                    className="flex-shrink-0 w-[calc(50%-0.5rem)]"
-                    delay={0.5}
-                  >
-                    <SMCard />
-                  </AnimatedGroup>
+                  {cardVisibility.showSMCard && (
+                    <AnimatedGroup
+                      variants={fadeInVariants}
+                      className="flex-shrink-0 w-[calc(50%-0.5rem)]"
+                      delay={0.5}
+                    >
+                      <SMCard />
+                    </AnimatedGroup>
+                  )}
                 </div>
               )}
             </div>

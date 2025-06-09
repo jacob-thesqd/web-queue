@@ -16,6 +16,7 @@ import {
   UploadIcon,
   VideoIcon,
   XIcon,
+  LockIcon,
 } from "lucide-react"
 
 import {
@@ -26,6 +27,7 @@ import { useDropboxUpload } from "@/hooks/use-dropbox-upload"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { useAirtableAccountData } from "@/hooks/useAirtableAccountData"
+import { useAirtableSundayPhotos } from "@/hooks/useAirtableSundayPhotos"
 import { globalConfig } from "@/config/globalConfig"
 
 // Create some dummy initial files
@@ -144,6 +146,15 @@ export default function SocialMediaUploader({ accountNumber: propAccountNumber }
     error: pathError 
   } = useAirtableAccountData(accountNumber);
 
+  // Check if Sunday photos have already been uploaded this week
+  const { 
+    sundayPhotosUploaded, 
+    loading: sundayPhotosLoading, 
+    error: sundayPhotosError 
+  } = useAirtableSundayPhotos(
+    globalConfig.socialMediaUploader.enableSundayPhotosLock ? accountNumber : undefined
+  );
+
   const { uploadProgress, uploadToDropbox } = useDropboxUpload({
     accountNumber, // Pass account number to the upload hook
     onProgress: (fileId, progress) => {
@@ -168,6 +179,7 @@ export default function SocialMediaUploader({ accountNumber: propAccountNumber }
     console.log('- Dropbox Path:', dropboxPath);
     console.log('- Queue Number:', queueNumber);
     console.log('- Church Name:', churchName);
+    console.log('- Sunday Photos Uploaded:', sundayPhotosUploaded);
   }
 
   const [
@@ -234,8 +246,8 @@ export default function SocialMediaUploader({ accountNumber: propAccountNumber }
     setAllUploadsComplete(false);
   }
 
-  // Show loading state if path is being fetched
-  if (pathLoading && accountNumber) {
+  // Show loading state if path or Sunday photos status is being fetched
+  if ((pathLoading || (globalConfig.socialMediaUploader.enableSundayPhotosLock && sundayPhotosLoading)) && accountNumber) {
     return (
       <div className="flex flex-col items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
@@ -253,6 +265,27 @@ export default function SocialMediaUploader({ accountNumber: propAccountNumber }
         <p className="text-xs text-gray-500 mt-1">{pathError}</p>
       </div>
     );
+  }
+
+  // Show locked state if Sunday photos have already been uploaded
+  if (globalConfig.socialMediaUploader.enableSundayPhotosLock && sundayPhotosUploaded) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="flex flex-col items-center text-center">
+          <div className="bg-orange-100 rounded-full p-2 mb-4">
+            <LockIcon className="h-4 w-4 text-orange-600" />
+          </div>
+          <p className="text-muted-foreground max-w-sm text-sm font-medium">
+            {globalConfig.socialMediaUploader.sundayPhotosLockMessage}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error for Sunday photos status (but don't block functionality)
+  if (sundayPhotosError && accountNumber) {
+    console.warn('Warning: Could not check Sunday photos status:', sundayPhotosError);
   }
 
   // Get today's date for display
@@ -416,13 +449,13 @@ export default function SocialMediaUploader({ accountNumber: propAccountNumber }
             >
               <ImageIcon className="size-4 opacity-60" />
             </div>
-            <p className="mb-1.5 text-sm font-medium">Drop your Sunday photos here</p>
+            <p className="mb-1.5 text-sm font-medium">{globalConfig.socialMediaUploader.customUploadText}</p>
             <p className="text-muted-foreground text-xs">
               Max {maxFiles} files ∙ Up to {maxSizeMB}MB each
             </p>
             <Button variant="outline" className="mt-4" onClick={openFileDialog}>
               <UploadIcon className="-ms-1 opacity-60" aria-hidden="true" />
-              Select photos
+              {globalConfig.socialMediaUploader.customButtonText}
             </Button>
           </div>
         )}

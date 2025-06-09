@@ -4,7 +4,7 @@ import SocialMediaUploader from "@/components/ui/SocialMediaUploader";
 import { Button } from "@/components/ui/button";
 import { StrategyMemberData } from "@/lib/supabase/getStrategyMemberData";
 
-export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
+export default function SMCard(memberData: Partial<StrategyMemberData> = {}) {
     return (
       <Card>
       <CardHeader>
