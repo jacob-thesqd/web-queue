@@ -5,8 +5,13 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "build:analyze": "ANALYZE=true next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "lighthouse": "lhci autorun",
+    "lighthouse:collect": "lhci collect",
+    "lighthouse:assert": "lhci assert",
+    "optimize": "npm run build && npm run lighthouse"
   },
   "dependencies": {
     "@fillout/api": "^1.5.0",
@@ -40,6 +45,8 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@lhci/cli": "^0.15.0",
+    "@next/bundle-analyzer": "^15.3.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

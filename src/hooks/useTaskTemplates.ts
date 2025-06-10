@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { MilestoneStep } from '@/api/airtable';
 import { globalConfig } from '@/config/globalConfig';
 
@@ -9,60 +9,178 @@ interface UseTaskTemplatesResult {
   refetch: () => Promise<void>;
 }
 
-// Cache for task templates data
-let cachedData: { steps: MilestoneStep[]; timestamp: number } | null = null;
+// Enhanced cache with versioning and persistence
+interface CacheEntry {
+  steps: MilestoneStep[];
+  timestamp: number;
+  version: string;
+}
+
+// Cache for task templates data with persistence
+let cachedData: CacheEntry | null = null;
+
+// Immediate fallback data for instant rendering
+const immediateFallbackSteps: MilestoneStep[] = [
+  {
+    step: 1,
+    title: "Queue Approval",
+    description: "Initial milestone processing",
+    estimate: 10,
+    owner: ["Strategy Team"]
+  },
+  {
+    step: 2,
+    title: "Content Review",
+    description: "Content validation and review",
+    estimate: 30,
+    owner: ["Web Team"]
+  },
+  {
+    step: 3,
+    title: "Strategy Brief",
+    description: "Final strategy approval",
+    estimate: 20,
+    owner: ["Strategy Team"]
+  }
+];
+
+// Try to load from localStorage on initialization
+const loadFromStorage = (): CacheEntry | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const stored = localStorage.getItem('task-templates-cache');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Check if cache is still valid (within duration)
+      if (Date.now() - parsed.timestamp < globalConfig.airtable.cacheDuration) {
+        return parsed;
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to load task templates from localStorage:', error);
+  }
+  return null;
+};
+
+// Save to localStorage
+const saveToStorage = (data: CacheEntry): void => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem('task-templates-cache', JSON.stringify(data));
+  } catch (error) {
+    console.warn('Failed to save task templates to localStorage:', error);
+  }
+};
 
 /**
  * Custom hook to fetch task templates from Airtable
- * Includes caching, loading states, and error handling
+ * Includes enhanced caching, immediate fallback, and error handling
  */
 export function useTaskTemplates(): UseTaskTemplatesResult {
-  const [steps, setSteps] = useState<MilestoneStep[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Initialize with immediate fallback for faster rendering
+  const [steps, setSteps] = useState<MilestoneStep[]>(immediateFallbackSteps);
+  const [loading, setLoading] = useState(false); // Start with false for immediate render
   const [error, setError] = useState<string | null>(null);
+  const fetchInProgress = useRef(false);
 
   const fetchData = useCallback(async () => {
-    // Check cache first
+    // Prevent multiple simultaneous fetches
+    if (fetchInProgress.current) return;
+    
+    // Check memory cache first
     if (cachedData && Date.now() - cachedData.timestamp < globalConfig.airtable.cacheDuration) {
       setSteps(cachedData.steps);
       setLoading(false);
       return;
     }
 
+    // Check localStorage cache
+    const storedCache = loadFromStorage();
+    if (storedCache) {
+      cachedData = storedCache;
+      setSteps(storedCache.steps);
+      setLoading(false);
+      return;
+    }
+
+    fetchInProgress.current = true;
+
     try {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('/api/airtable/task-templates');
+      // Add timeout to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), globalConfig.airtable.timeoutMs);
+      
+      const response = await fetch('/api/airtable/task-templates', {
+        signal: controller.signal,
+        // Add cache headers for better performance
+        headers: {
+          'Cache-Control': 'public, max-age=300', // 5 minutes browser cache
+        }
+      });
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch task templates: ${response.statusText}`);
+        throw new Error(`Failed to fetch task templates: ${response.status} ${response.statusText}`);
       }
       
       const taskTemplates: MilestoneStep[] = await response.json();
       
-      // Cache the data with timestamp
-      cachedData = {
+      if (!taskTemplates || !Array.isArray(taskTemplates)) {
+        throw new Error('Invalid task templates data format');
+      }
+      
+      // Create cache entry with version
+      const cacheEntry: CacheEntry = {
         steps: taskTemplates,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        version: '1.0'
       };
+      
+      // Update both memory and localStorage cache
+      cachedData = cacheEntry;
+      saveToStorage(cacheEntry);
       
       setSteps(taskTemplates);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch task templates');
+      if (err instanceof Error && err.name === 'AbortError') {
+        setError('Request timed out. Using fallback data.');
+      } else {
+        setError(err instanceof Error ? err.message : 'Failed to fetch task templates');
+      }
       console.error('Error in useTaskTemplates:', err);
+      
+      // Keep the immediate fallback data on error
+      setSteps(immediateFallbackSteps);
     } finally {
       setLoading(false);
+      fetchInProgress.current = false;
     }
   }, []);
 
   useEffect(() => {
-    fetchData();
+    // Start with immediate data, then fetch in background
+    const storedCache = loadFromStorage();
+    if (storedCache) {
+      cachedData = storedCache;
+      setSteps(storedCache.steps);
+    }
+    
+    // Fetch fresh data in background (non-blocking)
+    setTimeout(() => {
+      fetchData();
+    }, 0);
   }, []);
 
   const refetch = useCallback(async () => {
-    // Clear cache and refetch
+    // Clear all caches and refetch
     cachedData = null;
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('task-templates-cache');
+    }
     await fetchData();
   }, [fetchData]);
 

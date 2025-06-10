@@ -3,24 +3,66 @@
 import { StrategyMemberData } from "@/lib/supabase/getStrategyMemberData";
 import { useSearchParams } from "next/navigation";
 import { siteConfig } from "@/config/site";
-import { useEffect, useState, Suspense, useRef } from "react";
-import { AnimatedText } from "@/components/ui/animated-underline-text-one";
-import { AnimatedGroup } from "@/components/ui/animated-group";
+import { useEffect, useState, Suspense, useRef, useCallback, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { fadeInVariants } from "@/lib/animation-variants";
 import { Skeleton } from "@/components/ui/skeleton";
-import WebCard from "@/components/dept-cards/WebCard";
-import SMCard from "@/components/dept-cards/SMCard";
-import BrandCard from "@/components/dept-cards/BrandCard";
 import { useStrategyData } from "@/hooks/use-strategy-data";
-import AccountManager from "@/components/squad-components/AccountManager";
 import { useLayout } from "@/hooks/use-layout";
-import { useAirtableDepartment } from "@/hooks/useAirtableDepartment";
+import { useAirtableAccount } from "@/hooks/useAirtableAccount";
 import { getDepartmentCardVisibility, hasVisibleCards, countVisibleCards } from "@/lib/departmentUtils";
 import { globalConfig } from "@/config/globalConfig";
+
+// Critical above-the-fold components - load immediately
+import { AnimatedText } from "@/components/ui/animated-underline-text-one";
+import { AnimatedGroup } from "@/components/ui/animated-group";
+import AccountManager from "@/components/squad-components/AccountManager";
 import SettingsComponent from "@/components/shared/Settings";
 
-// Create a cache object to store data
-const dataCache: Record<string, StrategyMemberData> = {};
+// Non-critical components - lazy load with SSR
+const WebCard = dynamic(() => import("@/components/dept-cards/WebCard"), {
+  loading: () => <Skeleton className="h-32 w-full" />,
+  ssr: true
+});
+
+const SMCard = dynamic(() => import("@/components/dept-cards/SMCard"), {
+  loading: () => <Skeleton className="h-32 w-full" />,
+  ssr: true
+});
+
+const BrandCard = dynamic(() => import("@/components/dept-cards/BrandCard"), {
+  loading: () => <Skeleton className="h-32 w-full" />,
+  ssr: true
+});
+
+// Immediate content component that renders synchronously
+function ImmediateContent() {
+  return (
+    <div className="text-center text-gray-500 py-8">
+      <p>Nothing to see here yet...</p>
+    </div>
+  );
+}
+
+// Throttle function for scroll events
+const throttle = (func: Function, delay: number) => {
+  let timeoutId: NodeJS.Timeout | null = null;
+  let lastExecTime = 0;
+  return (...args: any[]) => {
+    const currentTime = Date.now();
+    
+    if (currentTime - lastExecTime > delay) {
+      func(...args);
+      lastExecTime = currentTime;
+    } else {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        func(...args);
+        lastExecTime = Date.now();
+      }, delay - (currentTime - lastExecTime));
+    }
+  };
+};
 
 function HomeContent() {
   const searchParams = useSearchParams();
@@ -29,234 +71,222 @@ function HomeContent() {
   const { effectiveLayout } = useLayout();
   const [scrollY, setScrollY] = useState(0);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [isClientReady, setIsClientReady] = useState(false);
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Fetch department data from Airtable if department filtering is enabled
-  const { department, loading: departmentLoading, error: departmentError } = useAirtableDepartment(
+  // Immediately set client ready to render content ASAP
+  useEffect(() => {
+    setIsClientReady(true);
+  }, []);
+
+  // Fetch comprehensive account data (includes department and all other data) - but don't block rendering
+  const { department, loading: accountLoading, error: accountError } = useAirtableAccount(
     globalConfig.components.airtableDepartmentFiltering && strategyMemberData?.account ? 
       strategyMemberData.account : undefined
   );
 
-  // Determine which cards should be visible based on department
-  const cardVisibility = globalConfig.components.airtableDepartmentFiltering ? 
-    getDepartmentCardVisibility(department) : 
-    { showWebCard: true, showBrandCard: true, showSMCard: true }; // Show all if filtering disabled
+  // Memoize card visibility
+  const cardVisibility = useMemo(() => {
+    return globalConfig.components.airtableDepartmentFiltering ? 
+      getDepartmentCardVisibility(department) : 
+      { showWebCard: true, showBrandCard: true, showSMCard: true };
+  }, [department]);
+
+  // Memoize visible card count
+  const visibleCardCount = useMemo(() => countVisibleCards(cardVisibility), [cardVisibility]);
+
+  // Optimized scroll handler
+  const handleScroll = useCallback(throttle(() => {
+    const currentScrollY = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+    const scrollableHeight = documentHeight - windowHeight;
+    const scrollPercentage = scrollableHeight > 0 ? (currentScrollY / scrollableHeight) * 100 : 0;
+    
+    setScrollY(currentScrollY);
+    
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+    
+    if (scrollPercentage <= 5) {
+      setIsHeaderVisible(true);
+    } else if (scrollPercentage > 25) {
+      hideTimeoutRef.current = setTimeout(() => {
+        setIsHeaderVisible(false);
+      }, 1000);
+    } else {
+      setIsHeaderVisible(true);
+    }
+  }, 16), []);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      const scrollableHeight = documentHeight - windowHeight;
-      const scrollPercentage = (currentScrollY / scrollableHeight) * 100;
-      
-      setScrollY(currentScrollY);
-      
-      // Clear any existing timeout
-      if (hideTimeoutRef.current) {
-        clearTimeout(hideTimeoutRef.current);
-        hideTimeoutRef.current = null;
-      }
-      
-      // Always show header when at the very top (0-5% scroll)
-      if (scrollPercentage <= 5) {
-        setIsHeaderVisible(true);
-      }
-      // Hide header after scrolling 25% with a 1 second delay
-      else if (scrollPercentage > 25) {
-        hideTimeoutRef.current = setTimeout(() => {
-          setIsHeaderVisible(false);
-        }, 1000);
-      } else {
-        setIsHeaderVisible(true);
-      }
-    };
-
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      // Clean up timeout on unmount
       if (hideTimeoutRef.current) {
         clearTimeout(hideTimeoutRef.current);
       }
     };
-  }, []);
+  }, [handleScroll]);
 
-  // Calculate transform values based on scroll percentage
-  const windowHeight = typeof window !== 'undefined' ? window.innerHeight : 0;
-  const documentHeight = typeof document !== 'undefined' ? document.documentElement.scrollHeight : 0;
-  const scrollableHeight = documentHeight - windowHeight;
-  const scrollPercentage = scrollableHeight > 0 ? (scrollY / scrollableHeight) * 100 : 0;
-  
-  const headerOpacity = isHeaderVisible ? Math.max(0, 1 - scrollPercentage / 30) : 0;
-  const headerBlur = scrollPercentage > 25 ? Math.min(10, (scrollPercentage - 25) / 5) : 0;
-  const headerTranslateY = !isHeaderVisible ? -100 : Math.min(0, -scrollY * 0.3);
+  // Memoize header styles
+  const headerStyles = useMemo(() => {
+    const windowHeight = typeof window !== 'undefined' ? window.innerHeight : 0;
+    const documentHeight = typeof document !== 'undefined' ? document.documentElement.scrollHeight : 0;
+    const scrollableHeight = documentHeight - windowHeight;
+    const scrollPercentage = scrollableHeight > 0 ? (scrollY / scrollableHeight) * 100 : 0;
+    
+    const headerOpacity = isHeaderVisible ? Math.max(0, 1 - scrollPercentage / 30) : 0;
+    const headerBlur = scrollPercentage > 25 ? Math.min(10, (scrollPercentage - 25) / 5) : 0;
+    const headerTranslateY = !isHeaderVisible ? -100 : Math.min(0, -scrollY * 0.3);
 
-  // Check if we're still loading any required data
-  const isLoading = loading || (globalConfig.components.airtableDepartmentFiltering && departmentLoading);
-  
-  // Calculate the number of visible cards
-  const visibleCardCount = countVisibleCards(cardVisibility);
+    return {
+      opacity: headerOpacity,
+      filter: `blur(${headerBlur}px)`,
+      transform: `translateY(${headerTranslateY}px)`,
+    };
+  }, [scrollY, isHeaderVisible]);
 
   return (
     <div className="min-h-screen bg-transparent">
-      {/* Settings Component - positioned fixed */}
+      {/* Settings Component */}
       <div className="fixed top-4 left-4 z-[60] pointer-events-auto">
         <SettingsComponent visibleCardCount={visibleCardCount} />
       </div>
-      {isLoading ? (
-        siteConfig.features.skeletonLoading ? (
-          <div className="container mx-auto px-4 py-20 bg-transparent max-w-4xl z-50">
-            <div className="w-full flex flex-col items-center">
-              <div className="flex items-center justify-center gap-2">
-                <Skeleton className="h-10 w-24" />
-                <Skeleton className="h-10 w-48" />
-              </div>
-              <div className="flex justify-center mt-8">
-                <Skeleton className="h-6 w-36" />
-              </div>
-            </div>
-          </div>
-        ) : (
-          <p className="text-center"></p>
-        )
-      ) : (
-        <>
-          {/* Sticky Header Section */}
-          <div 
-            className="fixed top-0 left-0 right-0 z-50 transition-all duration-700 ease-out"
-            style={{
-              opacity: headerOpacity,
-              filter: `blur(${headerBlur}px)`,
-              transform: `translateY(${headerTranslateY}px)`,
-            }}
+
+      {/* Header Section */}
+      <div 
+        className="fixed top-0 left-0 right-0 z-50 transition-all duration-700 ease-out"
+        style={headerStyles}
+      >
+        <div className="container mx-auto px-4 pt-20 pb-8 bg-transparent max-w-4xl space-y-8">
+          <AnimatedGroup
+            variants={fadeInVariants}
+            className="w-full"
+            delay={0}
           >
-            <div className="container mx-auto px-4 pt-20 pb-8 bg-transparent max-w-4xl space-y-8">
-              <AnimatedGroup
-                variants={fadeInVariants}
-                className="w-full"
-                delay={0.3}
-              >
-                <h1 className="flex items-center justify-center gap-2 text-4xl font-[600] text-black">
-                  Hello,{" "}
-                  <AnimatedText
-                    text={
-                      strategyMemberData
-                        ? strategyMemberData?.church_name
-                        : "there"
-                    }
-                    textClassName="text-4xl font-[800] text-black"
-                    underlinePath="M 0,10 Q 75,0 150,10 Q 225,20 300,10"
-                    underlineHoverPath="M 0,10 Q 75,20 150,10 Q 225,0 300,10"
-                    underlineDuration={1.5}
-                  />
-                </h1>
-              </AnimatedGroup>
+            <h1 className="flex items-center justify-center gap-2 text-4xl font-[600] text-black">
+              Hello,{" "}
+              <AnimatedText
+                text={
+                  strategyMemberData?.church_name || "there"
+                }
+                textClassName="text-4xl font-[800] text-black"
+                underlinePath="M 0,10 Q 75,0 150,10 Q 225,20 300,10"
+                underlineHoverPath="M 0,10 Q 75,20 150,10 Q 225,0 300,10"
+                underlineDuration={1.5}
+              />
+            </h1>
+          </AnimatedGroup>
 
-              <AnimatedGroup
-                variants={fadeInVariants}
-                className="flex justify-center max-h-10 w-full"
-                delay={0.3}
-              >
-                <AccountManager accountNumber={parseInt(accountId || "306")} />
-              </AnimatedGroup>
-            </div>
-          </div>
+          <AnimatedGroup
+            variants={fadeInVariants}
+            className="flex justify-center max-h-10 w-full"
+            delay={0}
+          >
+            <AccountManager accountNumber={parseInt(accountId || "306")} />
+          </AnimatedGroup>
+        </div>
+      </div>
 
-          {/* Spacer to prevent content jump */}
-          <div className="h-40"></div>
+      {/* Spacer */}
+      <div className="h-40"></div>
 
-          {/* Cards Section - will scroll behind header */}
-          <div className="relative z-10 mt-20">
-            <div className={`container mx-auto px-4 bg-transparent ${effectiveLayout === "grid" ? "max-w-8xl" : "max-w-4xl"}`}>
-              {/* Show error message if department filtering is enabled but there's an error */}
-              {globalConfig.components.airtableDepartmentFiltering && departmentError && (
-                <div className="text-center text-red-500 py-8">
-                  <p>Error loading department data: {departmentError}</p>
-                </div>
-              )}
-
-              {/* Show message if no cards should be visible */}
-              {globalConfig.components.airtableDepartmentFiltering && !hasVisibleCards(cardVisibility) && !departmentError && (
-                <div className="text-center text-gray-500 py-8">
-                  <p>No department cards available for your current configuration.</p>
-                  {department && <p className="text-sm mt-2">Department: {department}</p>}
-                </div>
-              )}
-
-              {/* Render cards based on layout and visibility */}
-              {effectiveLayout === "list" ? (
+      {/* Main Content Area */}
+      <div className="relative z-10 mt-20">
+        <div className={`container mx-auto px-4 bg-transparent ${effectiveLayout === "grid" ? "max-w-8xl" : "max-w-4xl"}`}>
+          
+          {/* Critical LCP content - render immediately without waiting */}
+          {!isClientReady ? (
+            <ImmediateContent />
+          ) : (
+            <>
+              {/* Loading states */}
+              {loading ? (
                 <div className="space-y-4">
-                  {cardVisibility.showWebCard && (
-                    <AnimatedGroup
-                      variants={fadeInVariants}
-                      className="w-full flex justify-center"
-                      delay={0.5}
-                    >
-                      <WebCard {...strategyMemberData} />
-                    </AnimatedGroup>
-                  )}
-
-                  {cardVisibility.showBrandCard && (
-                    <AnimatedGroup
-                      variants={fadeInVariants}
-                      className="w-full flex justify-center"
-                      delay={0.5}
-                    >
-                      <BrandCard />
-                    </AnimatedGroup>
-                  )}
-
-                  {cardVisibility.showSMCard && (
-                    <AnimatedGroup
-                      variants={fadeInVariants}
-                      className="w-full flex justify-center"
-                      delay={0.5}
-                    >
-                      <SMCard />
-                    </AnimatedGroup>
-                  )}
+                  <div className="h-32 w-full bg-gray-200 rounded animate-pulse" />
+                  <div className="h-32 w-full bg-gray-200 rounded animate-pulse" />
                 </div>
               ) : (
-                <div className="flex flex-wrap gap-4 justify-start">
-                  {cardVisibility.showWebCard && (
-                    <AnimatedGroup
-                      variants={fadeInVariants}
-                      className="flex-shrink-0 w-[calc(50%-0.5rem)]"
-                      delay={0.5}
-                    >
-                      <WebCard {...strategyMemberData} />
-                    </AnimatedGroup>
+                <>
+                  {/* Error handling */}
+                  {globalConfig.components.airtableDepartmentFiltering && accountError && (
+                    <div className="text-center text-red-500 py-8">
+                      <p>Error loading account data: {accountError}</p>
+                    </div>
                   )}
 
-                  {cardVisibility.showBrandCard && (
-                    <AnimatedGroup
-                      variants={fadeInVariants}
-                      className="flex-shrink-0 w-[calc(50%-0.5rem)]"
-                      delay={0.5}
-                    >
-                      <BrandCard />
-                    </AnimatedGroup>
+                  {/* Show no cards message immediately if applicable */}
+                  {globalConfig.components.airtableDepartmentFiltering && 
+                   !accountLoading && 
+                   !hasVisibleCards(cardVisibility) && 
+                   !accountError && (
+                    <div className="text-center text-gray-500 py-8">
+                      <p>Nothing to see here yet...</p>
+                      {department && <p className="text-sm mt-2">Department: {department}</p>}
+                    </div>
                   )}
 
-                  {cardVisibility.showSMCard && (
-                    <AnimatedGroup
-                      variants={fadeInVariants}
-                      className="flex-shrink-0 w-[calc(50%-0.5rem)]"
-                      delay={0.5}
-                    >
-                      <SMCard />
-                    </AnimatedGroup>
+                  {/* Account data is still loading */}
+                  {globalConfig.components.airtableDepartmentFiltering && accountLoading && (
+                    <div className="text-center text-gray-500 py-8">
+                      <p>Loading account configuration...</p>
+                    </div>
                   )}
-                </div>
+
+                  {/* Render cards when ready */}
+                  {!accountLoading && (
+                    (globalConfig.components.airtableDepartmentFiltering ? hasVisibleCards(cardVisibility) : true) && (
+                      effectiveLayout === "list" ? (
+                        <div className="space-y-4">
+                          {cardVisibility.showWebCard && (
+                            <div className="w-full flex justify-center">
+                              <WebCard {...strategyMemberData} />
+                            </div>
+                          )}
+                          {cardVisibility.showBrandCard && (
+                            <div className="w-full flex justify-center">
+                              <BrandCard />
+                            </div>
+                          )}
+                          {cardVisibility.showSMCard && (
+                            <div className="w-full flex justify-center">
+                              <SMCard />
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap gap-4 justify-start">
+                          {cardVisibility.showWebCard && (
+                            <div className="flex-shrink-0 w-[calc(50%-0.5rem)]">
+                              <WebCard {...strategyMemberData} />
+                            </div>
+                          )}
+                          {cardVisibility.showBrandCard && (
+                            <div className="flex-shrink-0 w-[calc(50%-0.5rem)]">
+                              <BrandCard />
+                            </div>
+                          )}
+                          {cardVisibility.showSMCard && (
+                            <div className="flex-shrink-0 w-[calc(50%-0.5rem)]">
+                              <SMCard />
+                            </div>
+                          )}
+                        </div>
+                      )
+                    )
+                  )}
+                </>
               )}
-            </div>
+            </>
+          )}
+        </div>
 
-            {/* Extra space at bottom for better scroll experience */}
-            <div className="h-96"></div>
-          </div>
-        </>
-      )}
+        {/* Bottom spacing */}
+        <div className="h-96"></div>
+      </div>
     </div>
   );
 }
@@ -265,16 +295,10 @@ export default function Home() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen dot-grid-background">
-          <div className="container mx-auto px-4 py-20 bg-transparent max-w-2xl z-50">
-            <div className="w-full flex flex-col items-center">
-              <div className="flex items-center justify-center gap-2">
-                <Skeleton className="h-10 w-24" />
-                <Skeleton className="h-10 w-48" />
-              </div>
-              <div className="flex justify-center mt-8">
-                <Skeleton className="h-6 w-36" />
-              </div>
+        <div className="min-h-screen bg-transparent">
+          <div className="container mx-auto px-4 py-20 bg-transparent max-w-4xl">
+            <div className="text-center text-gray-500 py-8">
+              <p>Nothing to see here yet...</p>
             </div>
           </div>
         </div>

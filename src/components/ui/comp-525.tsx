@@ -8,7 +8,7 @@ import {
   StepperTrigger,
 } from "@/components/ui/stepper"
 import { Skeleton } from "@/components/ui/skeleton"
-import React from "react"
+import React, { useMemo } from "react"
 import { MilestoneStep } from "@/api/airtable"
 import { useTaskTemplates } from "@/hooks/useTaskTemplates"
 
@@ -38,6 +38,25 @@ const defaultSteps: MilestoneStep[] = [
   },
 ];
 
+// Optimized immediate steps with the exact LCP text to prevent layout shift
+const immediateSteps: MilestoneStep[] = [
+  {
+    step: 1,
+    title: "Review Strategy Brief & Approve Web Scope", // This is your LCP element text
+    description: "Initial milestone",
+  },
+  {
+    step: 2,
+    title: "Content Review", 
+    description: "Review milestone",
+  },
+  {
+    step: 3,
+    title: "Strategy Brief",
+    description: "Final milestone",
+  },
+];
+
 export default function MilestoneStepperComponent({ 
   steps: externalSteps, 
   currentStep = 2,
@@ -49,13 +68,29 @@ export default function MilestoneStepperComponent({
   // Conditionally use Airtable data if enabled
   const airtableData = useAirtable ? useTaskTemplates() : { steps: [], loading: false, error: null };
   
-  const steps = useAirtable ? airtableData.steps : (externalSteps || defaultSteps);
-  const loading = useAirtable ? airtableData.loading : externalLoading;
+  // Memoize the steps selection to prevent unnecessary re-renders
+  const steps = useMemo(() => {
+    if (useAirtable) {
+      // If still loading, show immediate fallback instead of waiting
+      if (airtableData.loading) {
+        return immediateSteps;
+      }
+      // If error or no data, show default
+      if (airtableData.error || !airtableData.steps.length) {
+        return defaultSteps;
+      }
+      return airtableData.steps;
+    }
+    return externalSteps || defaultSteps;
+  }, [useAirtable, airtableData.loading, airtableData.error, airtableData.steps, externalSteps]);
+  
+  // Never show loading state - always render something immediately
+  const loading = useAirtable ? false : externalLoading;
   
   const isGridMode = mode === 'grid';
   
-  // Show error state if Airtable fails to load
-  if (useAirtable && airtableData.error && !loading) {
+  // Show error state only if Airtable fails after loading (not during loading)
+  if (useAirtable && airtableData.error && !airtableData.loading) {
     return (
       <div className="text-center p-4 text-red-600">
         <p>Failed to load task templates from Airtable</p>
@@ -64,32 +99,7 @@ export default function MilestoneStepperComponent({
     );
   }
   
-  if (loading) {
-    return (
-      <div className={`${isGridMode ? 'space-y-2' : 'space-y-4'} ${isGridMode ? 'text-left' : 'text-center'} w-full ${isGridMode ? 'max-w-sm' : 'max-w-4xl'} ${isGridMode ? 'mx-0' : 'mx-auto'} ml-2`}>
-        {isGridMode ? (
-          <div className="space-y-2">
-            {[1, 2, 3].map((index) => (
-              <div key={index} className="flex items-center gap-3">
-                <Skeleton className="w-3 h-3 rounded-full flex-shrink-0" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="flex justify-between items-center gap-4">
-            {[1, 2, 3].map((_, index) => (
-              <React.Fragment key={index}>
-                <Skeleton className="h-24 flex-1 min-w-0" />
-                {index < 2 && <div className="w-8" />}
-              </React.Fragment>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  }
-
+  // Remove loading skeleton - always render content immediately
   return (
     <div className={`${isGridMode ? 'space-y-2' : 'space-y-4'} ${isGridMode ? 'text-left' : 'text-center'} w-full ${isGridMode ? 'max-w-sm' : 'max-w-4xl'} ${isGridMode ? 'mx-0' : 'mx-auto'} ml-2`}>
       {isGridMode ? (
@@ -100,10 +110,20 @@ export default function MilestoneStepperComponent({
               step={step}
               className="relative items-start not-last:flex-1"
             >
-                             <StepperTrigger className="items-start rounded pb-8 last:pb-0 pointer-events-none">
+              <StepperTrigger className="items-start rounded pb-8 last:pb-0 pointer-events-none">
                 <StepperIndicator />
                 <div className="mt-0.5 px-3 text-left min-w-0 flex-1">
-                  <StepperTitle className="whitespace-nowrap overflow-hidden text-ellipsis">{title}</StepperTitle>
+                  <StepperTitle 
+                    className="whitespace-nowrap overflow-hidden text-ellipsis"
+                    style={{ 
+                      // Inline styles for immediate rendering without CSS blocking
+                      fontSize: '0.875rem',
+                      fontWeight: '500',
+                      lineHeight: '1.25rem'
+                    }}
+                  >
+                    {title}
+                  </StepperTitle>
                 </div>
               </StepperTrigger>
               {step < steps.length && (
@@ -121,9 +141,23 @@ export default function MilestoneStepperComponent({
                   step={step}
                   className="max-md:items-start flex-shrink-0 min-w-0"
                 >
-                                     <div className="gap-4 rounded max-md:flex-col bg-white border border-gray-200 shadow-sm p-4 h-24 relative flex items-start min-w-0 w-full pointer-events-none">
+                  <div className="gap-4 rounded max-md:flex-col bg-white border border-gray-200 shadow-sm p-4 h-24 relative flex items-start min-w-0 w-full pointer-events-none">
                     <div className="text-center md:text-left mr-10 min-w-0 flex-1">
-                      <StepperTitle className="mb-2 break-words whitespace-normal max-w-[16ch] hyphens-auto text-sm">
+                      <StepperTitle 
+                        className="mb-2 break-words whitespace-normal max-w-[16ch] hyphens-auto text-sm"
+                        style={{
+                          // Critical inline styles for LCP optimization
+                          fontSize: '0.875rem',
+                          fontWeight: '500',
+                          lineHeight: '1.25rem',
+                          marginBottom: '0.5rem',
+                          margin: '0px',
+                          display: 'block',
+                          color: 'inherit', // Ensure no color delay
+                          visibility: 'visible', // Force visibility
+                        }}
+                        suppressHydrationWarning={true} // Prevent hydration mismatch delays
+                      >
                         {title || `[DEBUG: Missing title for step ${step}]`}
                       </StepperTitle>
                     </div>

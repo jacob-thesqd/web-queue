@@ -7,8 +7,35 @@ export interface AirtableAccountData {
     'Queue Number'?: number;
     'Dropbox Folder Church Root'?: string;
     'Church Name'?: string;
+    'Department (Plain Text)'?: string;
+    'Sunday Photos This Week'?: number;
     [key: string]: any; // Allow for additional fields
   };
+}
+
+// Helper function to find department from multiple possible field names
+function findDepartment(record: any): { department: string | null; usedFieldName: string | null } {
+  const possibleDepartmentFields = [
+    'Department (Plain Text)',
+    'Department',
+    'Dept',
+    'Squad',
+    'Team',
+    'Department (from Strategy Squad Members)'
+  ];
+  
+  let department = null;
+  let usedFieldName = null;
+  
+  for (const fieldName of possibleDepartmentFields) {
+    if (record.fields && record.fields[fieldName]) {
+      department = record.fields[fieldName];
+      usedFieldName = fieldName;
+      break;
+    }
+  }
+  
+  return { department, usedFieldName };
 }
 
 export async function GET(
@@ -25,7 +52,7 @@ export async function GET(
       );
     }
 
-    console.log('🔍 Fetching account data for:', accountNumber);
+    console.log('🔍 Fetching comprehensive account data for:', accountNumber);
 
     // Use environment variables for direct Airtable API call
     const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
@@ -75,13 +102,24 @@ export async function GET(
       fields: record.fields || {}
     };
 
-    console.log('- Account data found:', {
+    // Extract department information
+    const { department, usedFieldName } = findDepartment(record);
+    
+    // Extract Sunday photos status
+    const sundayPhotosValue = record.fields && record.fields['Sunday Photos This Week'] ? record.fields['Sunday Photos This Week'] : 0;
+    const sundayPhotosUploaded = sundayPhotosValue === 1;
+
+    console.log('- Comprehensive account data found:', {
       memberId: accountData.fields['Member #'],
       queueNumber: accountData.fields['Queue Number'],
       dropboxPath: accountData.fields['Dropbox Folder Church Root'],
       churchName: accountData.fields['Church Name'],
       markupLink: accountData.fields['Markup Link'],
-      discoveryFormSubmissionId: accountData.fields['Discovery Form Submission ID']
+      discoveryFormSubmissionId: accountData.fields['Discovery Form Submission ID'],
+      department: department,
+      departmentFieldUsed: usedFieldName,
+      sundayPhotosValue: sundayPhotosValue,
+      sundayPhotosUploaded: sundayPhotosUploaded
     });
 
     return NextResponse.json({ 
@@ -90,16 +128,26 @@ export async function GET(
       dropboxPath: accountData.fields['Dropbox Folder Church Root'],
       churchName: accountData.fields['Church Name'],
       markupLink: accountData.fields['Markup Link'],
-      discoveryFormSubmissionId: accountData.fields['Discovery Form Submission ID']
+      discoveryFormSubmissionId: accountData.fields['Discovery Form Submission ID'],
+      // Department data
+      department,
+      usedFieldName,
+      availableFields: Object.keys(record.fields || {}),
+      // Sunday photos data
+      sundayPhotosUploaded,
+      sundayPhotosValue,
+      memberNumber: parseInt(accountNumber)
     });
   } catch (error) {
-    console.error('❌ Error fetching account data from Airtable:', error);
+    console.error('❌ Error fetching comprehensive account data from Airtable:', error);
     return NextResponse.json(
       { 
         error: 'Failed to fetch account data', 
         accountData: null,
         queueNumber: null,
-        dropboxPath: null 
+        dropboxPath: null,
+        department: null,
+        sundayPhotosUploaded: false
       },
       { status: 500 }
     );

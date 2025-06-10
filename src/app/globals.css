@@ -31,6 +31,7 @@ h1 {
   color: #000;
 }
 
+/* Critical CSS for immediate rendering - prevent layout shifts */
 .fixed-dot-grid-background {
   position: fixed;
   top: 0;
@@ -44,6 +45,52 @@ h1 {
   background-attachment: scroll, fixed, fixed;
   pointer-events: none;
   z-index: -1;
+  opacity: 1;
+  /* Optimize for immediate rendering */
+  will-change: auto;
+  transform: translateZ(0);
+}
+
+/* Critical stepper styles for immediate rendering */
+[data-slot="stepper-title"] {
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  line-height: 1.25rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  /* Prevent text rendering delays */
+  text-rendering: optimizeSpeed;
+  font-synthesis: none;
+}
+
+/* Optimize image loading */
+img[src="/squad-logo.svg"] {
+  display: block !important;
+  width: 70px !important;
+  height: 70px !important;
+  /* Prevent layout shift */
+  aspect-ratio: 1/1;
+  /* Optimize rendering */
+  image-rendering: crisp-edges;
+  will-change: auto;
+}
+
+/* Performance optimizations */
+* {
+  /* Reduce paint complexity */
+  box-sizing: border-box;
+}
+
+/* Optimize critical layout elements */
+.fixed {
+  /* GPU acceleration for fixed positioned elements */
+  transform: translateZ(0);
+  will-change: auto;
+}
+
+/* Prevent unnecessary repaints during interactions */
+button, [role="button"] {
+  touch-action: manipulation;
 }
 
 @layer base {
@@ -101,8 +148,6 @@ h1 {
     --chart-5: 340 75% 55%;
   }
 }
-
-
 
 @layer base {
   * {

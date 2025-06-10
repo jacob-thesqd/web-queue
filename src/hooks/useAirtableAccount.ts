@@ -8,6 +8,14 @@ interface UseAirtableAccountData {
   churchName: string | null;
   markupLink: string | null;
   discoveryFormSubmissionId: string | null;
+  // Department data
+  department: string | null;
+  usedFieldName: string | null;
+  availableFields: string[];
+  // Sunday photos data
+  sundayPhotosUploaded: boolean;
+  sundayPhotosValue: number;
+  memberNumber: number | null;
   loading: boolean;
   error: string | null;
 }
@@ -20,6 +28,14 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
     churchName: null,
     markupLink: null,
     discoveryFormSubmissionId: null,
+    // Department data
+    department: null,
+    usedFieldName: null,
+    availableFields: [],
+    // Sunday photos data
+    sundayPhotosUploaded: false,
+    sundayPhotosValue: 0,
+    memberNumber: null,
     loading: false,
     error: null,
   });
@@ -60,6 +76,14 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
               churchName: result.churchName,
               markupLink: result.markupLink,
               discoveryFormSubmissionId: result.discoveryFormSubmissionId,
+              // Department data
+              department: result.department,
+              usedFieldName: result.usedFieldName,
+              availableFields: result.availableFields || [],
+              // Sunday photos data
+              sundayPhotosUploaded: result.sundayPhotosUploaded || false,
+              sundayPhotosValue: result.sundayPhotosValue || 0,
+              memberNumber: result.memberNumber,
               loading: false,
               error: null,
             }));

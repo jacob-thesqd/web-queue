@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import {
   AlertCircleIcon,
@@ -18,16 +18,13 @@ import {
   XIcon,
   LockIcon,
 } from "lucide-react"
-
-import {
-  formatBytes,
-  useFileUpload,
-} from "@/hooks/use-file-upload"
-import { useDropboxUpload } from "@/hooks/use-dropbox-upload"
+import { Card, CardHeader, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { useAirtableAccountData } from "@/hooks/useAirtableAccountData"
-import { useAirtableSundayPhotos } from "@/hooks/useAirtableSundayPhotos"
+import { useFileUpload, formatBytes } from "@/hooks/use-file-upload"
+import { useDropboxUpload } from "@/hooks/use-dropbox-upload"
+import { useAirtableAccount } from "@/hooks/useAirtableAccount"
 import { globalConfig } from "@/config/globalConfig"
 
 // Create some dummy initial files
@@ -136,24 +133,16 @@ export default function SocialMediaUploader({ accountNumber: propAccountNumber }
   const [uploading, setUploading] = useState(false)
   const [allUploadsComplete, setAllUploadsComplete] = useState(false)
 
-  // Fetch all account data from Airtable (includes dropbox path, queue number, church name, etc.)
+  // Fetch comprehensive account data from Airtable (includes dropbox path, queue number, church name, Sunday photos status, etc.)
   const { 
     accountData, 
     dropboxPath, 
     queueNumber, 
-    churchName, 
-    loading: pathLoading, 
-    error: pathError 
-  } = useAirtableAccountData(accountNumber);
-
-  // Check if Sunday photos have already been uploaded this week
-  const { 
-    sundayPhotosUploaded, 
-    loading: sundayPhotosLoading, 
-    error: sundayPhotosError 
-  } = useAirtableSundayPhotos(
-    globalConfig.socialMediaUploader.enableSundayPhotosLock ? accountNumber : undefined
-  );
+    churchName,
+    sundayPhotosUploaded,
+    loading: accountLoading, 
+    error: accountError 
+  } = useAirtableAccount(accountNumber);
 
   const { uploadProgress, uploadToDropbox } = useDropboxUpload({
     accountNumber, // Pass account number to the upload hook
@@ -246,8 +235,8 @@ export default function SocialMediaUploader({ accountNumber: propAccountNumber }
     setAllUploadsComplete(false);
   }
 
-  // Show loading state if path or Sunday photos status is being fetched
-  if ((pathLoading || (globalConfig.socialMediaUploader.enableSundayPhotosLock && sundayPhotosLoading)) && accountNumber) {
+  // Show loading state if account data is being fetched
+  if (accountLoading && accountNumber) {
     return (
       <div className="flex flex-col items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
@@ -256,13 +245,13 @@ export default function SocialMediaUploader({ accountNumber: propAccountNumber }
     );
   }
 
-  // Show error if path couldn't be loaded
-  if (pathError && accountNumber) {
+  // Show error if account data couldn't be loaded
+  if (accountError && accountNumber) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-red-600">
         <AlertCircleIcon className="h-8 w-8 mb-2" />
         <p className="text-sm">Failed to load upload configuration</p>
-        <p className="text-xs text-gray-500 mt-1">{pathError}</p>
+        <p className="text-xs text-gray-500 mt-1">{accountError}</p>
       </div>
     );
   }
@@ -281,11 +270,6 @@ export default function SocialMediaUploader({ accountNumber: propAccountNumber }
         </div>
       </div>
     );
-  }
-
-  // Show error for Sunday photos status (but don't block functionality)
-  if (sundayPhotosError && accountNumber) {
-    console.warn('Warning: Could not check Sunday photos status:', sundayPhotosError);
   }
 
   // Get today's date for display

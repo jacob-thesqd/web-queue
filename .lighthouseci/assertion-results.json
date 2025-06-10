@@ -1,0 +1,84 @@
+[
+  {
+    "name": "minScore",
+    "expected": 0.9,
+    "actual": 0.75,
+    "values": [
+      0.75,
+      0.75,
+      0.75
+    ],
+    "operator": ">=",
+    "passed": false,
+    "auditProperty": "best-practices",
+    "auditId": "categories",
+    "level": "warn",
+    "url": "http://localhost:3003/"
+  },
+  {
+    "name": "minScore",
+    "expected": 0.8,
+    "actual": 0.64,
+    "values": [
+      0.64,
+      0.64,
+      0.64
+    ],
+    "operator": ">=",
+    "passed": false,
+    "auditProperty": "performance",
+    "auditId": "categories",
+    "level": "warn",
+    "url": "http://localhost:3003/?account=2542"
+  },
+  {
+    "name": "minScore",
+    "expected": 0.9,
+    "actual": 0.75,
+    "values": [
+      0.75,
+      0.75,
+      0.75
+    ],
+    "operator": ">=",
+    "passed": false,
+    "auditProperty": "best-practices",
+    "auditId": "categories",
+    "level": "warn",
+    "url": "http://localhost:3003/?account=2542"
+  },
+  {
+    "name": "maxNumericValue",
+    "expected": 2500,
+    "actual": 6526.403,
+    "values": [
+      6526.403,
+      6531.713000000001,
+      6537.657999999999
+    ],
+    "operator": "<=",
+    "passed": false,
+    "auditId": "largest-contentful-paint",
+    "level": "warn",
+    "url": "http://localhost:3003/?account=2542",
+    "auditTitle": "Largest Contentful Paint",
+    "auditDocumentationLink": "https://developer.chrome.com/docs/lighthouse/performance/lighthouse-largest-contentful-paint/"
+  },
+  {
+    "name": "maxNumericValue",
+    "expected": 0.1,
+    "actual": 0.2269825119458016,
+    "values": [
+      0.2269825119458016,
+      0.2431747325036877,
+      0.24446198016310122
+    ],
+    "operator": "<=",
+    "passed": false,
+    "auditId": "cumulative-layout-shift",
+    "level": "warn",
+    "url": "http://localhost:3003/?account=2542",
+    "auditTitle": "Cumulative Layout Shift",
+    "auditDocumentationLink": "https://web.dev/articles/cls"
+  }
+]

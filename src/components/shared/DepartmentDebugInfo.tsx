@@ -1,4 +1,4 @@
-import { useAirtableDepartment } from '@/hooks/useAirtableDepartment';
+import { useAirtableAccount } from '@/hooks/useAirtableAccount';
 import { getDepartmentCardVisibility } from '@/lib/departmentUtils';
 import { globalConfig } from '@/config/globalConfig';
 
@@ -12,7 +12,7 @@ interface DepartmentDebugInfoProps {
  * Only shows when showDebug is true
  */
 export default function DepartmentDebugInfo({ accountNumber, showDebug = false }: DepartmentDebugInfoProps) {
-  const { department, loading, error } = useAirtableDepartment(
+  const { department, loading, error } = useAirtableAccount(
     globalConfig.components.airtableDepartmentFiltering ? accountNumber : undefined
   );
 

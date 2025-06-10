@@ -12,7 +12,7 @@ import { StrategyMemberData } from "@/lib/supabase/getStrategyMemberData";
 import BookmarkLink from "@/components/shared/BookmarkLink";
 import MilestoneStepperComponent from "@/components/ui/comp-525";
 import { useAirtableTaskMilestones } from "@/hooks/useAirtableTaskMilestones";
-import { useAirtableQueueNumber } from "@/hooks/useAirtableQueueNumber";
+import { useAirtableAccount } from "@/hooks/useAirtableAccount";
 import { globalConfig } from "@/config/globalConfig";
 
 export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
@@ -22,8 +22,8 @@ export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
     0 // Start at first milestone - could be made dynamic based on account progress
   );
 
-  // Fetch queue number from Airtable using the account number (if enabled)
-  const { queueNumber, loading: queueLoading, error: queueError } = useAirtableQueueNumber(
+  // Fetch comprehensive account data from Airtable (includes queue number and all other data)
+  const { queueNumber, loading: accountLoading, error: accountError } = useAirtableAccount(
     globalConfig.components.airtableQueueNumber ? memberData.account : undefined
   );
 
@@ -39,9 +39,9 @@ export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
         <div className="flex-shrink-0">
           {globalConfig.components.airtableQueueNumber ? (
             // Use Airtable queue number data
-            queueLoading ? (
+            accountLoading ? (
               <Skeleton className="h-6 w-32" />
-            ) : queueError ? (
+            ) : accountError ? (
               <Badge className="items-baseline gap-2 text-[0.9rem] px-3" variant="destructive">
                 Queue Error
               </Badge>

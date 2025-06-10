@@ -53,7 +53,7 @@ interface StepperProps extends React.HTMLAttributes<HTMLDivElement> {
   orientation?: "horizontal" | "vertical"
 }
 
-function Stepper({
+const Stepper = React.memo(function Stepper({
   defaultValue = 0,
   value,
   onValueChange,
@@ -75,14 +75,17 @@ function Stepper({
 
   const currentStep = value ?? activeStep
 
+  const contextValue = React.useMemo(
+    () => ({
+      activeStep: currentStep,
+      setActiveStep,
+      orientation,
+    }),
+    [currentStep, setActiveStep, orientation]
+  )
+
   return (
-    <StepperContext.Provider
-      value={{
-        activeStep: currentStep,
-        setActiveStep,
-        orientation,
-      }}
-    >
+    <StepperContext.Provider value={contextValue}>
       <div
         data-slot="stepper"
         className={cn(
@@ -94,7 +97,7 @@ function Stepper({
       />
     </StepperContext.Provider>
   )
-}
+})
 
 // StepperItem
 interface StepperItemProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -104,7 +107,7 @@ interface StepperItemProps extends React.HTMLAttributes<HTMLDivElement> {
   loading?: boolean
 }
 
-function StepperItem({
+const StepperItem = React.memo(function StepperItem({
   step,
   completed = false,
   disabled = false,
@@ -115,19 +118,21 @@ function StepperItem({
 }: StepperItemProps) {
   const { activeStep } = useStepper()
 
-  const state: StepState =
-    completed || step < activeStep
-      ? "completed"
-      : activeStep === step
-        ? "active"
-        : "inactive"
+  const state: StepState = React.useMemo(() => {
+    if (completed || step < activeStep) return "completed"
+    if (activeStep === step) return "active"
+    return "inactive"
+  }, [completed, step, activeStep])
 
   const isLoading = loading && step === activeStep
 
+  const contextValue = React.useMemo(
+    () => ({ step, state, isDisabled: disabled, isLoading }),
+    [step, state, disabled, isLoading]
+  )
+
   return (
-    <StepItemContext.Provider
-      value={{ step, state, isDisabled: disabled, isLoading }}
-    >
+    <StepItemContext.Provider value={contextValue}>
       <div
         data-slot="stepper-item"
         className={cn(
@@ -142,7 +147,7 @@ function StepperItem({
       </div>
     </StepItemContext.Provider>
   )
-}
+})
 
 // StepperTrigger
 interface StepperTriggerProps
@@ -234,15 +239,29 @@ function StepperIndicator({
   )
 }
 
-// StepperTitle
+// StepperTitle - Optimized for LCP
 function StepperTitle({
   className,
+  style,
   ...props
 }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
       data-slot="stepper-title"
-      className={cn("text-sm font-medium", className)}
+      className={cn("text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis", className)}
+      style={{
+        // Critical inline styles to prevent CSS blocking render
+        fontSize: '0.875rem',
+        fontWeight: '500',
+        lineHeight: '1.25rem',
+        margin: 0,
+        padding: 0,
+        display: 'block',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        ...style
+      }}
       {...props}
     />
   )
