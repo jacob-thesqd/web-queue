@@ -74,7 +74,7 @@ export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
       {globalConfig.components.airtableMilestoneStepper && (
         <div className="flex flex-col w-full px-12 pb-4">
           <h2 className="flex gap-2 text-lg font-[600] text-black text-left mb-4">
-            Task Template Progress
+            Milestone Progress
           </h2>
           {error ? (
             <div className="text-center text-red-500 py-8">

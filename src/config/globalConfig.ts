@@ -24,7 +24,9 @@ export const globalConfig = {
     cacheDuration: 60 * 60 * 1000, // 1 hour in milliseconds
     retryAttempts: 3, // Number of retry attempts for failed requests
     timeoutMs: 10000, // Request timeout in milliseconds
-    createUploadRecords: true // Create records in Airtable after successful Dropbox uploads
+    createUploadRecords: true, // Create records in Airtable after successful Dropbox uploads
+    enableGlobalApiCache: true, // Enable centralized API caching to prevent duplicate calls
+    debugCaching: true // Show cache hit/miss logs in development
   },
   dropbox: {
     devMode: false, // Set to false in production

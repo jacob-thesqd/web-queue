@@ -18,6 +18,7 @@ import { AnimatedText } from "@/components/ui/animated-underline-text-one";
 import { AnimatedGroup } from "@/components/ui/animated-group";
 import AccountManager from "@/components/squad-components/AccountManager";
 import SettingsComponent from "@/components/shared/Settings";
+import ApiCacheDebug from "@/components/shared/ApiCacheDebug";
 
 // Non-critical components - lazy load with SSR
 const WebCard = dynamic(() => import("@/components/dept-cards/WebCard"), {
@@ -287,6 +288,9 @@ function HomeContent() {
         {/* Bottom spacing */}
         <div className="h-96"></div>
       </div>
+
+      {/* API Cache Debug Component - only shows in development */}
+      <ApiCacheDebug />
     </div>
   );
 }

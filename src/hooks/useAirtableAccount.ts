@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { AirtableAccountData } from '@/app/api/airtable/account/[accountNumber]/route';
+import { globalConfig } from '@/config/globalConfig';
 
 interface UseAirtableAccountData {
   accountData: AirtableAccountData | null;
@@ -19,6 +20,15 @@ interface UseAirtableAccountData {
   loading: boolean;
   error: string | null;
 }
+
+// Cache for account data with timestamp-based expiration
+const accountDataCache: Record<string, { 
+  data: UseAirtableAccountData; 
+  timestamp: number;
+}> = {};
+
+// Track ongoing fetch requests to prevent duplicates
+const ongoingRequests: Record<string, Promise<void>> = {};
 
 export function useAirtableAccount(accountNumber?: string | number): UseAirtableAccountData {
   const [data, setData] = useState<UseAirtableAccountData>({
@@ -40,18 +50,47 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
     error: null,
   });
 
+  const isMountedRef = useRef(true);
+
   useEffect(() => {
     if (!accountNumber) {
       setData(prev => ({ ...prev, loading: false }));
       return;
     }
 
-    let isMounted = true;
+    const cacheKey = accountNumber.toString();
+
+    // Check cache first with timestamp-based expiration
+    const cached = accountDataCache[cacheKey];
+    if (cached && Date.now() - cached.timestamp < globalConfig.airtable.cacheDuration) {
+      console.log('🚀 Using cached account data for:', accountNumber);
+      setData(cached.data);
+      return;
+    }
+
+    // Check if there's already an ongoing request for this account
+    if (cacheKey in ongoingRequests) {
+      console.log('⏳ Request already in progress for account:', accountNumber);
+      ongoingRequests[cacheKey].then(() => {
+        // Re-check cache after the ongoing request completes
+        const updatedCache = accountDataCache[cacheKey];
+        if (updatedCache && isMountedRef.current) {
+          setData(updatedCache.data);
+        }
+      }).catch(() => {
+        // Handle errors from ongoing request
+        if (isMountedRef.current) {
+          setData(prev => ({ ...prev, loading: false }));
+        }
+      });
+      return;
+    }
 
     const fetchAccountData = async () => {
       setData(prev => ({ ...prev, loading: true, error: null }));
 
       try {
+        console.log('🔍 Fetching account data for:', accountNumber);
         const response = await fetch(`/api/airtable/account/${accountNumber}`);
         
         if (!response.ok) {
@@ -60,53 +99,92 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
         
         const result = await response.json();
         
-        if (isMounted) {
-          if (result.error) {
-            setData(prev => ({
-              ...prev,
-              loading: false,
-              error: result.error,
-            }));
-          } else {
-            setData(prev => ({
-              ...prev,
-              accountData: result.accountData,
-              queueNumber: result.queueNumber,
-              dropboxPath: result.dropboxPath,
-              churchName: result.churchName,
-              markupLink: result.markupLink,
-              discoveryFormSubmissionId: result.discoveryFormSubmissionId,
-              // Department data
-              department: result.department,
-              usedFieldName: result.usedFieldName,
-              availableFields: result.availableFields || [],
-              // Sunday photos data
-              sundayPhotosUploaded: result.sundayPhotosUploaded || false,
-              sundayPhotosValue: result.sundayPhotosValue || 0,
-              memberNumber: result.memberNumber,
-              loading: false,
-              error: null,
-            }));
-          }
+        if (isMountedRef.current) {
+          const newData: UseAirtableAccountData = result.error ? {
+            accountData: null,
+            queueNumber: null,
+            dropboxPath: null,
+            churchName: null,
+            markupLink: null,
+            discoveryFormSubmissionId: null,
+            department: null,
+            usedFieldName: null,
+            availableFields: [],
+            sundayPhotosUploaded: false,
+            sundayPhotosValue: 0,
+            memberNumber: null,
+            loading: false,
+            error: result.error,
+          } : {
+            accountData: result.accountData,
+            queueNumber: result.queueNumber,
+            dropboxPath: result.dropboxPath,
+            churchName: result.churchName,
+            markupLink: result.markupLink,
+            discoveryFormSubmissionId: result.discoveryFormSubmissionId,
+            // Department data
+            department: result.department,
+            usedFieldName: result.usedFieldName,
+            availableFields: result.availableFields || [],
+            // Sunday photos data
+            sundayPhotosUploaded: result.sundayPhotosUploaded || false,
+            sundayPhotosValue: result.sundayPhotosValue || 0,
+            memberNumber: result.memberNumber,
+            loading: false,
+            error: null,
+          };
+
+          setData(newData);
+
+          // Cache the data with timestamp
+          accountDataCache[cacheKey] = {
+            data: newData,
+            timestamp: Date.now()
+          };
+
+          console.log('✅ Account data cached for:', accountNumber);
         }
       } catch (err) {
-        if (isMounted) {
+        if (isMountedRef.current) {
           console.error('Error fetching account data:', err);
-          setData(prev => ({
-            ...prev,
+          const errorData: UseAirtableAccountData = {
+            accountData: null,
+            queueNumber: null,
+            dropboxPath: null,
+            churchName: null,
+            markupLink: null,
+            discoveryFormSubmissionId: null,
+            department: null,
+            usedFieldName: null,
+            availableFields: [],
+            sundayPhotosUploaded: false,
+            sundayPhotosValue: 0,
+            memberNumber: null,
             loading: false,
             error: err instanceof Error ? err.message : 'Failed to fetch account data',
-          }));
+          };
+          setData(errorData);
         }
+      } finally {
+        // Remove from ongoing requests
+        delete ongoingRequests[cacheKey];
       }
     };
 
-    fetchAccountData();
+    // Store the promise to prevent duplicate requests
+    ongoingRequests[cacheKey] = fetchAccountData();
 
     return () => {
-      isMounted = false;
+      isMountedRef.current = false;
     };
   }, [accountNumber]);
+
+  // Update the ref when component unmounts
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   return data;
 } 
