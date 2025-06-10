@@ -52,7 +52,7 @@ export const globalConfig = {
     allowedFileTypes: ["image/jpeg", "image/png", "image/webp", "image/heic"], // Allowed file types
     enforceFileTypeRestriction: false, // Strictly enforce file type restrictions
     showFileSizeInUI: true, // Show max file size info in UI
-    showDebugLogs: true, // Show debug logs in console
+    showDebugLogs: false, // Show debug logs in console
     fallbackToGlobalPath: false, // Whether to fall back to global path if account lookup fails
     enableSundayPhotosLock: true, // Enable weekly upload limiting based on Airtable field
     sundayPhotosLockMessage: "Woops! You've already uploaded your Sunday photos for the week" // Custom message when uploads are locked

@@ -9,6 +9,7 @@ interface UseAirtableAccountData {
   churchName: string | null;
   markupLink: string | null;
   discoveryFormSubmissionId: string | null;
+  contentSnareLink: string | null;
   // Department data
   department: string | null;
   usedFieldName: string | null;
@@ -38,6 +39,7 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
     churchName: null,
     markupLink: null,
     discoveryFormSubmissionId: null,
+    contentSnareLink: null,
     // Department data
     department: null,
     usedFieldName: null,
@@ -63,14 +65,13 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
     // Check cache first with timestamp-based expiration
     const cached = accountDataCache[cacheKey];
     if (cached && Date.now() - cached.timestamp < globalConfig.airtable.cacheDuration) {
-      console.log('🚀 Using cached account data for:', accountNumber);
       setData(cached.data);
       return;
     }
 
     // Check if there's already an ongoing request for this account
     if (cacheKey in ongoingRequests) {
-      console.log('⏳ Request already in progress for account:', accountNumber);
+
       ongoingRequests[cacheKey].then(() => {
         // Re-check cache after the ongoing request completes
         const updatedCache = accountDataCache[cacheKey];
@@ -90,7 +91,6 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
       setData(prev => ({ ...prev, loading: true, error: null }));
 
       try {
-        console.log('🔍 Fetching account data for:', accountNumber);
         const response = await fetch(`/api/airtable/account/${accountNumber}`);
         
         if (!response.ok) {
@@ -107,6 +107,7 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
             churchName: null,
             markupLink: null,
             discoveryFormSubmissionId: null,
+            contentSnareLink: null,
             department: null,
             usedFieldName: null,
             availableFields: [],
@@ -122,6 +123,7 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
             churchName: result.churchName,
             markupLink: result.markupLink,
             discoveryFormSubmissionId: result.discoveryFormSubmissionId,
+            contentSnareLink: result.contentSnareLink,
             // Department data
             department: result.department,
             usedFieldName: result.usedFieldName,
@@ -142,7 +144,6 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
             timestamp: Date.now()
           };
 
-          console.log('✅ Account data cached for:', accountNumber);
         }
       } catch (err) {
         if (isMountedRef.current) {
@@ -154,6 +155,7 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
             churchName: null,
             markupLink: null,
             discoveryFormSubmissionId: null,
+            contentSnareLink: null,
             department: null,
             usedFieldName: null,
             availableFields: [],

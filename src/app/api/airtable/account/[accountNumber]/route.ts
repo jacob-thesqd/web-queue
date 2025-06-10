@@ -52,8 +52,6 @@ export async function GET(
       );
     }
 
-    console.log('🔍 Fetching comprehensive account data for:', accountNumber);
-
     // Use environment variables for direct Airtable API call
     const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
     const baseId = 'appjHSW7sGtitxoHf';
@@ -66,8 +64,7 @@ export async function GET(
     // Use Airtable REST API to search for records
     const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableId}`;
     const filterFormula = `{Member #} = ${accountNumber}`;
-    
-    console.log('- Filter Formula:', filterFormula);
+  
     
     const response = await fetch(`${airtableUrl}?filterByFormula=${encodeURIComponent(filterFormula)}`, {
       headers: {
@@ -84,7 +81,6 @@ export async function GET(
     const data = await response.json();
     const searchResults = data.records || [];
 
-    console.log('- Found', searchResults.length, 'records');
 
     // Check if we found any records
     if (!searchResults || !Array.isArray(searchResults) || searchResults.length === 0) {
@@ -109,19 +105,6 @@ export async function GET(
     const sundayPhotosValue = record.fields && record.fields['Sunday Photos This Week'] ? record.fields['Sunday Photos This Week'] : 0;
     const sundayPhotosUploaded = sundayPhotosValue === 1;
 
-    console.log('- Comprehensive account data found:', {
-      memberId: accountData.fields['Member #'],
-      queueNumber: accountData.fields['Queue Number'],
-      dropboxPath: accountData.fields['Dropbox Folder Church Root'],
-      churchName: accountData.fields['Church Name'],
-      markupLink: accountData.fields['Markup Link'],
-      discoveryFormSubmissionId: accountData.fields['Discovery Form Submission ID'],
-      department: department,
-      departmentFieldUsed: usedFieldName,
-      sundayPhotosValue: sundayPhotosValue,
-      sundayPhotosUploaded: sundayPhotosUploaded
-    });
-
     return NextResponse.json({ 
       accountData,
       queueNumber: accountData.fields['Queue Number'],
@@ -129,6 +112,7 @@ export async function GET(
       churchName: accountData.fields['Church Name'],
       markupLink: accountData.fields['Markup Link'],
       discoveryFormSubmissionId: accountData.fields['Discovery Form Submission ID'],
+      contentSnareLink: accountData.fields['ContentSnare Link'],
       // Department data
       department,
       usedFieldName,

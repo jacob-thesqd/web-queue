@@ -13,8 +13,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    console.log('🔍 Fetching discovery submission for member:', memberNumber);
-
     // Step 1: Get the Discovery Form Submission ID from Airtable
     const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
     const FILLOUT_API_KEY = process.env.FILLOUT_API_KEY;
@@ -28,8 +26,6 @@ export async function GET(request: NextRequest) {
     // Use Airtable REST API to search for records
     const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableId}`;
     const filterFormula = `{Member #} = ${memberNumber}`;
-    
-    console.log('- Filter Formula:', filterFormula);
     
     const response = await fetch(`${airtableUrl}?filterByFormula=${encodeURIComponent(filterFormula)}`, {
       headers: {
@@ -46,8 +42,6 @@ export async function GET(request: NextRequest) {
     const data = await response.json();
     const searchResults = data.records || [];
 
-    console.log('- Found', searchResults.length, 'records');
-
     // Check if we found any records
     if (!searchResults || !Array.isArray(searchResults) || searchResults.length === 0) {
       console.log(`📭 No records found for member ${memberNumber}`);
@@ -63,8 +57,6 @@ export async function GET(request: NextRequest) {
       ? record.fields['Discovery Form Submission ID'] 
       : null;
 
-    console.log('- Discovery Form Submission ID:', discoveryFormSubmissionId);
-
     if (!discoveryFormSubmissionId) {
       return NextResponse.json({ 
         submission: null,
@@ -76,8 +68,6 @@ export async function GET(request: NextRequest) {
     if (!FILLOUT_API_KEY) {
       throw new Error('Fillout API key not configured');
     }
-
-    console.log('🔍 Fetching submission from Fillout:', discoveryFormSubmissionId);
     
     const fillout = new Fillout(FILLOUT_API_KEY);
     
@@ -85,15 +75,11 @@ export async function GET(request: NextRequest) {
       // Use the specific form ID for the All-In Discovery Questionnaire
       const formId = 'nvAtCKKq8ous'; // All-In Discovery Questionnaire form ID
       
-      console.log(`🔍 Getting submission ${discoveryFormSubmissionId} from form ${formId}`);
-      
       // Get the specific submission by ID with editLink included
       const submission = await fillout.getSubmission(formId, discoveryFormSubmissionId, {
         includeEditLink: true
       });
 
-      console.log('✅ Successfully retrieved submission from Fillout');
-      
       return NextResponse.json({ 
         submission,
         memberNumber: parseInt(memberNumber)
@@ -196,8 +182,6 @@ export async function GET(request: NextRequest) {
         editLink: `https://forms.thesqd.com/all-in-discovery?edit=${mockSubmission.submissionId}`
       };
 
-      console.log('✅ Returning mock submission data as fallback');
-      
       return NextResponse.json({ 
         submission: mockSubmissionWithEditLink,
         memberNumber: parseInt(memberNumber),

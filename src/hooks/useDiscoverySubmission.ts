@@ -35,7 +35,6 @@ export function useDiscoverySubmission() {
     setData(null);
 
     try {
-      console.log('🔍 Fetching discovery submission for member:', memberNumber);
       
       const response = await fetch(`/api/airtable/discovery-submission?memberNumber=${memberNumber}`);
       const result = await response.json();

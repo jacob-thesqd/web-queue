@@ -38,7 +38,7 @@ interface BookmarkLinkProps {
 export default function BookmarkLink({ memberData }: BookmarkLinkProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { data, loading, error, fetchSubmission, reset } = useDiscoverySubmission();
-  const { markupLink, discoveryFormSubmissionId, loading: accountLoading } = useAirtableAccount(memberData?.account);
+  const { markupLink, discoveryFormSubmissionId, contentSnareLink, loading: accountLoading } = useAirtableAccount(memberData?.account);
 
   const handleItemClick = async (item: BookmarkItem) => {
     if (item.name === "Discovery Questionnaire Submission") {
@@ -61,6 +61,12 @@ export default function BookmarkLink({ memberData }: BookmarkLinkProps) {
       } else {
         console.log("No markup link available for this account");
       }
+    } else if (item.name === "Content Collection Form") {
+      if (contentSnareLink) {
+        window.open(contentSnareLink, '_blank');
+      } else {
+        console.log("No content collection form available for this account");
+      }
     } else {
       // Handle other bookmark actions
       console.log(`Navigate to: ${item.link}`);
@@ -80,6 +86,8 @@ export default function BookmarkLink({ memberData }: BookmarkLinkProps) {
         return !discoveryFormSubmissionId;
       case "MarkUp Folder":
         return !markupLink;
+      case "Content Collection Form":
+        return !contentSnareLink;
       default:
         return false;
     }
@@ -93,6 +101,8 @@ export default function BookmarkLink({ memberData }: BookmarkLinkProps) {
         return !discoveryFormSubmissionId ? "No Submission" : "View";
       case "MarkUp Folder":
         return !markupLink ? "No Markup Folder" : "View";
+      case "Content Collection Form":
+        return !contentSnareLink ? "No Form Yet" : "View";
       default:
         return "View";
     }
