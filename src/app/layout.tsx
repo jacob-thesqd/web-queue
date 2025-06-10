@@ -7,6 +7,7 @@ import Image from "next/image";
 
 import { LayoutProvider } from "@/hooks/use-layout";
 import { CustomScrollbarProvider } from "@/components/providers/CustomScrollbarProvider";
+import { Analytics } from "@vercel/analytics/next" 
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -41,6 +42,7 @@ export default function RootLayout({
           </div>
           {children}
         </LayoutProvider>
+        <Analytics />
       </body>
     </html>
   );

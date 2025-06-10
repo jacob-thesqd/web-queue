@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { StrategyMemberData } from "@/lib/supabase/getStrategyMemberData"
 import DiscoverySubmissionModal from "./DiscoverySubmissionModal"
 import { useDiscoverySubmission } from "@/hooks/useDiscoverySubmission"
+import { useAirtableAccount } from "@/hooks/useAirtableAccount"
 
 interface BookmarkItem {
   name: string
@@ -37,6 +38,7 @@ interface BookmarkLinkProps {
 export default function BookmarkLink({ memberData }: BookmarkLinkProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { data, loading, error, fetchSubmission, reset } = useDiscoverySubmission();
+  const { markupLink, discoveryFormSubmissionId, loading: accountLoading } = useAirtableAccount(memberData?.account);
 
   const handleItemClick = async (item: BookmarkItem) => {
     if (item.name === "Discovery Questionnaire Submission") {
@@ -45,9 +47,20 @@ export default function BookmarkLink({ memberData }: BookmarkLinkProps) {
         return;
       }
       
+      if (!discoveryFormSubmissionId) {
+        console.log("No discovery form submission ID available for this account");
+        return;
+      }
+      
       console.log(`Opening discovery submission modal for account: ${memberData.account}`);
       setIsModalOpen(true);
       await fetchSubmission(memberData.account);
+    } else if (item.name === "MarkUp Folder") {
+      if (markupLink) {
+        window.open(markupLink, '_blank');
+      } else {
+        console.log("No markup link available for this account");
+      }
     } else {
       // Handle other bookmark actions
       console.log(`Navigate to: ${item.link}`);
@@ -57,6 +70,32 @@ export default function BookmarkLink({ memberData }: BookmarkLinkProps) {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     reset();
+  };
+
+  const isButtonDisabled = (itemName: string) => {
+    if (accountLoading) return true;
+    
+    switch (itemName) {
+      case "Discovery Questionnaire Submission":
+        return !discoveryFormSubmissionId;
+      case "MarkUp Folder":
+        return !markupLink;
+      default:
+        return false;
+    }
+  };
+
+  const getButtonText = (itemName: string) => {
+    if (accountLoading) return "Loading...";
+    
+    switch (itemName) {
+      case "Discovery Questionnaire Submission":
+        return !discoveryFormSubmissionId ? "No Submission" : "View";
+      case "MarkUp Folder":
+        return !markupLink ? "No Markup Folder" : "View";
+      default:
+        return "View";
+    }
   };
 
   return (
@@ -71,8 +110,9 @@ export default function BookmarkLink({ memberData }: BookmarkLinkProps) {
                 size="sm"
                 className="flex-shrink-0"
                 onClick={() => handleItemClick(item)}
+                disabled={isButtonDisabled(item.name)}
               >
-                View <span className="text-[14px] font-bold">→</span>
+                {getButtonText(item.name)} {!isButtonDisabled(item.name) && <span className="text-[14px] font-bold">→</span>}
               </Button>
             </div>
           </div>

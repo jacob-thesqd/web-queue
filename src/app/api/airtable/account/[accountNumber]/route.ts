@@ -79,14 +79,18 @@ export async function GET(
       memberId: accountData.fields['Member #'],
       queueNumber: accountData.fields['Queue Number'],
       dropboxPath: accountData.fields['Dropbox Folder Church Root'],
-      churchName: accountData.fields['Church Name']
+      churchName: accountData.fields['Church Name'],
+      markupLink: accountData.fields['Markup Link'],
+      discoveryFormSubmissionId: accountData.fields['Discovery Form Submission ID']
     });
 
     return NextResponse.json({ 
       accountData,
       queueNumber: accountData.fields['Queue Number'],
       dropboxPath: accountData.fields['Dropbox Folder Church Root'],
-      churchName: accountData.fields['Church Name']
+      churchName: accountData.fields['Church Name'],
+      markupLink: accountData.fields['Markup Link'],
+      discoveryFormSubmissionId: accountData.fields['Discovery Form Submission ID']
     });
   } catch (error) {
     console.error('❌ Error fetching account data from Airtable:', error);

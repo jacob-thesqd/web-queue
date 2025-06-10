@@ -36,7 +36,7 @@ export default function AccountManager({ accountNumber }: AccountManagerProps) {
 
   // Extract calendly URL (use the first available one)
   const calendlyUrl = data
-    .find(item => item.am_calendly)?.am_calendly || "https://www.google.com";
+    .find(item => item.am_calendly)?.am_calendly || "https://www.churchmediasquad.com";
 
   // Create display JSX based on account managers
   const getDisplayContent = () => {
@@ -70,7 +70,9 @@ export default function AccountManager({ accountNumber }: AccountManagerProps) {
       profilePictures={profilePictures.length > 0 ? profilePictures : fallbackPictures}
       displayContent={getDisplayContent()}
     />
-    <CalendlyDialog calendlyUrl={calendlyUrl} />
+    {accountManagerNames.length > 0 && (
+      <CalendlyDialog calendlyUrl={calendlyUrl} />
+    )}
     </div>
   );
 }
