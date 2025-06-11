@@ -52,12 +52,12 @@ export default function SettingsComponent({ visibleCardCount = 3 }: SettingsComp
         </DialogTrigger>
         <DialogContent className="sm:max-w-md !fixed !top-1/2 !left-1/2 !-translate-x-1/2 !-translate-y-1/2 !z-[9999]">
           <DialogHeader>
-            <DialogTitle className="text-center">App Settings</DialogTitle>
+            <DialogTitle className="text-center mb-3">Settings</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4">
             <div>
-              <h3 className="text-sm font-medium mb-3 text-center">Layout</h3>
+              <h3 className="text-sm font-medium mb-3 text-left">Layout</h3>
               <RadioGroup 
                 className="gap-2" 
                 value={layout === "list" ? "1" : "2"} 
