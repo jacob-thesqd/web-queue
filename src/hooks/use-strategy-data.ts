@@ -16,6 +16,7 @@ export function useStrategyData(accountId?: string) {
   const [memberData, setMemberData] = useState<StrategyMemberData | null>(null);
   const [loading, setLoading] = useState(true);
   const isMountedRef = useRef(true);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   useEffect(() => {
     if (!accountId) {
@@ -92,11 +93,27 @@ export function useStrategyData(accountId?: string) {
     return () => {
       isMountedRef.current = false;
     };
-  }, [accountId]);
+  }, [accountId, refreshTrigger]);
 
   // Update the ref when component unmounts
+  // Listen for global cache clear events
   useEffect(() => {
+    const handleGlobalCacheClear = () => {
+      // Clear module-level cache
+      Object.keys(strategyDataCache).forEach(key => {
+        delete strategyDataCache[key];
+      });
+      Object.keys(ongoingRequests).forEach(key => {
+        delete ongoingRequests[key];
+      });
+      // Trigger refresh
+      setRefreshTrigger(prev => prev + 1);
+    };
+
+    window.addEventListener('global-cache-clear', handleGlobalCacheClear);
+    
     return () => {
+      window.removeEventListener('global-cache-clear', handleGlobalCacheClear);
       isMountedRef.current = false;
     };
   }, []);

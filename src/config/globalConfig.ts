@@ -31,6 +31,7 @@ export const globalConfig = {
   dropbox: {
     devMode: false, // Set to false in production
     devModeDBPath: "/Church Media Company Team Folder/2. Client Accounts/306 - Bogus Summit Sanctuary",
+    productionPath: "/Church Media Company Team Folder/2. Client Accounts", // Production base path
     chunkSize: 149 * 1024 * 1024, // 149 MB chunks
     maxRetries: 3 // Number of retries for 409 errors
   },

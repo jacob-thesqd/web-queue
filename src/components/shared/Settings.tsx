@@ -1,7 +1,7 @@
 "use client"
 
-import { useId, useState } from "react"
-import { LayoutGrid, Rows3 } from "lucide-react"
+import { useId, useState, useEffect } from "react"
+import { LayoutGrid, Rows3, RefreshCw } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -14,6 +14,7 @@ import {
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useLayout } from "@/hooks/use-layout"
+import { useGlobalDataRefresh } from "@/hooks/useGlobalDataRefresh"
 
 interface SettingsComponentProps {
   visibleCardCount?: number;
@@ -23,19 +24,20 @@ export default function SettingsComponent({ visibleCardCount = 3 }: SettingsComp
   const id = useId()
   const [open, setOpen] = useState(false)
   const { layout, setLayout, isMobile } = useLayout()
-
+  const { isRefreshing, refreshAllData } = useGlobalDataRefresh()
+  
   const handleLayoutChange = (value: string) => {
     const newLayout = value === "1" ? "list" : "grid"
     setLayout(newLayout)
   }
 
+  // Debug logging
+  useEffect(() => {
+    console.log('Settings component render:', { isMobile, visibleCardCount, isRefreshing })
+  }, [isMobile, visibleCardCount, isRefreshing])
+
   // Hide settings button if no options are available (i.e., on mobile where only list is available)
-  if (isMobile) {
-    return null
-  }
-  
-  // Hide settings button if only 1 card is showing (only layout toggle available, but limited usefulness)
-  if (visibleCardCount === 1) {
+  if (isMobile && visibleCardCount === 1) {
     return null
   }
   
@@ -55,45 +57,76 @@ export default function SettingsComponent({ visibleCardCount = 3 }: SettingsComp
             <DialogTitle className="text-center mb-3">Settings</DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4">
+          <div className="space-y-6">
+            {/* Layout Section - Only show if not mobile or if multiple cards visible */}
+            {(!isMobile || visibleCardCount > 1) && (
+              <div>
+                <h3 className="text-sm font-medium mb-3 text-left">Layout</h3>
+                <RadioGroup 
+                  className="gap-2" 
+                  value={layout === "list" ? "1" : "2"} 
+                  onValueChange={handleLayoutChange}
+                >
+                  {/* Radio card #1 */}
+                  <div className="border-input has-data-[state=checked]:border-primary/50 has-data-[state=checked]:bg-accent relative flex w-full items-center justify-between rounded-md border px-4 py-3 shadow-xs outline-none">
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <Rows3 className="w-4 h-4" />
+                        <Label htmlFor={`${id}-1`}>List</Label>
+                      </div>
+                    </div>
+                    <RadioGroupItem
+                      value="1"
+                      id={`${id}-1`}
+                      aria-describedby={`${id}-1-description`}
+                      className="after:absolute after:inset-0"
+                    />
+                  </div>
+                  {/* Radio card #2 - Only show on desktop */}
+                  {!isMobile && (
+                    <div className="border-input has-data-[state=checked]:border-primary/50 has-data-[state=checked]:bg-accent relative flex w-full items-center justify-between rounded-md border px-4 py-3 shadow-xs outline-none">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <LayoutGrid className="w-4 h-4" />
+                          <Label htmlFor={`${id}-2`}>Grid</Label>
+                        </div>
+                      </div>
+                      <RadioGroupItem
+                        value="2"
+                        id={`${id}-2`}
+                        aria-describedby={`${id}-2-description`}
+                        className="after:absolute after:inset-0"
+                      />
+                    </div>
+                  )}
+                </RadioGroup>
+              </div>
+            )}
+
+            {/* Data Management Section - Always show for debugging */}
             <div>
-              <h3 className="text-sm font-medium mb-3 text-left">Layout</h3>
-              <RadioGroup 
-                className="gap-2" 
-                value={layout === "list" ? "1" : "2"} 
-                onValueChange={handleLayoutChange}
-              >
-                {/* Radio card #1 */}
-                <div className="border-input has-data-[state=checked]:border-primary/50 has-data-[state=checked]:bg-accent relative flex w-full items-center justify-between rounded-md border px-4 py-3 shadow-xs outline-none">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                      <Rows3 className="w-4 h-4" />
-                      <Label htmlFor={`${id}-1`}>List</Label>
+              <div className="border-input relative flex w-full items-center justify-between rounded-md border px-4 py-3 shadow-xs outline-none">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                    <div>
+                      <Label className="text-sm font-medium">Refresh App Data</Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Force reload all content with fresh data
+                      </p>
                     </div>
                   </div>
-                  <RadioGroupItem
-                    value="1"
-                    id={`${id}-1`}
-                    aria-describedby={`${id}-1-description`}
-                    className="after:absolute after:inset-0"
-                  />
                 </div>
-                {/* Radio card #2 - Only show on desktop */}
-                <div className="border-input has-data-[state=checked]:border-primary/50 has-data-[state=checked]:bg-accent relative flex w-full items-center justify-between rounded-md border px-4 py-3 shadow-xs outline-none">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                      <LayoutGrid className="w-4 h-4" />
-                      <Label htmlFor={`${id}-2`}>Grid</Label>
-                    </div>
-                  </div>
-                  <RadioGroupItem
-                    value="2"
-                    id={`${id}-2`}
-                    aria-describedby={`${id}-2-description`}
-                    className="after:absolute after:inset-0"
-                  />
-                </div>
-              </RadioGroup>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={refreshAllData}
+                  disabled={isRefreshing}
+                  className="shrink-0"
+                >
+                  {isRefreshing ? 'Refreshing...' : 'Refresh'}
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>
