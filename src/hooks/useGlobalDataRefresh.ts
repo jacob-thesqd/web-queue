@@ -12,8 +12,11 @@ export function useGlobalDataRefresh() {
     setIsRefreshing(true);
     
     try {
+      console.log('🔄 Starting global data refresh...');
+      
       // 1. Clear the global API cache
       apiCache.clear();
+      console.log('✅ Global API cache cleared');
       
       // 2. Clear all localStorage caches used by various hooks
       if (typeof window !== 'undefined') {
@@ -27,40 +30,21 @@ export function useGlobalDataRefresh() {
           key.includes('strategy')
         );
         keysToRemove.forEach(key => localStorage.removeItem(key));
+        console.log(`✅ Cleared ${keysToRemove.length} localStorage keys`);
       }
       
       // 3. Clear module-level caches by dispatching a custom event
-      // Components can listen to this event and clear their local caches
       window.dispatchEvent(new CustomEvent('global-cache-clear', { 
         detail: { timestamp: Date.now() } 
       }));
+      console.log('✅ Global cache clear event dispatched');
       
-      // 4. Force URL change to trigger React hooks re-execution
-      const currentUrl = new URL(window.location.href);
-      const searchParams = new URLSearchParams(currentUrl.search);
-      const refreshParam = `_r${Date.now()}`;
-      searchParams.set('refresh', refreshParam);
-      
-      // Update URL to trigger useEffect dependencies
-      const newUrl = `${currentUrl.pathname}?${searchParams.toString()}`;
-      window.history.replaceState({}, '', newUrl);
-      
-      // Give components time to react to the URL change and re-fetch data
-      setTimeout(() => {
-        // Clean up the refresh parameter
-        const cleanUrl = new URL(window.location.href);
-        const cleanParams = new URLSearchParams(cleanUrl.search);
-        cleanParams.delete('refresh');
-        const finalUrl = cleanParams.toString() ? 
-          `${cleanUrl.pathname}?${cleanParams.toString()}` : 
-          cleanUrl.pathname;
-        window.history.replaceState({}, '', finalUrl);
-        
-        setIsRefreshing(false);
-      }, 1500); // Allow time for data fetching
+      // 4. Simple page reload to refresh all data
+      console.log('🔄 Reloading page for fresh data...');
+      window.location.reload();
       
     } catch (error) {
-      console.error('Error during global data refresh:', error);
+      console.error('❌ Error during global data refresh:', error);
       setIsRefreshing(false);
     }
   }, []);

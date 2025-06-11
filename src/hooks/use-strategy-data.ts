@@ -16,14 +16,16 @@ export function useStrategyData(accountId?: string) {
   const [memberData, setMemberData] = useState<StrategyMemberData | null>(null);
   const [loading, setLoading] = useState(true);
   const isMountedRef = useRef(true);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   useEffect(() => {
     if (!accountId) {
+      console.log('⚠️ No accountId provided to useStrategyData');
       setMemberData(null);
       setLoading(false);
       return;
     }
+    
+    console.log('🔍 useStrategyData fetching for account:', accountId);
 
     const cacheKey = accountId;
 
@@ -58,7 +60,6 @@ export function useStrategyData(accountId?: string) {
     const fetchData = async () => {
       try {
         setLoading(true);
-        console.log('🔍 Fetching strategy data for:', accountId);
         const data = await fetchStrategyMember(accountId);
         
         if (isMountedRef.current) {
@@ -70,7 +71,6 @@ export function useStrategyData(accountId?: string) {
               data,
               timestamp: Date.now()
             };
-            console.log('✅ Strategy data cached for:', accountId);
           }
         }
       } catch (err) {
@@ -93,7 +93,7 @@ export function useStrategyData(accountId?: string) {
     return () => {
       isMountedRef.current = false;
     };
-  }, [accountId, refreshTrigger]);
+  }, [accountId]);
 
   // Update the ref when component unmounts
   // Listen for global cache clear events
@@ -106,8 +106,7 @@ export function useStrategyData(accountId?: string) {
       Object.keys(ongoingRequests).forEach(key => {
         delete ongoingRequests[key];
       });
-      // Trigger refresh
-      setRefreshTrigger(prev => prev + 1);
+      // Cache clear will trigger refresh through refreshCounter dependency
     };
 
     window.addEventListener('global-cache-clear', handleGlobalCacheClear);

@@ -53,7 +53,6 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
   });
 
   const isMountedRef = useRef(true);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     if (!accountNumber) {
@@ -180,7 +179,7 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
     return () => {
       isMountedRef.current = false;
     };
-  }, [accountNumber, refreshTrigger]);
+  }, [accountNumber]);
 
   // Listen for global cache clear events
   useEffect(() => {
@@ -192,8 +191,7 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
       Object.keys(ongoingRequests).forEach(key => {
         delete ongoingRequests[key];
       });
-      // Trigger refresh
-      setRefreshTrigger(prev => prev + 1);
+             // Cache clear will trigger refresh through refreshCounter dependency
     };
 
     window.addEventListener('global-cache-clear', handleGlobalCacheClear);

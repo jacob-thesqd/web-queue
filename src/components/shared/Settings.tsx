@@ -30,12 +30,7 @@ export default function SettingsComponent({ visibleCardCount = 3 }: SettingsComp
     const newLayout = value === "1" ? "list" : "grid"
     setLayout(newLayout)
   }
-
-  // Debug logging
-  useEffect(() => {
-    console.log('Settings component render:', { isMobile, visibleCardCount, isRefreshing })
-  }, [isMobile, visibleCardCount, isRefreshing])
-
+  
   // Hide settings button if no options are available (i.e., on mobile where only list is available)
   if (isMobile && visibleCardCount === 1) {
     return null
