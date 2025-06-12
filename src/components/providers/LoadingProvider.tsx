@@ -1,7 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, ReactNode, useEffect } from "react";
-import { useLoadingState, setGlobalLoadingContext } from "@/hooks/use-loading-state";
+import React, { createContext, useContext, ReactNode } from "react";
+import { useLoadingState } from "@/hooks/use-loading-state";
 import { LoadingOverlay } from "@/components/ui/loading-overlay";
 
 interface LoadingContextType {
@@ -33,11 +33,6 @@ interface LoadingProviderProps {
 
 export function LoadingProvider({ children }: LoadingProviderProps) {
   const loadingState = useLoadingState();
-
-  // Set the global context for the useComponentLoading hook
-  useEffect(() => {
-    setGlobalLoadingContext(loadingState);
-  }, [loadingState]);
 
   return (
     <LoadingContext.Provider value={loadingState}>
