@@ -135,13 +135,13 @@ export default function RootLayout({
         />
       </head>
       <body className={`min-h-screen bg-background font-sans antialiased ${inter.variable}`}>
-        {/* Fixed background element - renders immediately */}
+        {/* Fixed background element - renders immediately 
         <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-10"
         style={{
           backgroundImage: 'url(/bg-gradient-2.jpeg)'
         }}
-      />
+      />*/}
       {/* Dot grid overlay */}
       <div className="fixed-dot-grid-background" />
         
