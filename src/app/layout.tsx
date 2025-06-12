@@ -9,6 +9,7 @@ import { Suspense } from "react";
 import { LayoutProvider } from "@/hooks/use-layout";
 import { CustomScrollbarProvider } from "@/components/providers/CustomScrollbarProvider";
 import { ServiceWorkerProvider } from "@/components/providers/ServiceWorkerProvider";
+import { LoadingProvider } from "@/components/providers/LoadingProvider";
 import { Analytics } from "@vercel/analytics/next" 
 
 const inter = Inter({ 
@@ -55,11 +56,13 @@ function ImmediateLogo() {
 function OptimizedProviders({ children }: { children: React.ReactNode }) {
   return (
     <Suspense fallback={null}>
-      <ServiceWorkerProvider />
-      <CustomScrollbarProvider />
-      <LayoutProvider>
-        {children}
-      </LayoutProvider>
+      <LoadingProvider>
+        <ServiceWorkerProvider />
+        <CustomScrollbarProvider />
+        <LayoutProvider>
+          {children}
+        </LayoutProvider>
+      </LoadingProvider>
     </Suspense>
   );
 }

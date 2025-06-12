@@ -18,7 +18,8 @@ export const globalConfig = {
     airtableQueueNumber: true, // Enable Airtable queue number integration
     socialMediaUploader: true, // Enable social media uploader with dynamic Dropbox paths
     airtableDepartmentFiltering: true, // Enable department-based card filtering
-    discoverySubmissionModal: true // Enable discovery questionnaire submission modal
+    discoverySubmissionModal: true, // Enable discovery questionnaire submission modal
+    loadingOverlay: true // Enable glassmorphic loading overlay
   },
   airtable: {
     cacheDuration: 60 * 60 * 1000, // 1 hour in milliseconds

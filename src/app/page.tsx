@@ -12,6 +12,8 @@ import { useLayout } from "@/hooks/use-layout";
 import { useAirtableAccount } from "@/hooks/useAirtableAccount";
 import { getDepartmentCardVisibility, hasVisibleCards, countVisibleCards } from "@/lib/departmentUtils";
 import { globalConfig } from "@/config/globalConfig";
+import { useLoading } from "@/components/providers/LoadingProvider";
+import { CardLoadingWrapper } from "@/components/ui/card-loading-wrapper";
 
 // Critical above-the-fold components - load immediately
 import { AnimatedText } from "@/components/ui/animated-underline-text-one";
@@ -74,17 +76,57 @@ function HomeContent() {
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isClientReady, setIsClientReady] = useState(false);
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Loading system integration
+  const { 
+    registerComponent, 
+    markComponentLoaded, 
+    markComponentError 
+  } = useLoading();
+
+  // Register main page components for loading tracking
+  useEffect(() => {
+    registerComponent('home-content');
+    registerComponent('strategy-data');
+    registerComponent('account-data');
+    registerComponent('page-layout');
+    
+    return () => {
+      // Components will be automatically unregistered by the provider
+    };
+  }, [registerComponent]);
 
   // Immediately set client ready to render content ASAP
   useEffect(() => {
     setIsClientReady(true);
-  }, []);
+    markComponentLoaded('home-content');
+  }, [markComponentLoaded]);
 
   // Fetch comprehensive account data (includes department and all other data) - but don't block rendering
   const { department, loading: accountLoading, error: accountError } = useAirtableAccount(
     globalConfig.components.airtableDepartmentFiltering && strategyMemberData?.account ? 
       strategyMemberData.account : undefined
   );
+
+  // Track strategy data loading
+  useEffect(() => {
+    if (!loading && strategyMemberData) {
+      markComponentLoaded('strategy-data');
+    } else if (!loading && !strategyMemberData) {
+      markComponentError('strategy-data', 'No strategy data available');
+    }
+  }, [loading, strategyMemberData, markComponentLoaded, markComponentError]);
+
+  // Track account data loading
+  useEffect(() => {
+    if (!accountLoading) {
+      if (accountError) {
+        markComponentError('account-data', accountError);
+      } else {
+        markComponentLoaded('account-data');
+      }
+    }
+  }, [accountLoading, accountError, markComponentLoaded, markComponentError]);
 
   // Memoize card visibility
   const cardVisibility = useMemo(() => {
@@ -95,6 +137,13 @@ function HomeContent() {
 
   // Memoize visible card count
   const visibleCardCount = useMemo(() => countVisibleCards(cardVisibility), [cardVisibility]);
+
+  // Track when layout is ready
+  useEffect(() => {
+    if (effectiveLayout && visibleCardCount !== undefined) {
+      markComponentLoaded('page-layout');
+    }
+  }, [effectiveLayout, visibleCardCount, markComponentLoaded]);
 
   // Optimized scroll handler
   const handleScroll = useCallback(throttle(() => {
@@ -243,37 +292,61 @@ function HomeContent() {
                       effectiveLayout === "list" ? (
                         <div className="space-y-4">
                           {cardVisibility.showWebCard && (
-                            <div className="w-full flex justify-center">
+                            <CardLoadingWrapper 
+                              cardId="web-card" 
+                              dependencies={[strategyMemberData]}
+                              className="w-full flex justify-center"
+                            >
                               <WebCard {...strategyMemberData} />
-                            </div>
+                            </CardLoadingWrapper>
                           )}
                           {cardVisibility.showBrandCard && (
-                            <div className="w-full flex justify-center">
+                            <CardLoadingWrapper 
+                              cardId="brand-card" 
+                              dependencies={[true]}
+                              className="w-full flex justify-center"
+                            >
                               <BrandCard />
-                            </div>
+                            </CardLoadingWrapper>
                           )}
                           {cardVisibility.showSMCard && (
-                            <div className="w-full flex justify-center">
+                            <CardLoadingWrapper 
+                              cardId="sm-card" 
+                              dependencies={[true]}
+                              className="w-full flex justify-center"
+                            >
                               <SMCard />
-                            </div>
+                            </CardLoadingWrapper>
                           )}
                         </div>
                       ) : (
                         <div className="flex flex-wrap gap-4 justify-start">
                           {cardVisibility.showWebCard && (
-                            <div className="flex-shrink-0 w-[calc(50%-0.5rem)]">
+                            <CardLoadingWrapper 
+                              cardId="web-card" 
+                              dependencies={[strategyMemberData]}
+                              className="flex-shrink-0 w-[calc(50%-0.5rem)]"
+                            >
                               <WebCard {...strategyMemberData} />
-                            </div>
+                            </CardLoadingWrapper>
                           )}
                           {cardVisibility.showBrandCard && (
-                            <div className="flex-shrink-0 w-[calc(50%-0.5rem)]">
+                            <CardLoadingWrapper 
+                              cardId="brand-card" 
+                              dependencies={[true]}
+                              className="flex-shrink-0 w-[calc(50%-0.5rem)]"
+                            >
                               <BrandCard />
-                            </div>
+                            </CardLoadingWrapper>
                           )}
                           {cardVisibility.showSMCard && (
-                            <div className="flex-shrink-0 w-[calc(50%-0.5rem)]">
+                            <CardLoadingWrapper 
+                              cardId="sm-card" 
+                              dependencies={[true]}
+                              className="flex-shrink-0 w-[calc(50%-0.5rem)]"
+                            >
                               <SMCard />
-                            </div>
+                            </CardLoadingWrapper>
                           )}
                         </div>
                       )
