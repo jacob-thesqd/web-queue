@@ -7,7 +7,8 @@ export const globalConfig = {
   components: {
     header: true,
     logo: true,
-    dotGridBackground: true,
+    showDotGrid: false,
+    showDotGridGradient: true,
     clientSideDataFetching: true,
     churchWelcome: true,
     accountManager: true,
@@ -19,7 +20,10 @@ export const globalConfig = {
     socialMediaUploader: true, // Enable social media uploader with dynamic Dropbox paths
     airtableDepartmentFiltering: true, // Enable department-based card filtering
     discoverySubmissionModal: true, // Enable discovery questionnaire submission modal
-    loadingOverlay: true // Enable glassmorphic loading overlay
+    loadingOverlay: true, // Enable glassmorphic loading overlay
+    cardVariant: "glass" as "default" | "outline" | "ghost" | "glass", // Control card variant across the app
+    useAirtableForAllData: true, // New flag to indicate using Airtable for all data
+    avatarVariant: "glass" as "default" | "glass",
   },
   loadingOverlay: {
     enabled: true, // Master toggle for loading overlay

@@ -1,6 +1,12 @@
 import { StrategyMemberData } from './supabase/getStrategyMemberData';
+import { globalConfig } from '@/config/globalConfig';
 
+/**
+ * @deprecated This function is deprecated in favor of using Airtable data directly.
+ * Use useAirtableAccount hook instead.
+ */
 export async function fetchStrategyMember(accountId?: string): Promise<StrategyMemberData | null> {
+  console.warn('fetchStrategyMember is deprecated. Use useAirtableAccount hook instead.');
   
   if (!accountId) return null;
   

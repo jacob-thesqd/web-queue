@@ -2,6 +2,7 @@
 
 import { useId, useState, useEffect } from "react"
 import { LayoutGrid, Rows3, RefreshCw } from "lucide-react"
+import { motion, Easing } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -37,7 +38,12 @@ export default function SettingsComponent({ visibleCardCount = 3 }: SettingsComp
   }
   
   return (
-    <div style={{ pointerEvents: 'auto' }}>
+    <motion.div 
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" as Easing, delay: 0.2 }}
+      style={{ pointerEvents: 'auto' }}
+    >
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button 
@@ -126,6 +132,6 @@ export default function SettingsComponent({ visibleCardCount = 3 }: SettingsComp
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   )
 }

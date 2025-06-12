@@ -437,8 +437,8 @@ export default function SocialMediaUploader({ accountNumber: propAccountNumber }
             <p className="text-muted-foreground text-xs">
               Max {maxFiles} files ∙ Up to {maxSizeMB}MB each
             </p>
-            <Button variant="outline" className="mt-4" onClick={openFileDialog}>
-              <UploadIcon className="-ms-1 opacity-60" aria-hidden="true" />
+            <Button variant="glass" className="mt-4" onClick={openFileDialog}>
+              <UploadIcon className="-ms-1 border-white/90" aria-hidden="true" />
               {globalConfig.socialMediaUploader.customButtonText}
             </Button>
           </div>

@@ -206,7 +206,11 @@ function StepperIndicator({
     <span
       data-slot="stepper-indicator"
       className={cn(
-        "bg-muted text-muted-foreground data-[state=active]:bg-primary data-[state=completed]:bg-primary data-[state=active]:text-primary-foreground data-[state=completed]:text-primary-foreground relative flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-medium",
+        "text-white border",
+        "bg-[#341756]/80 border-[#341756]/90",
+        "data-[state=active]:bg-[#341756] data-[state=completed]:bg-[#341756] data-[state=active]:text-white data-[state=completed]:text-white",
+        "data-[state=inactive]:opacity-70 data-[state=inactive]:bg-[#341756]/30 data-[state=inactive]:border-[#341756]/30",
+        "relative flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-medium",
         className
       )}
       data-state={state}
@@ -290,7 +294,8 @@ function StepperSeparator({
     <div
       data-slot="stepper-separator"
       className={cn(
-        "bg-muted group-data-[state=completed]/step:bg-primary m-0.5 group-data-[orientation=horizontal]/stepper:h-0.5 group-data-[orientation=horizontal]/stepper:w-full group-data-[orientation=horizontal]/stepper:flex-1 group-data-[orientation=vertical]/stepper:h-12 group-data-[orientation=vertical]/stepper:w-0.5",
+        "bg-gray-700/90 group-data-[state=completed]/step:bg-[#341756] m-0.5",
+        "group-data-[orientation=horizontal]/stepper:h-0.5 group-data-[orientation=horizontal]/stepper:w-full group-data-[orientation=horizontal]/stepper:flex-1 group-data-[orientation=vertical]/stepper:h-8 group-data-[orientation=vertical]/stepper:w-0.5",
         className
       )}
       {...props}

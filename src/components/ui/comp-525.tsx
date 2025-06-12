@@ -7,7 +7,6 @@ import {
   StepperTitle,
   StepperTrigger,
 } from "@/components/ui/stepper"
-import { Skeleton } from "@/components/ui/skeleton"
 import React, { useMemo } from "react"
 import { MilestoneStep } from "@/api/airtable"
 import { useTaskTemplates } from "@/hooks/useTaskTemplates"
@@ -98,8 +97,7 @@ export default function MilestoneStepperComponent({
       </div>
     );
   }
-  
-  // Remove loading skeleton - always render content immediately
+
   return (
     <div className={`${isGridMode ? 'space-y-2' : 'space-y-4'} ${isGridMode ? 'text-left' : 'text-center'} w-full ${isGridMode ? 'max-w-sm' : 'max-w-4xl'} ${isGridMode ? 'mx-0' : 'mx-auto'} ml-2`}>
       {isGridMode ? (

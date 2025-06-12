@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { StrategyMemberData } from '@/lib/supabase/getStrategyMemberData';
-import { fetchStrategyMember } from '@/lib/api-helpers';
 import { globalConfig } from '@/config/globalConfig';
+import { useAirtableAccount } from '@/hooks/useAirtableAccount';
+import { convertAirtableToStrategyData } from '@/lib/airtable/strategyDataCompatLayer';
 
 // Cache for strategy member data with timestamp-based expiration
 const strategyDataCache: Record<string, { 
@@ -17,6 +18,9 @@ export function useStrategyData(accountId?: string) {
   const [loading, setLoading] = useState(true);
   const isMountedRef = useRef(true);
   
+  // Use Airtable data directly
+  const airtableData = useAirtableAccount(accountId);
+  
   useEffect(() => {
     if (!accountId) {
       console.log('⚠️ No accountId provided to useStrategyData');
@@ -25,7 +29,7 @@ export function useStrategyData(accountId?: string) {
       return;
     }
     
-    console.log('🔍 useStrategyData fetching for account:', accountId);
+    console.log('🔍 useStrategyData for account:', accountId);
 
     const cacheKey = accountId;
 
@@ -37,63 +41,30 @@ export function useStrategyData(accountId?: string) {
       setLoading(false);
       return;
     }
-
-    // Check if there's already an ongoing request for this account
-    if (cacheKey in ongoingRequests) {
-      console.log('⏳ Strategy request already in progress for account:', accountId);
-      ongoingRequests[cacheKey].then(() => {
-        // Re-check cache after the ongoing request completes
-        const updatedCache = strategyDataCache[cacheKey];
-        if (updatedCache && isMountedRef.current) {
-          setMemberData(updatedCache.data);
-          setLoading(false);
-        }
-      }).catch(() => {
-        // Handle errors from ongoing request
-        if (isMountedRef.current) {
-          setLoading(false);
-        }
-      });
-      return;
-    }
-
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchStrategyMember(accountId);
-        
-        if (isMountedRef.current) {
-          setMemberData(data);
-          
-          // Cache the data with timestamp if successful
-          if (data) {
-            strategyDataCache[cacheKey] = {
-              data,
-              timestamp: Date.now()
-            };
-          }
-        }
-      } catch (err) {
-        console.error('Unexpected error fetching strategy member data:', err);
-        if (isMountedRef.current) {
-          setMemberData(null);
-        }
-      } finally {
-        if (isMountedRef.current) {
-          setLoading(false);
-        }
-        // Remove from ongoing requests
-        delete ongoingRequests[cacheKey];
+    
+    // Set loading state based on Airtable loading state
+    setLoading(airtableData.loading);
+    
+    // Convert Airtable data to StrategyMemberData format when available
+    if (!airtableData.loading && airtableData.accountData) {
+      const compatData = convertAirtableToStrategyData(airtableData);
+      setMemberData(compatData);
+      
+      // Cache the data with timestamp if successful
+      if (compatData) {
+        strategyDataCache[cacheKey] = {
+          data: compatData,
+          timestamp: Date.now()
+        };
       }
-    };
-
-    // Store the promise to prevent duplicate requests
-    ongoingRequests[cacheKey] = fetchData();
-
+    } else if (!airtableData.loading) {
+      setMemberData(null);
+    }
+    
     return () => {
       isMountedRef.current = false;
     };
-  }, [accountId]);
+  }, [accountId, airtableData]);
 
   // Update the ref when component unmounts
   // Listen for global cache clear events
@@ -117,5 +88,5 @@ export function useStrategyData(accountId?: string) {
     };
   }, []);
 
-  return { data: memberData, loading };
+  return { data: memberData, loading: loading || airtableData.loading };
 } 

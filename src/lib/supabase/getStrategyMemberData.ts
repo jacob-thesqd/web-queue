@@ -1,6 +1,10 @@
 import { supabase } from './client';
 import { cache } from 'react';
 
+/**
+ * @deprecated This type is maintained for backward compatibility.
+ * New code should use AirtableAccountData from '@/app/api/airtable/account/[accountNumber]/route'
+ */
 export type StrategyMemberData = {
   id: string;
   account: number;
@@ -17,7 +21,12 @@ export type StrategyMemberData = {
   url?: string;
 };
 
+/**
+ * @deprecated This function is deprecated in favor of using Airtable data.
+ * Use useAirtableAccount hook instead.
+ */
 export const getStrategyMemberData = cache(async (accountId?: string): Promise<StrategyMemberData | null> => {
+  console.warn('getStrategyMemberData is deprecated. Use useAirtableAccount hook instead.');
   try {
     let query = supabase
       .from('strategy_members')
@@ -71,11 +80,16 @@ export const getStrategyMemberData = cache(async (accountId?: string): Promise<S
 });
 
 /**
+ * @deprecated This function is deprecated in favor of using Airtable data.
+ * Use useAirtableAccount hook instead.
+ * 
  * Enhanced function that returns strategy member data with additional web builder fields
  * This function calls a Postgres stored procedure to get enriched data
  */
 export const get_strategy_member_data = cache(async (accountId: number): Promise<StrategyMemberData | null> => {
+  console.warn('get_strategy_member_data is deprecated. Use useAirtableAccount hook instead.');
   try {
+    console.log('Calling get_strategy_member_data function with accountId:', accountId);
     // Call the Postgres stored procedure
     const { data, error } = await supabase
       .rpc('get_strategy_member_data', { p_account_id: accountId });

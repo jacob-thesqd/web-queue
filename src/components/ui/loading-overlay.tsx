@@ -34,7 +34,7 @@ export function LoadingOverlay({ isLoading, onLoadingComplete }: LoadingOverlayP
             duration: 0.5,
             ease: "easeOut"
           }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-white"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/30 backdrop-blur-md"
         >
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -52,7 +52,7 @@ export function LoadingOverlay({ isLoading, onLoadingComplete }: LoadingOverlayP
             {/* Progress bar */}
             <div className="w-80 h-2 bg-gray-200 rounded-full overflow-hidden">
               <motion.div
-                className="h-full bg-gray-800 rounded-full"
+                className="h-full bg-[#341756] rounded-full"
                 initial={{ width: "0%" }}
                 animate={{ width: "100%" }}
                 transition={{ 

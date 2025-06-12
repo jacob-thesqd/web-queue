@@ -1,3 +1,6 @@
+"use client";
+
+import { motion, Easing } from "framer-motion";
 import { Card, CardHeader } from "@/components/ui/card";
 import {
   Accordion,
@@ -14,48 +17,56 @@ export default function BrandCard(
   memberData: Partial<StrategyMemberData> = {}
 ) {
   return (
-    <Card>
-      <CardHeader className="flex flex-row justify-between items-center">
-      <div className="flex flex-row items-center">
-        <img src="/dept_icons/brand.png" alt="Squad Logo" className="w-9 h-9 mr-1" />
-          <h2 className="flex gap-2 text-2xl font-[600] text-black text-left">
-            Brand Squad
-          </h2>
-        </div>
-      </CardHeader>
-
-      <Accordion type="single" collapsible className="px-12 mt-4">
-        <AccordionItem value="item-1">
-          <AccordionTrigger>
-            <h2 className="flex gap-2 text-lg font-[600] text-black text-left">
-              Key Bookmark Links
+    <motion.div
+      className="w-full"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" as Easing, delay: 0.2 }}
+    >
+      <Card variant={globalConfig.components.cardVariant}>
+        <CardHeader className="flex flex-row justify-between items-center">
+        <div className="flex flex-row items-center">
+          <img src="/dept_icons/brand.png" alt="Squad Logo" className="w-9 h-9 mr-1" />
+            <h2 className="flex gap-2 text-2xl font-[600] text-black text-left">
+              Brand Squad
             </h2>
-          </AccordionTrigger>
-          <AccordionContent>
-            <BookmarkLink memberData={memberData} />
-          </AccordionContent>
-        </AccordionItem>
+          </div>
+        </CardHeader>
 
-        <AccordionItem value="item-2">
-          <AccordionTrigger>
-            <h2 className="flex gap-2 text-lg font-[600] text-black text-left">
-              Terms & Conditions
-            </h2>
-          </AccordionTrigger>
-          <AccordionContent>
-          <div className="flex items-left justify-between gap-4 py-1 rounded">
-              <Button
-                className="w-fit flex-shrink-0"
-                onClick={() => {
-                  window.open(globalConfig.termsUrl, '_blank');
-                }}
-              >
-                Click here to view our T&Cs <span className="text-[14px] font-bold">→</span>
-              </Button>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-    </Card>
+        <Accordion type="single" collapsible className="px-12 mt-4">
+          <AccordionItem value="item-1">
+            <AccordionTrigger>
+              <h2 className="flex gap-2 text-lg font-[600] text-black text-left">
+                Key Bookmark Links
+              </h2>
+            </AccordionTrigger>
+            <AccordionContent>
+              <BookmarkLink memberData={memberData} />
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="item-2">
+            <AccordionTrigger>
+              <h2 className="flex gap-2 text-lg font-[600] text-black text-left">
+                Terms & Conditions
+              </h2>
+            </AccordionTrigger>
+            <AccordionContent>
+            <div className="flex items-left justify-between gap-4 py-1 rounded">
+                <Button
+                  variant="squad"
+                  className="w-fit flex-shrink-0"
+                  onClick={() => {
+                    window.open(globalConfig.termsUrl, '_blank');
+                  }}
+                >
+                  Click here to view our T&Cs <span className="text-[14px] font-bold">→</span>
+                </Button>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </Card>
+    </motion.div>
   );
 }

@@ -6,7 +6,6 @@ import { siteConfig } from "@/config/site";
 import { useEffect, useState, Suspense, useRef, useCallback, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { fadeInVariants } from "@/lib/animation-variants";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useStrategyData } from "@/hooks/use-strategy-data";
 import { useLayout } from "@/hooks/use-layout";
 import { useAirtableAccount } from "@/hooks/useAirtableAccount";
@@ -24,17 +23,14 @@ import ApiCacheDebug from "@/components/shared/ApiCacheDebug";
 
 // Non-critical components - lazy load with SSR
 const WebCard = dynamic(() => import("@/components/dept-cards/WebCard"), {
-  loading: () => <Skeleton className="h-32 w-full" />,
   ssr: true
 });
 
 const SMCard = dynamic(() => import("@/components/dept-cards/SMCard"), {
-  loading: () => <Skeleton className="h-32 w-full" />,
   ssr: true
 });
 
 const BrandCard = dynamic(() => import("@/components/dept-cards/BrandCard"), {
-  loading: () => <Skeleton className="h-32 w-full" />,
   ssr: true
 });
 

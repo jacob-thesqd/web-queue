@@ -1,9 +1,27 @@
 import { PersonStanding } from "lucide-react"
+import { cva, type VariantProps } from "class-variance-authority"
+import { cn } from "@/lib/utils"
 
-interface AvatarComponentProps {
+const avatarComponentVariants = cva(
+  "flex items-center rounded-full py-1 px-1.5 shadow-sm h-10",
+  {
+    variants: {
+      variant: {
+        default: "bg-background border",
+        glass: "bg-white/40 shadow-md ring-1 ring-black/5 backdrop-blur-md border-white/90",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
+
+interface AvatarComponentProps extends VariantProps<typeof avatarComponentVariants> {
   profilePictures?: (string | React.ReactNode)[];
   displayText?: string;
   displayContent?: React.ReactNode;
+  className?: string;
 }
 
 export default function AvatarComponent({ 
@@ -11,15 +29,20 @@ export default function AvatarComponent({
     <PersonStanding className="w-4 h-4" />,
   ],
   displayText = "No account manager found",
-  displayContent
+  displayContent,
+  variant,
+  className,
 }: AvatarComponentProps) {
   return (
-    <div className="bg-background flex items-center rounded-full border py-1 px-1.5 shadow-sm h-10">
+    <div className={cn(avatarComponentVariants({ variant }), className)}>
       <div className="flex -space-x-1.5">
         {profilePictures.map((item, index) => (
           <div
             key={index}
-            className="ring-background rounded-full ring-1 w-[30px] h-[30px] flex items-center justify-center"
+            className={cn(
+              "rounded-full ring-1 w-[30px] h-[30px] flex items-center justify-center",
+              variant === 'glass' ? 'ring-black/5' : 'ring-background'
+            )}
           >
             {typeof item === 'string' ? (
               <img

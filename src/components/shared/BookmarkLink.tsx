@@ -6,6 +6,7 @@ import { StrategyMemberData } from "@/lib/supabase/getStrategyMemberData"
 import DiscoverySubmissionModal from "./DiscoverySubmissionModal"
 import { useDiscoverySubmission } from "@/hooks/useDiscoverySubmission"
 import { useAirtableAccount } from "@/hooks/useAirtableAccount"
+import { globalConfig } from "@/config/globalConfig"
 
 interface BookmarkItem {
   name: string
@@ -110,13 +111,13 @@ export default function BookmarkLink({ memberData }: BookmarkLinkProps) {
 
   return (
     <>
-      <div className="flex h-full flex-col gap-4">      
+      <div className="flex h-full flex-col gap-4 border-t border-white/10 pt-4">      
         {bookmarkItems.map((item, index) => (
-          <div key={index} className="flex flex-col gap-2">
+          <div key={index} className="flex flex-col gap-2 border-b border-white/10 last:border-b-0">
             <div className="flex items-center justify-between">
               <h3 className="font-[9px] font-sm">{item.name}</h3>
               <Button 
-                variant="outline" 
+                variant={globalConfig.components.cardVariant === 'glass' ? 'glass' : 'outline'} 
                 size="sm"
                 className="flex-shrink-0"
                 onClick={() => handleItemClick(item)}

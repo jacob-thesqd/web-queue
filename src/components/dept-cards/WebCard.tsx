@@ -1,3 +1,6 @@
+"use client";
+
+import { motion, Easing } from "framer-motion";
 import { Card, CardHeader } from "@/components/ui/card";
 import {
   Accordion,
@@ -7,8 +10,7 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { StrategyMemberData } from "@/lib/supabase/getStrategyMemberData";
+//import { StrategyMemberData } from "@/lib/supabase/getStrategyMemberData";
 import BookmarkLink from "@/components/shared/BookmarkLink";
 import MilestoneStepperComponent from "@/components/ui/comp-525";
 import { useAirtableTaskMilestones } from "@/hooks/useAirtableTaskMilestones";
@@ -28,7 +30,13 @@ export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
   );
 
   return (
-    <Card>
+    <motion.div
+      className="w-full"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" as Easing, delay: 0.4 }}
+    >
+    <Card variant={globalConfig.components.cardVariant}>
       <CardHeader className="flex flex-row justify-between items-center">
         <div className="flex flex-row items-center">
           <img src="/dept_icons/web.png" alt="Squad Logo" className="w-9 h-9 mr-1" />
@@ -39,14 +47,12 @@ export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
         <div className="flex-shrink-0">
           {globalConfig.components.airtableQueueNumber ? (
             // Use Airtable queue number data
-            accountLoading ? (
-              <Skeleton className="h-6 w-32" />
-            ) : accountError ? (
-              <Badge className="items-baseline gap-2 text-[0.9rem] px-3" variant="destructive">
+            accountError ? (
+              <Badge className="items-baseline gap-2 text-[0.9rem] px-3" variant="squad">
                 Queue Error
               </Badge>
             ) : queueNumber ? (
-              <Badge className="items-baseline gap-2 text-[0.9rem] px-3">
+              <Badge className="items-baseline gap-2 text-[0.9rem] px-3" variant="squad">
                 Current Queue Number
                 <span className="text-primary-foreground/60 text-[0.9rem] font-medium">
                   {queueNumber}
@@ -56,7 +62,7 @@ export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
           ) : (
             // Fallback to original memberData.queue_num logic
             memberData?.queue_num ? (
-              <Badge className="items-baseline gap-2 text-[0.9rem] px-3">
+              <Badge className="items-baseline gap-2 text-[0.9rem] px-3" variant="squad">
                 Current Queue Number
                 <span className="text-primary-foreground/60 text-[0.9rem] font-medium">
                   {memberData.queue_num}
@@ -112,6 +118,7 @@ export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
           <AccordionContent>
             <div className="flex items-left justify-between gap-4 py-1 rounded">
               <Button
+                variant="squad"
                 className="w-fit flex-shrink-0"
                 onClick={() => {
                   window.open(globalConfig.termsUrl, '_blank');
@@ -124,5 +131,6 @@ export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
         </AccordionItem>
       </Accordion>
     </Card>
+    </motion.div>
   );
 }

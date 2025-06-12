@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase/client';
+import { extractAccountManagerFromAirtable } from '@/lib/airtable/strategyDataCompatLayer';
 
 export interface AccountManagerData {
   account: number;
@@ -24,24 +25,107 @@ export async function GET(
       );
     }
 
-    const { data, error } = await supabase
-      .rpc('get_account_manager_profile_pictures', { 
-        account_number: accountNumber 
-      });
+    // Check if we should force using the Airtable fallback
+    const searchParams = request.nextUrl.searchParams;
+    const forceFallback = searchParams.get('forceFallback') === 'true';
 
-    if (error) {
-      console.error('Error fetching account manager data:', error);
+    // Only try Supabase if we're not forcing fallback
+    let supbaseData = null;
+    let supabaseError = null;
+    
+    if (!forceFallback) {
+      const { data, error } = await supabase
+        .rpc('get_account_manager_profile_pictures', { 
+          account_number: accountNumber 
+        });
+      
+      supbaseData = data;
+      supabaseError = error;
+      
+      // Return Supabase data if available
+      if (!error && data) {
+        // Set cache headers for client-side caching
+        const response = NextResponse.json({ 
+          data: data || [],
+          source: 'supabase' 
+        });
+        response.headers.set('Cache-Control', 'public, max-age=300, s-maxage=300'); // 5 minutes cache
+        
+        return response;
+      }
+    }
+
+    // Use error from Supabase result or create one if forced fallback
+    const errorMessage = supabaseError 
+      ? `Error fetching account manager data from Supabase: ${supabaseError.message}`
+      : forceFallback 
+        ? 'Forced fallback to Airtable' 
+        : 'Unknown error';
+    
+    console.log(forceFallback ? '🔄 Forced fallback to Airtable' : errorMessage);
+    
+    // Fallback to Airtable if Supabase call fails or forced fallback
+    const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
+    const baseId = 'appjHSW7sGtitxoHf';
+    const tableId = 'tblAIXogbNPuIRMOo';
+    
+    if (!AIRTABLE_API_KEY) {
+      throw new Error('Airtable API key not configured');
+    }
+
+    // Use Airtable REST API to search for records
+    const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableId}`;
+    const filterFormula = `{Member #} = ${accountNumber}`;
+    
+    const airtableResponse = await fetch(`${airtableUrl}?filterByFormula=${encodeURIComponent(filterFormula)}`, {
+      headers: {
+        'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      }
+    });
+
+    if (!airtableResponse.ok) {
+      throw new Error(`Airtable API call failed: ${airtableResponse.statusText}`);
+    }
+
+    const airtableData = await airtableResponse.json();
+    const searchResults = airtableData.records || [];
+
+    // Check if we found any records
+    if (!searchResults || !Array.isArray(searchResults) || searchResults.length === 0) {
+      console.log('⚠️ No Airtable records found for account:', accountNumber);
       return NextResponse.json(
-        { error: 'Failed to fetch account manager data' },
-        { status: 500 }
+        { error: 'Account manager data not found' },
+        { status: 404 }
       );
     }
 
-    // Set cache headers for client-side caching
-    const response = NextResponse.json({ data: data || [] });
-    response.headers.set('Cache-Control', 'public, max-age=300, s-maxage=300'); // 5 minutes cache
+    // Get the first matching record and extract account manager data
+    const record = searchResults[0];
+    const accountManagerData = extractAccountManagerFromAirtable(record, accountNumber);
     
-    return response;
+    if (!accountManagerData) {
+      console.log('⚠️ CSS Rep not found in Airtable for account:', accountNumber);
+      return NextResponse.json(
+        { error: 'Account manager not found in Airtable' },
+        { status: 404 }
+      );
+    }
+    
+    console.log('✅ Using Airtable data for account manager:', {
+      account: accountNumber,
+      name: accountManagerData.account_manager_name,
+      hasCalendlyLink: !!accountManagerData.am_calendly
+    });
+    
+    // Set cache headers for client-side caching
+    const fallbackResponse = NextResponse.json({ 
+      data: [accountManagerData],
+      source: 'airtable'
+    });
+    fallbackResponse.headers.set('Cache-Control', 'public, max-age=300, s-maxage=300'); // 5 minutes cache
+    
+    return fallbackResponse;
   } catch (err) {
     console.error('Unexpected error in account manager API:', err);
     return NextResponse.json(
