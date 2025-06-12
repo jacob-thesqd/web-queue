@@ -21,6 +21,15 @@ export const globalConfig = {
     discoverySubmissionModal: true, // Enable discovery questionnaire submission modal
     loadingOverlay: true // Enable glassmorphic loading overlay
   },
+  loadingOverlay: {
+    enabled: true, // Master toggle for loading overlay
+    progressBarDuration: 1, // Progress bar completion time in seconds
+    minimumDisplayTime: 4.5, // Minimum time overlay shows in seconds
+    componentLoadingDelay: 200, // Delay for component loading detection in ms
+    transitionDelay: 600, // Delay before hiding overlay after everything loads in ms
+    domReadyDelay: 100, // Delay for DOM ready detection in ms
+    initializationDelay: 250 // Delay for app initialization in ms
+  },
   airtable: {
     cacheDuration: 60 * 60 * 1000, // 1 hour in milliseconds
     retryAttempts: 3, // Number of retry attempts for failed requests

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { globalConfig } from "@/config/globalConfig";
 
 interface LoadingState {
   isAppLoading: boolean;
@@ -22,6 +23,14 @@ export function useLoadingState(): LoadingState {
   const [errorComponents, setErrorComponents] = useState<Set<string>>(new Set());
   const domReadyRef = useRef(false);
   const initialLoadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Get config values
+  const { 
+    minimumDisplayTime, 
+    transitionDelay, 
+    domReadyDelay, 
+    initializationDelay 
+  } = globalConfig.loadingOverlay;
 
   const registerComponent = useCallback((id: string) => {
     setRegisteredComponents(prev => new Set([...prev, id]));
@@ -98,7 +107,7 @@ export function useLoadingState(): LoadingState {
       const handleDOMContentLoaded = () => {
         setTimeout(() => {
           domReadyRef.current = true;
-        }, 50);
+        }, domReadyDelay);
       };
 
       if (document.readyState === 'loading') {
@@ -113,45 +122,45 @@ export function useLoadingState(): LoadingState {
     };
 
     checkDOMReady();
-  }, []);
+  }, [domReadyDelay]);
 
   // Check if we should hide loading overlay
   useEffect(() => {
     if (isAllComponentsLoaded() && domReadyRef.current) {
       const timer = setTimeout(() => {
         setIsAppLoading(false);
-      }, 50);
+      }, transitionDelay);
       
       return () => clearTimeout(timer);
     }
-  }, [isAllComponentsLoaded]);
+  }, [isAllComponentsLoaded, transitionDelay]);
 
-  // Fallback timeout to prevent infinite loading
+  // Fallback timeout to ensure minimum display time
   useEffect(() => {
     initialLoadTimeoutRef.current = setTimeout(() => {
-      console.warn('Loading timeout reached, forcing app to show');
+      console.log('Minimum loading time reached, allowing app to show');
       domReadyRef.current = true;
       setIsAppLoading(false);
-    }, 1500); // 1.5 second maximum loading time
+    }, minimumDisplayTime * 1000); // Convert seconds to milliseconds
 
     return () => {
       if (initialLoadTimeoutRef.current) {
         clearTimeout(initialLoadTimeoutRef.current);
       }
     };
-  }, []);
+  }, [minimumDisplayTime]);
 
   // Auto-register core components on mount
   useEffect(() => {
     registerComponent('app-initialization');
     
-    // Mark initialization as complete immediately
+    // Mark initialization as complete with configured delay
     const timer = setTimeout(() => {
       markComponentLoaded('app-initialization');
-    }, 50);
+    }, initializationDelay);
 
     return () => clearTimeout(timer);
-  }, [registerComponent, markComponentLoaded]);
+  }, [registerComponent, markComponentLoaded, initializationDelay]);
 
   return {
     isAppLoading,

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, ReactNode } from "react";
 import { useLoading } from "@/components/providers/LoadingProvider";
+import { globalConfig } from "@/config/globalConfig";
 
 interface CardLoadingWrapperProps {
   cardId: string;
@@ -19,6 +20,9 @@ export function CardLoadingWrapper({
   const { registerComponent, markComponentLoaded, markComponentError } = useLoading();
   const hasRegisteredRef = useRef(false);
   const loadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Get config values
+  const { componentLoadingDelay } = globalConfig.loadingOverlay;
 
   // Register the component on mount
   useEffect(() => {
@@ -39,10 +43,10 @@ export function CardLoadingWrapper({
     const hasUndefinedDeps = dependencies.some(dep => dep === undefined || dep === null);
     
     if (!hasUndefinedDeps || dependencies.length === 0) {
-      // Minimal delay to allow for DOM updates
+      // Use configured delay to allow for DOM updates
       loadTimeoutRef.current = setTimeout(() => {
         markComponentLoaded(cardId);
-      }, 50);
+      }, componentLoadingDelay);
     }
 
     return () => {
@@ -50,7 +54,7 @@ export function CardLoadingWrapper({
         clearTimeout(loadTimeoutRef.current);
       }
     };
-  }, [dependencies, cardId, markComponentLoaded]);
+  }, [dependencies, cardId, markComponentLoaded, componentLoadingDelay]);
 
   // Intersection Observer to detect when card is actually visible
   const cardRef = useRef<HTMLDivElement>(null);

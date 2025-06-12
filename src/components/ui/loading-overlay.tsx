@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { globalConfig } from "@/config/globalConfig";
 
 interface LoadingOverlayProps {
   isLoading: boolean;
@@ -17,6 +18,9 @@ export function LoadingOverlay({ isLoading, onLoadingComplete }: LoadingOverlayP
       return () => clearTimeout(timer);
     }
   }, [isLoading, onLoadingComplete]);
+
+  // Get config values
+  const { progressBarDuration } = globalConfig.loadingOverlay;
 
   return (
     <AnimatePresence mode="wait">
@@ -52,7 +56,7 @@ export function LoadingOverlay({ isLoading, onLoadingComplete }: LoadingOverlayP
                 initial={{ width: "0%" }}
                 animate={{ width: "100%" }}
                 transition={{ 
-                  duration: 1.2,
+                  duration: progressBarDuration,
                   ease: "easeOut"
                 }}
               />
