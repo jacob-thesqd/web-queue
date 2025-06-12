@@ -41,7 +41,7 @@ export default function BrandCard(
               </h2>
             </AccordionTrigger>
             <AccordionContent>
-              <BookmarkLink memberData={memberData} />
+              <BookmarkLink memberData={memberData} excludeItems={["Content Collection Form"]} />
             </AccordionContent>
           </AccordionItem>
 
@@ -54,7 +54,7 @@ export default function BrandCard(
             <AccordionContent>
             <div className="flex items-left justify-between gap-4 py-1 rounded">
                 <Button
-                  variant="squad"
+                  variant="glass"
                   className="w-fit flex-shrink-0"
                   onClick={() => {
                     window.open(globalConfig.termsUrl, '_blank');

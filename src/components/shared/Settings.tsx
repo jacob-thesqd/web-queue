@@ -47,7 +47,7 @@ export default function SettingsComponent({ visibleCardCount = 3 }: SettingsComp
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button 
-            variant="outline"
+            variant="glass"
             style={{ pointerEvents: 'auto', position: 'relative' }}
           >
             Settings

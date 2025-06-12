@@ -34,9 +34,10 @@ const bookmarkItems: BookmarkItem[] = [
 
 interface BookmarkLinkProps {
   memberData?: Partial<StrategyMemberData>;
+  excludeItems?: string[];
 }
 
-export default function BookmarkLink({ memberData }: BookmarkLinkProps) {
+export default function BookmarkLink({ memberData, excludeItems = [] }: BookmarkLinkProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { data, loading, error, fetchSubmission, reset } = useDiscoverySubmission();
   const { markupLink, discoveryFormSubmissionId, contentSnareLink, loading: accountLoading } = useAirtableAccount(memberData?.account);
@@ -112,7 +113,7 @@ export default function BookmarkLink({ memberData }: BookmarkLinkProps) {
   return (
     <>
       <div className="flex h-full flex-col gap-4 border-t border-white/10 pt-4">      
-        {bookmarkItems.map((item, index) => (
+        {bookmarkItems.filter(item => !excludeItems.includes(item.name)).map((item, index) => (
           <div key={index} className="flex flex-col gap-2 border-b border-white/10 last:border-b-0">
             <div className="flex items-center justify-between">
               <h3 className="font-[9px] font-sm">{item.name}</h3>

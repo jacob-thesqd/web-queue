@@ -22,7 +22,7 @@ const buttonVariants = cva(
         squad:
           "bg-[#341756] text-primary-foreground shadow-xs hover:bg-[#341756]/90",
         glass:
-          "bg-white/30 shadow-sm backdrop-blur-sm border border-white hover:bg-white/50 text-foreground",
+          "bg-white/10 shadow-md backdrop-blur-sm border border-white hover:bg-gray-100 text-foreground",
       },
       size: {
         default: "h-9 px-4 py-2",

@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-//import { StrategyMemberData } from "@/lib/supabase/getStrategyMemberData";
+import { StrategyMemberData } from "@/lib/supabase/getStrategyMemberData";
 import BookmarkLink from "@/components/shared/BookmarkLink";
 import MilestoneStepperComponent from "@/components/ui/comp-525";
 import { useAirtableTaskMilestones } from "@/hooks/useAirtableTaskMilestones";
@@ -118,7 +118,7 @@ export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
           <AccordionContent>
             <div className="flex items-left justify-between gap-4 py-1 rounded">
               <Button
-                variant="squad"
+                variant="glass"
                 className="w-fit flex-shrink-0"
                 onClick={() => {
                   window.open(globalConfig.termsUrl, '_blank');
