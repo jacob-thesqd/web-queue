@@ -43,8 +43,8 @@ const nextConfig: NextConfig = {
             value: 'on'
           },
           {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN'
+            key: 'Content-Security-Policy',
+            value: "frame-ancestors 'self' https://app.clickup.com https://*.clickup.com;"
           },
           {
             key: 'X-Content-Type-Options',
