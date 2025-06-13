@@ -8,7 +8,7 @@ import {
   StepperTrigger,
 } from "@/components/ui/stepper"
 import React, { useMemo } from "react"
-import { MilestoneStep } from "@/api/airtable"
+import { MilestoneStep } from "@/lib/airtable/types"
 import { useTaskTemplates } from "@/hooks/useTaskTemplates"
 
 interface MilestoneStepperComponentProps {

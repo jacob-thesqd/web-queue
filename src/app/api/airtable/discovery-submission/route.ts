@@ -14,24 +14,20 @@ export async function GET(request: NextRequest) {
     }
 
     // Step 1: Get the Discovery Form Submission ID from Airtable
-    const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
+    const { AIRTABLE_CONFIG, AIRTABLE_HEADERS, validateAirtableConfig } = await import('@/lib/airtable/config');
     const FILLOUT_API_KEY = process.env.FILLOUT_API_KEY;
-    const baseId = 'appjHSW7sGtitxoHf';
-    const tableId = 'tblAIXogbNPuIRMOo';
     
-    if (!AIRTABLE_API_KEY) {
+    if (!validateAirtableConfig()) {
       throw new Error('Airtable API key not configured');
     }
 
     // Use Airtable REST API to search for records
-    const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableId}`;
+    const tableId = 'tblAIXogbNPuIRMOo';
+    const airtableUrl = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.BASE_ID}/${tableId}`;
     const filterFormula = `{Member #} = ${memberNumber}`;
     
     const response = await fetch(`${airtableUrl}?filterByFormula=${encodeURIComponent(filterFormula)}`, {
-      headers: {
-        'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      }
+      headers: AIRTABLE_HEADERS
     });
 
     if (!response.ok) {
@@ -85,7 +81,7 @@ export async function GET(request: NextRequest) {
         memberNumber: parseInt(memberNumber)
       });
 
-    } catch (filloutError: any) {
+    } catch (filloutError: unknown) {
       console.error('❌ Error fetching submission from Fillout:', filloutError);
       
       // Fall back to mock data if Fillout API fails
@@ -182,10 +178,11 @@ export async function GET(request: NextRequest) {
         editLink: `https://forms.thesqd.com/all-in-discovery?edit=${mockSubmission.submissionId}`
       };
 
+      const errorMessage = filloutError instanceof Error ? filloutError.message : 'Unknown Fillout error';
       return NextResponse.json({ 
         submission: mockSubmissionWithEditLink,
         memberNumber: parseInt(memberNumber),
-        filloutError: filloutError.message
+        filloutError: errorMessage
       });
     }
 

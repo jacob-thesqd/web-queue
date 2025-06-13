@@ -1,44 +1,20 @@
-// Airtable API service for managing task templates and milestone data
+// Centralized Airtable utilities
 import Airtable from 'airtable';
+import { AIRTABLE_CONFIG, validateAirtableConfig } from './config';
+import { AirtableTaskTemplate, MilestoneStep } from './types';
 
-// Types based on the Airtable schema
-export interface AirtableTaskTemplate {
-  id: string;
-  createdTime: string;
-  fields: {
-    "Task ID": string;
-    "Name": string;
-    "Department": string[];
-    "Estimate": number;
-    "All-In Phase": string[];
-    "Owner": string[];
-  };
+// Initialize Airtable with configuration
+function getAirtableBase() {
+  if (!validateAirtableConfig()) {
+    throw new Error('Airtable configuration is invalid');
+  }
+
+  const airtable = new Airtable({ 
+    apiKey: AIRTABLE_CONFIG.API_KEY 
+  });
+  
+  return airtable.base(AIRTABLE_CONFIG.BASE_ID);
 }
-
-export interface MilestoneStep {
-  step: number;
-  title: string;
-  description: string;
-  estimate?: number;
-  owner?: string[];
-  phase?: string[];
-}
-
-// Airtable configuration
-const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
-const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID || 'appjHSW7sGtitxoHf';
-const AIRTABLE_TABLE_NAME = process.env.AIRTABLE_TABLE_NAME || '🔑 Task Templates';
-const AIRTABLE_VIEW_ID = process.env.AIRTABLE_VIEW_ID || 'viw0EnaZ5lOsNqWXR';
-
-// Initialize Airtable
-if (!AIRTABLE_API_KEY) {
-  console.warn('AIRTABLE_API_KEY not found in environment variables');
-}
-
-const airtable = new Airtable({ 
-  apiKey: AIRTABLE_API_KEY 
-});
-const base = airtable.base(AIRTABLE_BASE_ID);
 
 /**
  * Fetches task templates from Airtable and transforms them into milestone steps
@@ -46,14 +22,15 @@ const base = airtable.base(AIRTABLE_BASE_ID);
  */
 export async function fetchTaskTemplates(): Promise<MilestoneStep[]> {
   try {
-    if (!AIRTABLE_API_KEY) {
+    if (!validateAirtableConfig()) {
       console.warn('AIRTABLE_API_KEY not provided, using fallback data');
       return getFallbackSteps();
     }
 
-    const records = await base(AIRTABLE_TABLE_NAME)
+    const base = getAirtableBase();
+    const records = await base(AIRTABLE_CONFIG.TABLE_NAME)
       .select({
-        view: AIRTABLE_VIEW_ID,
+        view: AIRTABLE_CONFIG.VIEW_ID,
         sort: [{ field: 'Task ID', direction: 'asc' }]
       })
       .all();
@@ -126,18 +103,27 @@ function transformTaskTemplatesToSteps(templates: AirtableTaskTemplate[]): Miles
  */
 export async function fetchTaskTemplateById(recordId: string): Promise<AirtableTaskTemplate | null> {
   try {
-    return null;
+    if (!validateAirtableConfig()) {
+      return null;
+    }
+
+    const base = getAirtableBase();
+    const record = await base(AIRTABLE_CONFIG.TABLE_NAME).find(recordId);
+    
+    return {
+      id: record.id,
+      createdTime: record.get('createdTime') as string || new Date().toISOString(),
+      fields: {
+        "Task ID": record.get('Task ID') as string || '',
+        "Name": record.get('Name') as string || '',
+        "Department": record.get('Department') as string[] || [],
+        "Estimate": record.get('Estimate') as number || 0,
+        "All-In Phase": record.get('All-In Phase') as string[] || [],
+        "Owner": record.get('Owner') as string[] || []
+      }
+    };
   } catch (err) {
     console.error('Error fetching task template by ID:', err);
     return null;
   }
-}
-
-/**
- * Configuration object for Airtable service
- */
-export const airtableConfig = {
-  baseId: AIRTABLE_BASE_ID,
-  tableName: AIRTABLE_TABLE_NAME,
-  viewId: AIRTABLE_VIEW_ID,
-}; 
+} 

@@ -15,24 +15,20 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Use Airtable API instead of Supabase
-    const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
-    const baseId = 'appjHSW7sGtitxoHf';
-    const tableId = 'tblAIXogbNPuIRMOo';
+    // Use centralized Airtable configuration
+    const { AIRTABLE_CONFIG, AIRTABLE_HEADERS, validateAirtableConfig } = await import('@/lib/airtable/config');
     
-    if (!AIRTABLE_API_KEY) {
+    if (!validateAirtableConfig()) {
       throw new Error('Airtable API key not configured');
     }
 
     // Use Airtable REST API to search for records
-    const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableId}`;
+    const tableId = 'tblAIXogbNPuIRMOo';
+    const airtableUrl = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.BASE_ID}/${tableId}`;
     const filterFormula = `{Member #} = ${accountId}`;
     
     const response = await fetch(`${airtableUrl}?filterByFormula=${encodeURIComponent(filterFormula)}`, {
-      headers: {
-        'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      }
+      headers: AIRTABLE_HEADERS
     });
 
     if (!response.ok) {
@@ -71,8 +67,9 @@ export async function GET(request: NextRequest) {
     };
 
     return NextResponse.json({ data });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Unexpected error fetching strategy member data:', err);
-    return NextResponse.json({ error: err.message || 'Unknown error' }, { status: 500 });
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 } 

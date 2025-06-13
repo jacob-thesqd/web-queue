@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { MilestoneStep } from '@/api/airtable';
+import { MilestoneStep } from '@/lib/airtable/types';
 import { globalConfig } from '@/config/globalConfig';
 
 interface UseTaskTemplatesResult {

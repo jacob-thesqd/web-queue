@@ -7,6 +7,7 @@ import { globalConfig } from '@/config/globalConfig';
 
 interface AccountManagerProps {
   accountNumber: number;
+  shouldShow?: boolean;
 }
 
 /**
@@ -36,8 +37,13 @@ function ensureValidCalendlyUrl(url: string | undefined): string {
   return cleanUrl;
 }
 
-export default function AccountManager({ accountNumber }: AccountManagerProps) {
+export default function AccountManager({ accountNumber, shouldShow = true }: AccountManagerProps) {
   const { data, loading, error, dataSource } = useAccountManagerData(accountNumber);
+
+  // Don't render if shouldShow is false
+  if (!shouldShow) {
+    return null;
+  }
 
   // Extract profile pictures and account manager names
   const profilePictures = data

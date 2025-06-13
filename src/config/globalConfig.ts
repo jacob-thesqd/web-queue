@@ -29,11 +29,11 @@ export const globalConfig = {
   loadingOverlay: {
     enabled: true, // Master toggle for loading overlay
     progressBarDuration: 1.25, // Progress bar completion time in seconds
-    minimumDisplayTime: 6.5, // Minimum time overlay shows in seconds
-    componentLoadingDelay: 200, // Delay for component loading detection in ms
+    minimumDisplayTime: 4.5, // Minimum time overlay shows in seconds
+    componentLoadingDelay: 400, // Delay for component loading detection in ms
     transitionDelay: 600, // Delay before hiding overlay after everything loads in ms
-    domReadyDelay: 100, // Delay for DOM ready detection in ms
-    initializationDelay: 250 // Delay for app initialization in ms
+    domReadyDelay: 400, // Delay for DOM ready detection in ms
+    initializationDelay: 450 // Delay for app initialization in ms
   },
   airtable: {
     cacheDuration: 60 * 60 * 1000, // 1 hour in milliseconds

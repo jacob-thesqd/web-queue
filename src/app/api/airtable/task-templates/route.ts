@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchTaskTemplates } from '@/api/airtable';
+import { fetchTaskTemplates } from '@/lib/airtable/utils';
 
 export async function GET(request: NextRequest) {
   try {

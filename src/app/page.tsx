@@ -100,7 +100,12 @@ function HomeContent() {
   }, [markComponentLoaded]);
 
   // Fetch comprehensive account data (includes department and all other data) - but don't block rendering
-  const { department, loading: accountLoading, error: accountError } = useAirtableAccount(
+  const { 
+    accountData, 
+    department, 
+    loading: accountLoading, 
+    error: accountError 
+  } = useAirtableAccount(
     globalConfig.components.airtableDepartmentFiltering && strategyMemberData?.account ? 
       strategyMemberData.account : undefined
   );
@@ -124,8 +129,6 @@ function HomeContent() {
       }
     }
   }, [accountLoading, accountError, markComponentLoaded, markComponentError]);
-
-
 
   // Memoize card visibility
   const cardVisibility = useMemo(() => {
@@ -198,17 +201,28 @@ function HomeContent() {
     };
   }, [scrollY, isHeaderVisible]);
 
+  // Determine if components should be shown
+  // Hide if: no URL params OR no data from Airtable API calls
+  const hasUrlParams = !!accountId;
+  // Only consider data available if we're not loading and we have actual data (not just no error)
+  const hasAirtableData = !accountLoading && !loading && !accountError && 
+                         (accountData !== null || strategyMemberData !== null);
+  const shouldShowComponents = hasUrlParams && hasAirtableData;
+
   return (
     <div className="min-h-screen bg-transparent">
       {/* Hide ALL content while loading overlay is active */}
       {!isAppLoading && (
         <>
-          {/* Settings Component */}
+          {/* Settings Component - Only show if we have URL params and Airtable data */}
           <div className="fixed top-4 left-4 z-[60] pointer-events-auto">
-            <SettingsComponent visibleCardCount={visibleCardCount} />
+            <SettingsComponent 
+              visibleCardCount={visibleCardCount} 
+              shouldShow={shouldShowComponents}
+            />
           </div>
 
-                              {/* Header Section */}
+          {/* Header Section */}
           <div 
             className="fixed top-0 left-0 right-0 z-50 transition-all duration-700 ease-out"
             style={headerStyles}
@@ -233,12 +247,16 @@ function HomeContent() {
                 </h1>
               </AnimatedGroup>
 
+              {/* AccountManager - Only show if we have URL params and Airtable data */}
               <AnimatedGroup
                 variants={fadeInVariants}
                 className="flex justify-center max-h-10 w-full"
                 delay={0}
               >
-                <AccountManager accountNumber={parseInt(accountId || "306")} />
+                <AccountManager 
+                  accountNumber={parseInt(accountId || "306")} 
+                  shouldShow={shouldShowComponents}
+                />
               </AnimatedGroup>
             </div>
           </div>

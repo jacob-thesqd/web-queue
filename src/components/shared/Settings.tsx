@@ -12,9 +12,13 @@ import { useGlobalDataRefresh } from "@/hooks/useGlobalDataRefresh"
 
 interface SettingsComponentProps {
   visibleCardCount?: number;
+  shouldShow?: boolean;
 }
 
-export default function SettingsComponent({ visibleCardCount = 3 }: SettingsComponentProps) {
+export default function SettingsComponent({ 
+  visibleCardCount = 3, 
+  shouldShow = true 
+}: SettingsComponentProps) {
   const id = useId()
   const [open, setOpen] = useState(false)
   const { layout, setLayout, isMobile } = useLayout()
@@ -42,6 +46,11 @@ export default function SettingsComponent({ visibleCardCount = 3 }: SettingsComp
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [open])
+  
+  // Don't render if shouldShow is false
+  if (!shouldShow) {
+    return null
+  }
   
   if (isMobile && visibleCardCount === 1) {
     return null
