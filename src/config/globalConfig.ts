@@ -9,6 +9,7 @@ export const globalConfig = {
     logo: true,
     showDotGrid: false,
     showDotGridGradient: true,
+    showFilmGrain: true, // Enable film grain overlay
     clientSideDataFetching: true,
     churchWelcome: true,
     accountManager: true,
@@ -28,7 +29,7 @@ export const globalConfig = {
   loadingOverlay: {
     enabled: true, // Master toggle for loading overlay
     progressBarDuration: 1.25, // Progress bar completion time in seconds
-    minimumDisplayTime: 5.5, // Minimum time overlay shows in seconds
+    minimumDisplayTime: 6.5, // Minimum time overlay shows in seconds
     componentLoadingDelay: 200, // Delay for component loading detection in ms
     transitionDelay: 600, // Delay before hiding overlay after everything loads in ms
     domReadyDelay: 100, // Delay for DOM ready detection in ms
@@ -71,5 +72,25 @@ export const globalConfig = {
     fallbackToGlobalPath: false, // Whether to fall back to global path if account lookup fails
     enableSundayPhotosLock: true, // Enable weekly upload limiting based on Airtable field
     sundayPhotosLockMessage: "Woops! You've already uploaded your Sunday photos for the week" // Custom message when uploads are locked
+  },
+  filmGrain: {
+    enabled: true, // Master toggle for film grain
+    strength: "medium" as "subtle" | "medium" | "strong" | "intense", // Predefined strength levels
+    customSettings: {
+      enabled: false, // Enable custom grain settings instead of presets
+      baseFrequency: 0.65, // SVG turbulence base frequency (0.1-2.0, higher = finer grain)
+      numOctaves: 3, // Number of octaves for turbulence complexity (1-4)
+      brightness: 1000, // Brightness multiplier percentage (100-1500)
+      contrast: 170, // Contrast multiplier percentage (100-300)
+      opacity: 0.15, // Overall grain layer opacity (0.0-1.0)
+      backgroundSize: 180, // Background pattern size in pixels
+      blendMode: "overlay" as "overlay" | "multiply" | "screen" | "soft-light" | "hard-light"
+    },
+    presets: {
+      subtle: { opacity: 0.08, contrast: 120, brightness: 600 },
+      medium: { opacity: 0.15, contrast: 170, brightness: 1000 },
+      strong: { opacity: 0.25, contrast: 220, brightness: 1400 },
+      intense: { opacity: 0.35, contrast: 280, brightness: 1800 }
+    }
   }
 }; 

@@ -141,6 +141,7 @@ export default function RootLayout({
         min-h-screen bg-background font-sans antialiased ${inter.variable}
         ${!globalConfig.components.showDotGrid ? 'no-dots' : ''}
         ${!globalConfig.components.showDotGridGradient ? 'no-gradient' : ''}
+        ${!globalConfig.components.showFilmGrain || !globalConfig.filmGrain.enabled ? 'no-grain' : `grain-${globalConfig.filmGrain.strength}`}
       `}>
         {/* Dot grid overlay */}
         <div className="fixed-dot-grid-background" />
