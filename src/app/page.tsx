@@ -304,10 +304,10 @@ function HomeContent() {
                             {cardVisibility.showBrandCard && (
                               <CardLoadingWrapper 
                                 cardId="brand-card" 
-                                dependencies={[true]}
+                                dependencies={[strategyMemberData]}
                                 className="w-full flex justify-center"
                               >
-                                <BrandCard />
+                                <BrandCard {...strategyMemberData} />
                               </CardLoadingWrapper>
                             )}
                             {cardVisibility.showSMCard && (
@@ -334,10 +334,10 @@ function HomeContent() {
                             {cardVisibility.showBrandCard && (
                               <CardLoadingWrapper 
                                 cardId="brand-card" 
-                                dependencies={[true]}
+                                dependencies={[strategyMemberData]}
                                 className="flex-shrink-0 w-[calc(50%-0.5rem)]"
                               >
-                                <BrandCard />
+                                <BrandCard {...strategyMemberData} />
                               </CardLoadingWrapper>
                             )}
                             {cardVisibility.showSMCard && (

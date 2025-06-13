@@ -105,7 +105,7 @@ export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
             </h2>
           </AccordionTrigger>
           <AccordionContent>
-            <BookmarkLink memberData={memberData} />
+            <BookmarkLink memberData={memberData} excludeItems={["Brand Guide"]} />
           </AccordionContent>
         </AccordionItem>
 

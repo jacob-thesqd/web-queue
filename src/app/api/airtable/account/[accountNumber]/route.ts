@@ -114,6 +114,7 @@ export async function GET(
       discoveryFormSubmissionId: accountData.fields['Discovery Form Submission ID'],
       contentSnareLink: accountData.fields['ContentSnare Link'],
       loomVideoFolder: accountData.fields['Loom Link'],
+      brandGuideLink: accountData.fields['Brand Guide Link'],
       // Department data
       department,
       usedFieldName,
@@ -133,6 +134,7 @@ export async function GET(
         dropboxPath: null,
         department: null,
         loomVideoFolder: null,
+        brandGuideLink: null,
         sundayPhotosUploaded: false
       },
       { status: 500 }

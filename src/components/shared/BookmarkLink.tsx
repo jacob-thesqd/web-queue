@@ -29,6 +29,10 @@ const bookmarkItems: BookmarkItem[] = [
   {
     name: "Loom Video Folder",
     link: "#loom-videos"
+  },
+  {
+    name: "Brand Guide",
+    link: "#brand-guide"
   }
 ]
 
@@ -40,7 +44,7 @@ interface BookmarkLinkProps {
 export default function BookmarkLink({ memberData, excludeItems = [] }: BookmarkLinkProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { data, loading, error, fetchSubmission, reset } = useDiscoverySubmission();
-  const { markupLink, discoveryFormSubmissionId, contentSnareLink, loomVideoFolder, loading: accountLoading } = useAirtableAccount(memberData?.account);
+  const { markupLink, discoveryFormSubmissionId, contentSnareLink, loomVideoFolder, brandGuideLink, loading: accountLoading } = useAirtableAccount(memberData?.account);
 
   const handleItemClick = async (item: BookmarkItem) => {
     if (item.name === "Discovery Questionnaire Submission") {
@@ -75,6 +79,12 @@ export default function BookmarkLink({ memberData, excludeItems = [] }: Bookmark
       } else {
         console.log("No Loom video folder available for this account");
       }
+    } else if (item.name === "Brand Guide") {
+      if (brandGuideLink) {
+        window.open(brandGuideLink, '_blank');
+      } else {
+        console.log("No brand guide available for this account");
+      }
     } else {
       // Handle other bookmark actions
       console.log(`Navigate to: ${item.link}`);
@@ -98,6 +108,8 @@ export default function BookmarkLink({ memberData, excludeItems = [] }: Bookmark
         return !contentSnareLink;
       case "Loom Video Folder":
         return !loomVideoFolder;
+      case "Brand Guide":
+        return !brandGuideLink;
       default:
         return false;
     }
@@ -110,11 +122,13 @@ export default function BookmarkLink({ memberData, excludeItems = [] }: Bookmark
       case "Discovery Questionnaire Submission":
         return !discoveryFormSubmissionId ? "No Submission" : "View";
       case "MarkUp Folder":
-        return !markupLink ? "No Markup Folder" : "View";
+        return !markupLink ? "No Folder Yet" : "View";
       case "Content Collection Form":
         return !contentSnareLink ? "No Form Yet" : "View";
       case "Loom Video Folder":
         return !loomVideoFolder ? "No Videos Yet" : "View";
+      case "Brand Guide":
+        return !brandGuideLink ? "No Guide Yet" : "View";
       default:
         return "View";
     }

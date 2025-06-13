@@ -45,7 +45,7 @@ export function LoadingOverlay({ isLoading, onLoadingComplete }: LoadingOverlayP
             }}
             className="text-center space-y-6"
           >
-            <h2 className="text-xl font-medium text-gray-800">
+            <h2 className="flex items-center justify-center gap-2 text-2xl font-[600] text-black">
               Loading your content
             </h2>
             
