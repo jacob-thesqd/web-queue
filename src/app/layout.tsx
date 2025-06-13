@@ -32,17 +32,44 @@ export const viewport: Viewport = {
 // Optimized Logo Component - renders immediately without waiting for providers
 function ImmediateLogo() {
   return (
-    <div className="fixed top-4 right-4 z-50">
+    <>
+      {/* Desktop Logo - Top Right */}
+      <div className="hidden sm:block fixed top-4 right-4 z-50">
+        <Image 
+          src="/squad-logo.svg" 
+          alt="Squad Logo" 
+          width={70} 
+          height={70} 
+          priority
+          sizes="70px"
+          style={{ 
+            width: '70px', 
+            height: '70px',
+            display: 'block'
+          }}
+          // Add inline loading optimization
+          decoding="sync"
+          fetchPriority="high"
+        />
+      </div>
+    </>
+  );
+}
+
+// Mobile Logo Component - positioned at bottom of content
+function MobileLogo() {
+  return (
+    <div className="sm:hidden flex justify-center py-8">
       <Image 
         src="/squad-logo.svg" 
         alt="Squad Logo" 
-        width={70} 
-        height={70} 
+        width={60} 
+        height={60} 
         priority
-        sizes="70px"
+        sizes="60px"
         style={{ 
-          width: '70px', 
-          height: '70px',
+          width: '60px', 
+          height: '60px',
           display: 'block'
         }}
         // Add inline loading optimization
@@ -66,6 +93,9 @@ function OptimizedProviders({ children }: { children: React.ReactNode }) {
     </Suspense>
   );
 }
+
+// Export MobileLogo for use in pages
+export { MobileLogo };
 
 export default function RootLayout({
   children,

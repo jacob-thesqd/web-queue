@@ -18,25 +18,25 @@ export default function BrandCard(
 ) {
   return (
     <motion.div
-      className="w-full"
+      className="w-full max-w-full"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" as Easing, delay: 0.2 }}
     >
-      <Card variant={globalConfig.components.cardVariant}>
-        <CardHeader className="flex flex-row justify-between items-center">
+      <Card variant={globalConfig.components.cardVariant} className="overflow-hidden">
+        <CardHeader className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 px-4 sm:px-6">
         <div className="flex flex-row items-center">
-          <img src="/dept_icons/brand.png" alt="Squad Logo" className="w-9 h-9 mr-1" />
-            <h2 className="flex gap-2 text-2xl font-[600] text-black text-left">
+          <img src="/dept_icons/brand.png" alt="Squad Logo" className="w-9 h-9 mr-3" />
+            <h2 className="text-xl sm:text-2xl font-[600] text-black text-left">
               Brand Squad
             </h2>
           </div>
         </CardHeader>
 
-        <Accordion type="single" collapsible className="px-12 mt-4">
+        <Accordion type="single" collapsible className="px-4 sm:px-6 mt-4">
           <AccordionItem value="item-1">
             <AccordionTrigger>
-              <h2 className="flex gap-2 text-lg font-[600] text-black text-left">
+              <h2 className="text-base sm:text-lg font-[600] text-black text-left">
                 Key Bookmark Links
               </h2>
             </AccordionTrigger>
@@ -47,7 +47,7 @@ export default function BrandCard(
 
           <AccordionItem value="item-2">
             <AccordionTrigger>
-              <h2 className="flex gap-2 text-lg font-[600] text-black text-left">
+              <h2 className="text-base sm:text-lg font-[600] text-black text-left">
                 Terms & Conditions
               </h2>
             </AccordionTrigger>

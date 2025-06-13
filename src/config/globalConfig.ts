@@ -25,6 +25,7 @@ export const globalConfig = {
     cardVariant: "glass" as "default" | "outline" | "ghost" | "glass", // Control card variant across the app
     useAirtableForAllData: true, // New flag to indicate using Airtable for all data
     avatarVariant: "glass" as "default" | "glass",
+    showSettingsOnMobile: false, // Hide settings button on mobile devices
   },
   loadingOverlay: {
     enabled: true, // Master toggle for loading overlay

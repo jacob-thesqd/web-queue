@@ -233,13 +233,13 @@ function HomeContent() {
                 className="w-full"
                 delay={0}
               >
-                <h1 className="flex items-center justify-center gap-2 text-4xl font-[600] text-black">
+                <h1 className="flex items-center justify-center gap-2 text-2xl sm:text-3xl md:text-4xl font-[600] text-black">
                   Hello,{" "}
                   <AnimatedText
                     text={
                       strategyMemberData?.church_name || "there"
                     }
-                    textClassName="text-4xl font-[800] text-black"
+                    textClassName="text-2xl sm:text-3xl md:text-4xl font-[800] text-black"
                     underlinePath="M 0,10 Q 75,0 150,10 Q 225,20 300,10"
                     underlineHoverPath="M 0,10 Q 75,20 150,10 Q 225,0 300,10"
                     underlineDuration={1.5}
@@ -266,7 +266,7 @@ function HomeContent() {
 
         {/* Main Content Area */}
         <div className="relative z-10 mt-20">
-          <div className={`container mx-auto px-4 bg-transparent ${effectiveLayout === "grid" ? "max-w-8xl" : "max-w-4xl"}`}>
+          <div className={`container mx-auto px-4 bg-transparent w-full ${effectiveLayout === "grid" ? "max-w-7xl" : "max-w-4xl"}`}>
             
             {/* Critical LCP content - render immediately without waiting */}
             {!isClientReady ? (
@@ -339,12 +339,12 @@ function HomeContent() {
                             )}
                           </div>
                         ) : (
-                          <div className="flex flex-wrap gap-4 justify-start">
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
                             {cardVisibility.showWebCard && (
                               <CardLoadingWrapper 
                                 cardId="web-card" 
                                 dependencies={[strategyMemberData]}
-                                className="flex-shrink-0 w-[calc(50%-0.5rem)]"
+                                className="w-full"
                               >
                                 <WebCard {...strategyMemberData} />
                               </CardLoadingWrapper>
@@ -353,7 +353,7 @@ function HomeContent() {
                               <CardLoadingWrapper 
                                 cardId="brand-card" 
                                 dependencies={[strategyMemberData]}
-                                className="flex-shrink-0 w-[calc(50%-0.5rem)]"
+                                className="w-full"
                               >
                                 <BrandCard {...strategyMemberData} />
                               </CardLoadingWrapper>
@@ -362,7 +362,7 @@ function HomeContent() {
                               <CardLoadingWrapper 
                                 cardId="sm-card" 
                                 dependencies={[true]}
-                                className="flex-shrink-0 w-[calc(50%-0.5rem)]"
+                                className="w-full"
                               >
                                 <SMCard />
                               </CardLoadingWrapper>
@@ -378,7 +378,25 @@ function HomeContent() {
           </div>
 
           {/* Bottom spacing */}
-          <div className="h-96"></div>
+          <div className="h-4"></div>
+          
+          {/* Mobile Logo at bottom of content */}
+          <div className="sm:hidden flex justify-center py-4">
+            <img 
+              src="/squad-logo.svg" 
+              alt="Squad Logo" 
+              width={50} 
+              height={50} 
+              style={{ 
+                width: '50px', 
+                height: '50px',
+                display: 'block'
+              }}
+            />
+          </div>
+          
+          {/* Additional bottom spacing */}
+          <div className="h-2"></div>
         </div>
 
 

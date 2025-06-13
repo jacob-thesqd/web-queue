@@ -99,7 +99,7 @@ export default function MilestoneStepperComponent({
   }
 
   return (
-    <div className={`${isGridMode ? 'space-y-2' : 'space-y-4'} ${isGridMode ? 'text-left' : 'text-center'} w-full ${isGridMode ? 'max-w-sm' : 'max-w-4xl'} ${isGridMode ? 'mx-0' : 'mx-auto'} ml-2`}>
+    <div className={`${isGridMode ? 'space-y-2' : 'space-y-4'} ${isGridMode ? 'text-left' : 'text-center'} w-full ${isGridMode ? 'max-w-sm' : 'max-w-4xl'} ${isGridMode ? 'mx-0' : 'mx-auto'} ${isGridMode ? 'ml-0 sm:ml-2' : ''}`}>
       {isGridMode ? (
         <Stepper defaultValue={currentStep} orientation="vertical">
           {steps.map(({ step, title, description }) => (
@@ -108,16 +108,16 @@ export default function MilestoneStepperComponent({
               step={step}
               className="relative items-start not-last:flex-1"
             >
-              <StepperTrigger className="items-start rounded pb-8 last:pb-0 pointer-events-none">
-                <StepperIndicator />
-                <div className="mt-0.5 px-3 text-left min-w-0 flex-1">
+              <StepperTrigger className="items-start rounded pb-6 sm:pb-8 last:pb-0 pointer-events-none">
+                <StepperIndicator className="mt-1" />
+                <div className="mt-0.5 px-2 sm:px-3 text-left min-w-0 flex-1">
                   <StepperTitle 
-                    className="whitespace-nowrap overflow-hidden text-ellipsis"
+                    className="text-wrap break-words leading-tight"
                     style={{ 
                       // Inline styles for immediate rendering without CSS blocking
-                      fontSize: '0.875rem',
+                      fontSize: '0.8rem',
                       fontWeight: '500',
-                      lineHeight: '1.25rem'
+                      lineHeight: '1.1rem'
                     }}
                   >
                     {title}
@@ -125,7 +125,7 @@ export default function MilestoneStepperComponent({
                 </div>
               </StepperTrigger>
               {step < steps.length && (
-                <StepperSeparator className="absolute inset-y-0 top-[calc(1.5rem+0.125rem)] left-3 -order-1 m-0 -translate-x-1/2 group-data-[orientation=horizontal]/stepper:w-[calc(100%-1.5rem-0.25rem)] group-data-[orientation=horizontal]/stepper:flex-none group-data-[orientation=vertical]/stepper:h-[calc(100%-1.5rem-0.25rem)]" />
+                <StepperSeparator className="absolute inset-y-0 top-[calc(1.5rem+0.125rem)] left-3 -order-1 m-0 -translate-x-1/2 group-data-[orientation=horizontal]/stepper:w-[calc(100%-1.5rem-0.25rem)] group-data-[orientation=horizontal]/stepper:flex-none group-data-[orientation=vertical]/stepper:h-[calc(100%-1.rem-0.25rem)]" />
               )}
             </StepperItem>
           ))}

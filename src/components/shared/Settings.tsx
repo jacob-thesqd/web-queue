@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useLayout } from "@/hooks/use-layout"
 import { useGlobalDataRefresh } from "@/hooks/useGlobalDataRefresh"
+import { globalConfig } from "@/config/globalConfig"
 
 interface SettingsComponentProps {
   visibleCardCount?: number;
@@ -53,6 +54,11 @@ export default function SettingsComponent({
   }
   
   if (isMobile && visibleCardCount === 1) {
+    return null
+  }
+  
+  // Hide on mobile if globally disabled
+  if (isMobile && !globalConfig.components.showSettingsOnMobile) {
     return null
   }
   

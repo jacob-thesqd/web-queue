@@ -1,6 +1,6 @@
 export const siteConfig = {
-  name: "Web Queue",
-  description: "Church web strategy queue",
+  name: "mySquad Dashboard",
+  description: "Dashboard for Church Media Squad Members",
   links: {
     linkedin: "https://www.linkedin.com",
     github: "https://github.com"
