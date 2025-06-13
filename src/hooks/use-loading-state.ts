@@ -138,7 +138,6 @@ export function useLoadingState(): LoadingState {
   // Fallback timeout to ensure minimum display time
   useEffect(() => {
     initialLoadTimeoutRef.current = setTimeout(() => {
-      console.log('Minimum loading time reached, allowing app to show');
       domReadyRef.current = true;
       setIsAppLoading(false);
     }, minimumDisplayTime * 1000); // Convert seconds to milliseconds

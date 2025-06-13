@@ -28,15 +28,12 @@ export function useStrategyData(accountId?: string) {
       setLoading(false);
       return;
     }
-    
-    console.log('🔍 useStrategyData for account:', accountId);
 
     const cacheKey = accountId;
 
     // Check cache first with timestamp-based expiration
     const cached = strategyDataCache[cacheKey];
     if (cached && Date.now() - cached.timestamp < globalConfig.airtable.cacheDuration) {
-      console.log('🚀 Using cached strategy data for:', accountId);
       setMemberData(cached.data);
       setLoading(false);
       return;

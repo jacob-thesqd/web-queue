@@ -10,6 +10,7 @@ interface UseAirtableAccountData {
   markupLink: string | null;
   discoveryFormSubmissionId: string | null;
   contentSnareLink: string | null;
+  loomVideoFolder: string | null;
   // Department data
   department: string | null;
   usedFieldName: string | null;
@@ -40,6 +41,7 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
     markupLink: null,
     discoveryFormSubmissionId: null,
     contentSnareLink: null,
+    loomVideoFolder: null,
     // Department data
     department: null,
     usedFieldName: null,
@@ -108,6 +110,7 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
             markupLink: null,
             discoveryFormSubmissionId: null,
             contentSnareLink: null,
+            loomVideoFolder: null,
             department: null,
             usedFieldName: null,
             availableFields: [],
@@ -124,6 +127,7 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
             markupLink: result.markupLink,
             discoveryFormSubmissionId: result.discoveryFormSubmissionId,
             contentSnareLink: result.contentSnareLink,
+            loomVideoFolder: result.loomVideoFolder,
             // Department data
             department: result.department,
             usedFieldName: result.usedFieldName,
@@ -156,6 +160,7 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
             markupLink: null,
             discoveryFormSubmissionId: null,
             contentSnareLink: null,
+            loomVideoFolder: null,
             department: null,
             usedFieldName: null,
             availableFields: [],

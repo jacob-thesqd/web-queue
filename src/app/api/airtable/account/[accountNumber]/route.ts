@@ -113,6 +113,7 @@ export async function GET(
       markupLink: accountData.fields['Markup Link'],
       discoveryFormSubmissionId: accountData.fields['Discovery Form Submission ID'],
       contentSnareLink: accountData.fields['ContentSnare Link'],
+      loomVideoFolder: accountData.fields['Loom Link'],
       // Department data
       department,
       usedFieldName,
@@ -131,6 +132,7 @@ export async function GET(
         queueNumber: null,
         dropboxPath: null,
         department: null,
+        loomVideoFolder: null,
         sundayPhotosUploaded: false
       },
       { status: 500 }

@@ -54,23 +54,7 @@ export default function AccountManager({ accountNumber }: AccountManagerProps) {
     .map(item => ensureValidCalendlyUrl(item.am_calendly))
     .filter(url => url && url.trim().length > 0);
   
-  const calendlyUrl = calendlyUrls[0] || '';
-  
-  // Debug log for Calendly URLs - Must be called unconditionally
-  useEffect(() => {
-    if (!loading) {
-      console.log('AccountManager component info:', {
-        accountNumber,
-        dataSource,
-        hasCalendlyUrl: !!calendlyUrl,
-        calendlyUrl,
-        rawCalendlyUrls: data.map(item => item.am_calendly),
-        filteredCalendlyUrls: calendlyUrls
-      });
-    }
-  }, [data, dataSource, accountNumber, calendlyUrl, calendlyUrls, loading]);
-  // Skeleton loading removed per user request - loading overlay handles all loading states
-    
+  const calendlyUrl = calendlyUrls[0] || '';   
 
   // Create display JSX based on account managers
   const getDisplayContent = () => {

@@ -40,7 +40,7 @@ interface BookmarkLinkProps {
 export default function BookmarkLink({ memberData, excludeItems = [] }: BookmarkLinkProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { data, loading, error, fetchSubmission, reset } = useDiscoverySubmission();
-  const { markupLink, discoveryFormSubmissionId, contentSnareLink, loading: accountLoading } = useAirtableAccount(memberData?.account);
+  const { markupLink, discoveryFormSubmissionId, contentSnareLink, loomVideoFolder, loading: accountLoading } = useAirtableAccount(memberData?.account);
 
   const handleItemClick = async (item: BookmarkItem) => {
     if (item.name === "Discovery Questionnaire Submission") {
@@ -69,6 +69,12 @@ export default function BookmarkLink({ memberData, excludeItems = [] }: Bookmark
       } else {
         console.log("No content collection form available for this account");
       }
+    } else if (item.name === "Loom Video Folder") {
+      if (loomVideoFolder) {
+        window.open(loomVideoFolder, '_blank');
+      } else {
+        console.log("No Loom video folder available for this account");
+      }
     } else {
       // Handle other bookmark actions
       console.log(`Navigate to: ${item.link}`);
@@ -90,6 +96,8 @@ export default function BookmarkLink({ memberData, excludeItems = [] }: Bookmark
         return !markupLink;
       case "Content Collection Form":
         return !contentSnareLink;
+      case "Loom Video Folder":
+        return !loomVideoFolder;
       default:
         return false;
     }
@@ -105,6 +113,8 @@ export default function BookmarkLink({ memberData, excludeItems = [] }: Bookmark
         return !markupLink ? "No Markup Folder" : "View";
       case "Content Collection Form":
         return !contentSnareLink ? "No Form Yet" : "View";
+      case "Loom Video Folder":
+        return !loomVideoFolder ? "No Videos Yet" : "View";
       default:
         return "View";
     }
