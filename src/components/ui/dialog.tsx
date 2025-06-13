@@ -57,15 +57,17 @@ function DialogOverlay({
 function DialogContent({
   className,
   children,
+  variant = "default",
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Content>) {
+}: React.ComponentProps<typeof DialogPrimitive.Content> & { variant?: "default" | "glass" }) {
   return (
     <DialogPortal>
-      <DialogOverlay />
+      <DialogOverlay className={variant === 'glass' ? "bg-white/30 backdrop-blur-sm" : ""} />
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
           "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-1/2 left-1/2 z-[70] grid max-h-[calc(100%-2rem)] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-xl border p-6 shadow-lg duration-200 sm:max-w-lg",
+          variant === 'glass' && "bg-white/40 border-white/40 text-foreground",
           className
         )}
         {...props}

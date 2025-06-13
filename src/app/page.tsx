@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { siteConfig } from "@/config/site";
 import { useEffect, useState, Suspense, useRef, useCallback, useMemo } from "react";
 import dynamic from "next/dynamic";
+import { motion, Easing } from "framer-motion";
 import { fadeInVariants } from "@/lib/animation-variants";
 import { useStrategyData } from "@/hooks/use-strategy-data";
 import { useLayout } from "@/hooks/use-layout";
@@ -38,7 +39,6 @@ const BrandCard = dynamic(() => import("@/components/dept-cards/BrandCard"), {
 function ImmediateContent() {
   return (
     <div className="text-center text-gray-500 py-8">
-      <p>Nothing to see here yet...</p>
     </div>
   );
 }
@@ -77,7 +77,8 @@ function HomeContent() {
   const { 
     registerComponent, 
     markComponentLoaded, 
-    markComponentError 
+    markComponentError,
+    isAppLoading
   } = useLoading();
 
   // Register main page components for loading tracking
@@ -123,6 +124,8 @@ function HomeContent() {
       }
     }
   }, [accountLoading, accountError, markComponentLoaded, markComponentError]);
+
+
 
   // Memoize card visibility
   const cardVisibility = useMemo(() => {
@@ -197,169 +200,172 @@ function HomeContent() {
 
   return (
     <div className="min-h-screen bg-transparent">
-      {/* Settings Component */}
-      <div className="fixed top-4 left-4 z-[60] pointer-events-auto">
-        <SettingsComponent visibleCardCount={visibleCardCount} />
-      </div>
+      {/* Hide ALL content while loading overlay is active */}
+      {!isAppLoading && (
+        <>
+          {/* Settings Component */}
+          <div className="fixed top-4 left-4 z-[60] pointer-events-auto">
+            <SettingsComponent visibleCardCount={visibleCardCount} />
+          </div>
 
-      {/* Header Section */}
-      <div 
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-700 ease-out"
-        style={headerStyles}
-      >
-        <div className="container mx-auto px-4 pt-20 pb-8 bg-transparent max-w-4xl space-y-8">
-          <AnimatedGroup
-            variants={fadeInVariants}
-            className="w-full"
-            delay={0}
+                              {/* Header Section */}
+          <div 
+            className="fixed top-0 left-0 right-0 z-50 transition-all duration-700 ease-out"
+            style={headerStyles}
           >
-            <h1 className="flex items-center justify-center gap-2 text-4xl font-[600] text-black">
-              Hello,{" "}
-              <AnimatedText
-                text={
-                  strategyMemberData?.church_name || "there"
-                }
-                textClassName="text-4xl font-[800] text-black"
-                underlinePath="M 0,10 Q 75,0 150,10 Q 225,20 300,10"
-                underlineHoverPath="M 0,10 Q 75,20 150,10 Q 225,0 300,10"
-                underlineDuration={1.5}
-              />
-            </h1>
-          </AnimatedGroup>
+            <div className="container mx-auto px-4 pt-20 pb-8 bg-transparent max-w-4xl space-y-8">
+              <AnimatedGroup
+                variants={fadeInVariants}
+                className="w-full"
+                delay={0}
+              >
+                <h1 className="flex items-center justify-center gap-2 text-4xl font-[600] text-black">
+                  Hello,{" "}
+                  <AnimatedText
+                    text={
+                      strategyMemberData?.church_name || "there"
+                    }
+                    textClassName="text-4xl font-[800] text-black"
+                    underlinePath="M 0,10 Q 75,0 150,10 Q 225,20 300,10"
+                    underlineHoverPath="M 0,10 Q 75,20 150,10 Q 225,0 300,10"
+                    underlineDuration={1.5}
+                  />
+                </h1>
+              </AnimatedGroup>
 
-          <AnimatedGroup
-            variants={fadeInVariants}
-            className="flex justify-center max-h-10 w-full"
-            delay={0}
-          >
-            <AccountManager accountNumber={parseInt(accountId || "306")} />
-          </AnimatedGroup>
-        </div>
-      </div>
+              <AnimatedGroup
+                variants={fadeInVariants}
+                className="flex justify-center max-h-10 w-full"
+                delay={0}
+              >
+                <AccountManager accountNumber={parseInt(accountId || "306")} />
+              </AnimatedGroup>
+            </div>
+          </div>
 
-      {/* Spacer */}
-      <div className="h-40"></div>
+        {/* Spacer */}
+        <div className="h-40"></div>
 
-      {/* Main Content Area */}
-      <div className="relative z-10 mt-20">
-        <div className={`container mx-auto px-4 bg-transparent ${effectiveLayout === "grid" ? "max-w-8xl" : "max-w-4xl"}`}>
-          
-          {/* Critical LCP content - render immediately without waiting */}
-          {!isClientReady ? (
-            <ImmediateContent />
-          ) : (
-            <>
-              {/* Loading states */}
-              {loading ? (
-                <div className="space-y-4">
-                  <div className="h-32 w-full bg-gray-200 rounded animate-pulse" />
-                  <div className="h-32 w-full bg-gray-200 rounded animate-pulse" />
-                </div>
-              ) : (
-                <>
-                  {/* Error handling */}
-                  {globalConfig.components.airtableDepartmentFiltering && accountError && (
-                    <div className="text-center text-red-500 py-8">
-                      <p>Error loading account data: {accountError}</p>
-                    </div>
-                  )}
+        {/* Main Content Area */}
+        <div className="relative z-10 mt-20">
+          <div className={`container mx-auto px-4 bg-transparent ${effectiveLayout === "grid" ? "max-w-8xl" : "max-w-4xl"}`}>
+            
+            {/* Critical LCP content - render immediately without waiting */}
+            {!isClientReady ? (
+              <ImmediateContent />
+            ) : (
+              <>
+                {/* Loading states - handled by loading overlay */}
+                {loading ? (
+                  <div className="space-y-4">
+                    {/* Loading overlay handles all loading states - no skeleton needed */}
+                  </div>
+                ) : (
+                  <>
+                    {/* Error handling */}
+                    {globalConfig.components.airtableDepartmentFiltering && accountError && (
+                      <div className="text-center text-red-500 py-8">
+                        <p>Error loading account data: {accountError}</p>
+                      </div>
+                    )}
 
-                  {/* Show no cards message immediately if applicable */}
-                  {globalConfig.components.airtableDepartmentFiltering && 
-                   !accountLoading && 
-                   !hasVisibleCards(cardVisibility) && 
-                   !accountError && (
-                    <div className="text-center text-gray-500 py-8">
-                      <p>Nothing to see here yet...</p>
-                      {department && <p className="text-sm mt-2">Department: {department}</p>}
-                    </div>
-                  )}
+                    {/* Show no cards message immediately if applicable */}
+                    {globalConfig.components.airtableDepartmentFiltering && 
+                     !accountLoading && 
+                     !hasVisibleCards(cardVisibility) && 
+                     !accountError && (
+                      <div className="text-center text-gray-500 py-8">
+                        <p>Nothing to see here yet...</p>
+                        {department && <p className="text-sm mt-2">Department: {department}</p>}
+                      </div>
+                    )}
 
-                  {/* Account data is still loading */}
-                  {globalConfig.components.airtableDepartmentFiltering && accountLoading && (
-                    <div className="text-center text-gray-500 py-8">
-                      <p>Loading account configuration...</p>
-                    </div>
-                  )}
+                    {/* Account data is still loading */}
+                    {globalConfig.components.airtableDepartmentFiltering && accountLoading && (
+                      <div className="text-center text-gray-500 py-8">
+                        <p>Loading account configuration...</p>
+                      </div>
+                    )}
 
-                  {/* Render cards when ready */}
-                  {!accountLoading && (
-                    (globalConfig.components.airtableDepartmentFiltering ? hasVisibleCards(cardVisibility) : true) && (
-                      effectiveLayout === "list" ? (
-                        <div className="space-y-4">
-                          {cardVisibility.showWebCard && (
-                            <CardLoadingWrapper 
-                              cardId="web-card" 
-                              dependencies={[strategyMemberData]}
-                              className="w-full flex justify-center"
-                            >
-                              <WebCard {...strategyMemberData} />
-                            </CardLoadingWrapper>
-                          )}
-                          {cardVisibility.showBrandCard && (
-                            <CardLoadingWrapper 
-                              cardId="brand-card" 
-                              dependencies={[true]}
-                              className="w-full flex justify-center"
-                            >
-                              <BrandCard />
-                            </CardLoadingWrapper>
-                          )}
-                          {cardVisibility.showSMCard && (
-                            <CardLoadingWrapper 
-                              cardId="sm-card" 
-                              dependencies={[true]}
-                              className="w-full flex justify-center"
-                            >
-                              <SMCard />
-                            </CardLoadingWrapper>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="flex flex-wrap gap-4 justify-start">
-                          {cardVisibility.showWebCard && (
-                            <CardLoadingWrapper 
-                              cardId="web-card" 
-                              dependencies={[strategyMemberData]}
-                              className="flex-shrink-0 w-[calc(50%-0.5rem)]"
-                            >
-                              <WebCard {...strategyMemberData} />
-                            </CardLoadingWrapper>
-                          )}
-                          {cardVisibility.showBrandCard && (
-                            <CardLoadingWrapper 
-                              cardId="brand-card" 
-                              dependencies={[true]}
-                              className="flex-shrink-0 w-[calc(50%-0.5rem)]"
-                            >
-                              <BrandCard />
-                            </CardLoadingWrapper>
-                          )}
-                          {cardVisibility.showSMCard && (
-                            <CardLoadingWrapper 
-                              cardId="sm-card" 
-                              dependencies={[true]}
-                              className="flex-shrink-0 w-[calc(50%-0.5rem)]"
-                            >
-                              <SMCard />
-                            </CardLoadingWrapper>
-                          )}
-                        </div>
+                    {/* Render cards when ready */}
+                    {!accountLoading && (
+                      (globalConfig.components.airtableDepartmentFiltering ? hasVisibleCards(cardVisibility) : true) && (
+                        effectiveLayout === "list" ? (
+                          <div className="space-y-4">
+                            {cardVisibility.showWebCard && (
+                              <CardLoadingWrapper 
+                                cardId="web-card" 
+                                dependencies={[strategyMemberData]}
+                                className="w-full flex justify-center"
+                              >
+                                <WebCard {...strategyMemberData} />
+                              </CardLoadingWrapper>
+                            )}
+                            {cardVisibility.showBrandCard && (
+                              <CardLoadingWrapper 
+                                cardId="brand-card" 
+                                dependencies={[true]}
+                                className="w-full flex justify-center"
+                              >
+                                <BrandCard />
+                              </CardLoadingWrapper>
+                            )}
+                            {cardVisibility.showSMCard && (
+                              <CardLoadingWrapper 
+                                cardId="sm-card" 
+                                dependencies={[true]}
+                                className="w-full flex justify-center"
+                              >
+                                <SMCard />
+                              </CardLoadingWrapper>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="flex flex-wrap gap-4 justify-start">
+                            {cardVisibility.showWebCard && (
+                              <CardLoadingWrapper 
+                                cardId="web-card" 
+                                dependencies={[strategyMemberData]}
+                                className="flex-shrink-0 w-[calc(50%-0.5rem)]"
+                              >
+                                <WebCard {...strategyMemberData} />
+                              </CardLoadingWrapper>
+                            )}
+                            {cardVisibility.showBrandCard && (
+                              <CardLoadingWrapper 
+                                cardId="brand-card" 
+                                dependencies={[true]}
+                                className="flex-shrink-0 w-[calc(50%-0.5rem)]"
+                              >
+                                <BrandCard />
+                              </CardLoadingWrapper>
+                            )}
+                            {cardVisibility.showSMCard && (
+                              <CardLoadingWrapper 
+                                cardId="sm-card" 
+                                dependencies={[true]}
+                                className="flex-shrink-0 w-[calc(50%-0.5rem)]"
+                              >
+                                <SMCard />
+                              </CardLoadingWrapper>
+                            )}
+                          </div>
+                        )
                       )
-                    )
-                  )}
-                </>
-              )}
-            </>
-          )}
+                    )}
+                  </>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Bottom spacing */}
+          <div className="h-96"></div>
         </div>
 
-        {/* Bottom spacing */}
-        <div className="h-96"></div>
-      </div>
 
-      {/* API Cache Debug Component - only shows in development */}
-      <ApiCacheDebug />
+        </>
+      )}
     </div>
   );
 }
@@ -371,7 +377,6 @@ export default function Home() {
         <div className="min-h-screen bg-transparent">
           <div className="container mx-auto px-4 py-20 bg-transparent max-w-4xl">
             <div className="text-center text-gray-500 py-8">
-              <p>Nothing to see here yet...</p>
             </div>
           </div>
         </div>

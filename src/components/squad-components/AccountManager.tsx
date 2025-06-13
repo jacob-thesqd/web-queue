@@ -69,19 +69,7 @@ export default function AccountManager({ accountNumber }: AccountManagerProps) {
       });
     }
   }, [data, dataSource, accountNumber, calendlyUrl, calendlyUrls, loading]);
-{/*
-  if (loading) {
-    return (
-      <div className="bg-background flex items-center rounded-full border p-1 shadow-sm">
-        <div className="flex -space-x-1.5">
-          {[...Array(3)].map((_, index) => (
-            <Skeleton key={index} className="rounded-full h-5 w-5" />
-          ))}
-        </div>
-        <Skeleton className="h-3 w-36 ml-2" />
-      </div>
-    );
-  } */}
+  // Skeleton loading removed per user request - loading overlay handles all loading states
     
 
   // Create display JSX based on account managers

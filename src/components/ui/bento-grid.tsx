@@ -181,16 +181,7 @@ function BentoGridDemo() {
     return (
         <Suspense fallback={
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 p-4 max-w-7xl mx-auto">
-                {Array(4).fill(0).map((_, index) => (
-                    <div
-                        key={index}
-                        className={cn(
-                            "group relative p-4 rounded-xl overflow-hidden h-40",
-                            "border border-gray-100/80 dark:border-white/10 bg-white/50 dark:bg-black/50 animate-pulse",
-                            index === 0 || index === 3 ? "md:col-span-2" : "col-span-1"
-                        )}
-                    />
-                ))}
+                {/* Loading overlay handles all loading states - no skeleton needed */}
             </div>
         }>
             <BentoGridContent />

@@ -35,9 +35,6 @@ export default function SMCard(memberData: Partial<StrategyMemberData> = {}) {
           <h2 className="flex gap-2 text-lg font-[600] text-black text-left">
             Access Vista Social
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Vista Social is a social media platform that allows you to upload photos from Sunday.
-          </p>
           <Button className="mt-4" asChild variant="glass">
               <a href="https://vistasocial.com/login" target="_blank" rel="noopener noreferrer">
                 Login <span className="text-[14px] font-bold">→</span>

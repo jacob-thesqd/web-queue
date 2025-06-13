@@ -6,7 +6,7 @@ export const siteConfig = {
     github: "https://github.com"
   },
   features: {
-    skeletonLoading: true, // Toggle skeleton loading instead of text
+    skeletonLoading: false, // Toggle skeleton loading instead of text - DISABLED per user request
     smSquad: true, // Toggle bento grid component
   }
 }; 

@@ -14,15 +14,11 @@ export function CriticalContent({
   hasVisibleCards = true, 
   department = null 
 }: CriticalContentProps) {
-  // Render content immediately without waiting for JavaScript
+  // Loading state handled by loading overlay - no need for skeleton placeholders
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-20 bg-transparent max-w-4xl">
-        <div className="space-y-4">
-          <div className="h-32 w-full bg-gray-200 rounded animate-pulse" />
-          <div className="h-32 w-full bg-gray-200 rounded animate-pulse" />
-          <div className="h-32 w-full bg-gray-200 rounded animate-pulse" />
-        </div>
+        {/* Loading overlay handles all loading states - no skeleton needed */}
       </div>
     );
   }
