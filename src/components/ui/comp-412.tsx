@@ -8,7 +8,7 @@ const avatarComponentVariants = cva(
     variants: {
       variant: {
         default: "bg-background border",
-        glass: "bg-white/40 shadow-md ring-1 ring-black/5 backdrop-blur-md border-white/90",
+        glass: "bg-white/50 shadow-md backdrop-blur-sm border border-white hover:bg-gray-100 text-foreground",
       },
     },
     defaultVariants: {

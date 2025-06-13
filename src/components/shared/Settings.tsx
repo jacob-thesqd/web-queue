@@ -82,7 +82,7 @@ export default function SettingsComponent({ visibleCardCount = 3 }: SettingsComp
                     value={layout === "list" ? "1" : "2"} 
                     onValueChange={handleLayoutChange}
                   >
-                    <div className="border-input has-data-[state=checked]:border-primary/50 has-data-[state=checked]:bg-accent relative flex w-full items-center justify-between rounded-md border px-4 py-3 shadow-xs outline-none">
+                    <div className="bg-white/50 shadow-md backdrop-blur-sm border border-white hover:bg-gray-100 text-foreground has-data-[state=checked]:border-primary/50 has-data-[state=checked]:bg-white/70 relative flex w-full items-center justify-between rounded-md px-4 py-3 outline-none">
                       <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-2">
                           <Rows3 className="w-4 h-4" />
@@ -97,7 +97,7 @@ export default function SettingsComponent({ visibleCardCount = 3 }: SettingsComp
                       />
                     </div>
                     {!isMobile && (
-                      <div className="border-input has-data-[state=checked]:border-primary/50 has-data-[state=checked]:bg-accent relative flex w-full items-center justify-between rounded-md border px-4 py-3 shadow-xs outline-none">
+                      <div className="bg-white/50 shadow-md backdrop-blur-sm border border-white hover:bg-gray-100 text-foreground has-data-[state=checked]:border-primary/50 has-data-[state=checked]:bg-white/70 relative flex w-full items-center justify-between rounded-md px-4 py-3 outline-none">
                         <div className="flex flex-col gap-1">
                           <div className="flex items-center gap-2">
                             <LayoutGrid className="w-4 h-4" />
