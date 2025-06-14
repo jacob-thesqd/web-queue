@@ -80,16 +80,10 @@ h1 {
   transform: translateZ(0);
 }
 
-/* Responsive grain sizing for mobile */
+/* Hide grain overlay on mobile */
 @media (max-width: 768px) {
   .fixed-dot-grid-background::after {
-    background-size: 90px 90px;
-  }
-}
-
-@media (max-width: 480px) {
-  .fixed-dot-grid-background::after {
-    background-size: 60px 60px;
+    display: none;
   }
 }
 
