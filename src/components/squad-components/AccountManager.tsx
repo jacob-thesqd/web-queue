@@ -1,9 +1,10 @@
 import AvatarComponent from '@/components/ui/comp-412';
-import { useAccountManagerData } from '@/hooks/useAccountManagerData';
+import { useAccountManagerProfile } from '@/hooks/useAccountManagerProfile';
 import CalendlyDialog from '@/components/ui/CalendlyDialog';
 import { PersonStanding } from "lucide-react";
-import { useEffect } from 'react';
 import { globalConfig } from '@/config/globalConfig';
+import { useLoading } from '@/components/providers/LoadingProvider';
+import { useEffect } from 'react';
 
 interface AccountManagerProps {
   accountNumber: number;
@@ -38,57 +39,45 @@ function ensureValidCalendlyUrl(url: string | undefined): string {
 }
 
 export default function AccountManager({ accountNumber, shouldShow = true }: AccountManagerProps) {
-  const { data, loading, error, dataSource } = useAccountManagerData(accountNumber);
+  const { data: accountManagerData, loading, error } = useAccountManagerProfile(accountNumber);
+  const { markComponentLoaded, markComponentError } = useLoading();
+
+  // Integrate with loading system
+  useEffect(() => {
+    if (!loading) {
+      if (error) {
+        markComponentError('account-manager', error);
+      } else {
+        markComponentLoaded('account-manager');
+      }
+    }
+  }, [loading, error, markComponentLoaded, markComponentError]);
 
   // Don't render if shouldShow is false
   if (!shouldShow) {
     return null;
   }
 
-  // Extract profile pictures and account manager names
-  const profilePictures = data
-    .filter(item => item.profile_picture)
-    .map(item => item.profile_picture);
-  
-  const accountManagerNames = data
-    .map(item => item.account_manager_name)
-    .filter(Boolean);
-
-  // Extract calendly URL (use the first available one)
-  // Filter out empty strings, undefined, or URLs that don't contain "calendly"
-  const calendlyUrls = data
-    .map(item => ensureValidCalendlyUrl(item.am_calendly))
-    .filter(url => url && url.trim().length > 0);
-  
-  const calendlyUrl = calendlyUrls[0] || '';   
-
-  // Create display JSX based on account managers
+  // Create display JSX based on account manager data
   const getDisplayContent = () => {
-    if (error) return "Error loading account managers";
-    if (accountManagerNames.length === 0) return "No account managers found";
+    if (error) return "Error loading account manager";
+    if (loading) return "Loading account manager...";
+    if (!accountManagerData?.account_manager_name) return "No account manager found";
     
-    if (accountManagerNames.length === 1) {
-      return (
-        <>
-          Account Manager: <strong className="text-foreground font-medium">{accountManagerNames[0]}</strong>
-        </>
-      );
-    } else {
-      const lastManager = accountManagerNames.pop();
-      return (
-        <>
-          Account Managers: <strong className="text-foreground font-medium">{accountManagerNames.join(', ')}</strong> and <strong className="text-foreground font-medium">{lastManager}</strong>
-        </>
-      );
-    }
+    return (
+      <>
+        Account Manager: <strong className="text-foreground font-medium">{accountManagerData.account_manager_name}</strong>
+      </>
+    );
   };
 
-  // Use fallback profile pictures if none are available
-  const fallbackPictures = [
-    <PersonStanding className="w-5 h-5" key="fallback-profile" />,
-  ];
+  // Use profile picture from Supabase if available, otherwise use fallback
+  const profilePictures = accountManagerData?.profile_picture 
+    ? [accountManagerData.profile_picture]
+    : [<PersonStanding className="w-5 h-5" key="fallback-profile" />];
 
-  // Only render the Calendly button if we have a valid URL
+  // Get the calendly URL from the account manager data
+  const calendlyUrl = accountManagerData?.am_calendly ? ensureValidCalendlyUrl(accountManagerData.am_calendly) : '';
   const hasValidCalendlyUrl = calendlyUrl && calendlyUrl.length > 0;
 
   return (
@@ -96,11 +85,11 @@ export default function AccountManager({ accountNumber, shouldShow = true }: Acc
       <div className="flex items-center">
         <AvatarComponent 
           variant={globalConfig.components.avatarVariant}
-          profilePictures={profilePictures.length > 0 ? profilePictures : fallbackPictures}
+          profilePictures={profilePictures}
           displayContent={getDisplayContent()}
         />
       </div>
-      {accountManagerNames.length > 0 && hasValidCalendlyUrl && (
+      {accountManagerData?.account_manager_name && hasValidCalendlyUrl && (
         <CalendlyDialog calendlyUrl={calendlyUrl} />
       )}
     </div>

@@ -86,6 +86,7 @@ function HomeContent() {
     registerComponent('home-content');
     registerComponent('strategy-data');
     registerComponent('account-data');
+    registerComponent('account-manager');
     registerComponent('page-layout');
     
     return () => {

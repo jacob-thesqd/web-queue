@@ -1,6 +1,6 @@
 import { StrategyMemberData } from '../supabase/getStrategyMemberData';
 import { UseAirtableAccountData } from '@/hooks/useAirtableAccount';
-import { AccountManagerData } from '@/app/api/account-manager/[accountNumber]/route';
+import { AccountManagerData } from './types';
 
 /**
  * Converts Airtable account data to the StrategyMemberData format
@@ -63,31 +63,22 @@ function formatCalendlyUrl(url: string | null | undefined): string {
  * Used as a fallback when the Supabase account manager lookup fails
  */
 export function extractAccountManagerFromAirtable(
-  record: any, 
+  record: { fields: Record<string, string | number | boolean | null | undefined> } | null, 
   accountNumber: number
 ): AccountManagerData | null {
   if (!record || !record.fields) {
     return null;
   }
   
-  const cssRep = record.fields['CSS - Rep'];
+  const cssRep = record.fields['CSS Rep (Strategy)'] as string | undefined;
   
   if (!cssRep) {
     return null;
   }
   
   // Get Calendly link from Airtable if available
-  const calendlyField = record.fields['Calendly Check-In (from CSS - Rep)'];
+  const calendlyField = record.fields['Calendly Check-In (Strategy)'] as string | null | undefined;
   const calendlyLink = formatCalendlyUrl(calendlyField);
-  
-  // Log for debugging
-  console.log('📆 Airtable Calendly data:', {
-    accountNumber,
-    cssRep,
-    rawCalendlyField: calendlyField,
-    formattedCalendlyLink: calendlyLink,
-    availableFields: Object.keys(record.fields).filter(field => field.toLowerCase().includes('calendly'))
-  });
   
   return {
     account: accountNumber,

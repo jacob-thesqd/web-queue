@@ -30,4 +30,12 @@ export interface AirtableRecord {
   id: string;
   createdTime: string;
   fields: Record<string, any>;
+}
+
+export interface AccountManagerData {
+  account: number;
+  account_manager_name: string;
+  employee_email: string;
+  profile_picture: string;
+  am_calendly: string;
 } 
