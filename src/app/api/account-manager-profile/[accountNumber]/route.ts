@@ -128,7 +128,7 @@ export async function GET(
       return cleanUrl;
     };
     
-    // Set cache headers for client-side caching
+    // No aggressive caching
     const response = NextResponse.json({ 
       data: {
         account: accountNumber,
@@ -138,7 +138,11 @@ export async function GET(
         am_calendly: formatCalendlyUrl(calendlyField),
       }
     });
-    response.headers.set('Cache-Control', 'public, max-age=300, s-maxage=300'); // 5 minutes cache
+    
+    // Only minimal caching in production
+    if (process.env.NODE_ENV === 'production') {
+      response.headers.set('Cache-Control', 'public, max-age=60'); // 1 minute cache in production only
+    }
     
     return response;
   } catch (err) {

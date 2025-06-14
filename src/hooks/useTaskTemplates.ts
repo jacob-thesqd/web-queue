@@ -115,10 +115,7 @@ export function useTaskTemplates(): UseTaskTemplatesResult {
       
       const response = await fetch('/api/airtable/task-templates', {
         signal: controller.signal,
-        // Add cache headers for better performance
-        headers: {
-          'Cache-Control': 'public, max-age=300', // 5 minutes browser cache
-        }
+        // No aggressive caching
       });
       
       clearTimeout(timeoutId);

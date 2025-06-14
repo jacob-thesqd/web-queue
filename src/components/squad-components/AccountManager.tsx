@@ -58,12 +58,13 @@ export default function AccountManager({ accountNumber, shouldShow = true }: Acc
     return null;
   }
 
+  // Hide component entirely if there's an error, still loading, or no account manager data
+  if (error || loading || !accountManagerData?.account_manager_name) {
+    return null;
+  }
+
   // Create display JSX based on account manager data
   const getDisplayContent = () => {
-    if (error) return "Error loading account manager";
-    if (loading) return "Loading account manager...";
-    if (!accountManagerData?.account_manager_name) return "No account manager found";
-    
     return (
       <>
         Account Manager: <strong className="text-foreground font-medium">{accountManagerData.account_manager_name}</strong>

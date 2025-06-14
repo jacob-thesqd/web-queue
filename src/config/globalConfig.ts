@@ -37,12 +37,12 @@ export const globalConfig = {
     initializationDelay: 450 // Delay for app initialization in ms
   },
   airtable: {
-    cacheDuration: 60 * 60 * 1000, // 1 hour in milliseconds
+    cacheDuration: process.env.NODE_ENV === 'development' ? 0 : 5 * 60 * 1000, // No cache in dev, 5 minutes in production
     retryAttempts: 3, // Number of retry attempts for failed requests
     timeoutMs: 10000, // Request timeout in milliseconds
     createUploadRecords: true, // Create records in Airtable after successful Dropbox uploads
-    enableGlobalApiCache: true, // Enable centralized API caching to prevent duplicate calls
-    debugCaching: true // Show cache hit/miss logs in development
+    enableGlobalApiCache: false, // Disable centralized API caching
+    debugCaching: false // Disable cache hit/miss logs
   },
   dropbox: {
     devMode: false, // Set to false in production

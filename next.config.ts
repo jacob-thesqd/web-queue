@@ -9,10 +9,10 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   
-  // Image optimization
+  // Image optimization - normal settings
   images: {
     formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 31536000, // 1 year
+    // Removed aggressive caching
   },
 
   // Bundle optimization
@@ -23,18 +23,9 @@ const nextConfig: NextConfig = {
     },
   },
 
-  // Headers for caching and performance
+  // Headers for security only - removed caching headers
   async headers() {
     return [
-      {
-        source: '/fonts/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
       {
         source: '/(.*)',
         headers: [
@@ -61,15 +52,6 @@ const nextConfig: NextConfig = {
           {
             key: 'Strict-Transport-Security',
             value: 'max-age=31536000; includeSubDomains'
-          },
-        ],
-      },
-      {
-        source: '/api/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, s-maxage=86400, stale-while-revalidate=43200',
           },
         ],
       },
