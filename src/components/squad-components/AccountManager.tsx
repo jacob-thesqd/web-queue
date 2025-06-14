@@ -5,6 +5,7 @@ import { PersonStanding } from "lucide-react";
 import { globalConfig } from '@/config/globalConfig';
 import { useLoading } from '@/components/providers/LoadingProvider';
 import { useEffect } from 'react';
+import { motion, Easing } from "framer-motion";
 
 interface AccountManagerProps {
   accountNumber: number;
@@ -82,17 +83,24 @@ export default function AccountManager({ accountNumber, shouldShow = true }: Acc
   const hasValidCalendlyUrl = calendlyUrl && calendlyUrl.length > 0;
 
   return (
-    <div className="flex items-center gap-4">
-      <div className="flex items-center">
-        <AvatarComponent 
-          variant={globalConfig.components.avatarVariant}
-          profilePictures={profilePictures}
-          displayContent={getDisplayContent()}
-        />
+    <motion.div
+      className="w-full max-w-full"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" as Easing, delay: 0.1 }}
+    >
+      <div className="flex items-center justify-center gap-4">
+        <div className="flex items-center">
+          <AvatarComponent 
+            variant={globalConfig.components.avatarVariant}
+            profilePictures={profilePictures}
+            displayContent={getDisplayContent()}
+          />
+        </div>
+        {accountManagerData?.account_manager_name && hasValidCalendlyUrl && (
+          <CalendlyDialog calendlyUrl={calendlyUrl} />
+        )}
       </div>
-      {accountManagerData?.account_manager_name && hasValidCalendlyUrl && (
-        <CalendlyDialog calendlyUrl={calendlyUrl} />
-      )}
-    </div>
+    </motion.div>
   );
 }

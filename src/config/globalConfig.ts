@@ -29,8 +29,8 @@ export const globalConfig = {
   },
   loadingOverlay: {
     enabled: true, // Master toggle for loading overlay
-    progressBarDuration: 1, // Progress bar completion time in seconds
-    minimumDisplayTime: 1.5, // Minimum time overlay shows in seconds
+    progressBarDuration: 0.9, // Progress bar completion time in seconds
+    minimumDisplayTime: 1, // Minimum time overlay shows in seconds
     componentLoadingDelay: 200, // Delay for component loading detection in ms
     transitionDelay: 400, // Delay before hiding overlay after everything loads in ms
     domReadyDelay: 400, // Delay for DOM ready detection in ms
