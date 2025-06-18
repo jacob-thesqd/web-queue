@@ -61,8 +61,8 @@ export const globalConfig = {
     customButtonText: "Select photos", // Custom text for file selection button
     showSuccessDetails: true, // Show detailed success message with destination
     showFilePreview: true, // Show file previews in upload area
-    maxFileSizeMB: 20, // Maximum file size in MB
-    maxFiles: 10, // Maximum number of files per upload
+    maxFileSizeMB: Number(process.env.NEXT_PUBLIC_SOCIAL_MEDIA_UPLOADER_MAX_FILE_SIZE_MB) || 20, // Maximum file size in MB (controlled by .env)
+    maxFiles: Number(process.env.NEXT_PUBLIC_SOCIAL_MEDIA_UPLOADER_MAX_FILES) || 10, // Maximum number of files per upload (controlled by .env)
     autoDateFolder: true, // Automatically create date-based folders
     dateFormat: "YYYY-MM-DD", // Date format for folder creation
     targetSubfolder: "1. Client Assets/Sunday Photos", // Subfolder path within client directory
