@@ -104,10 +104,11 @@ function HomeContent() {
   const { 
     accountData, 
     department, 
+    milestoneData: pageMilestoneData,
     loading: accountLoading, 
     error: accountError 
   } = useAirtableAccount(
-    globalConfig.components.airtableDepartmentFiltering && strategyMemberData?.account ? 
+    (globalConfig.components.airtableDepartmentFiltering || globalConfig.components.airtableMilestoneStepper) && strategyMemberData?.account ? 
       strategyMemberData.account : undefined
   );
 
@@ -317,7 +318,7 @@ function HomeContent() {
                                 dependencies={[strategyMemberData]}
                                 className="w-full flex justify-center"
                               >
-                                <WebCard {...strategyMemberData} />
+                                <WebCard {...strategyMemberData} externalMilestoneData={pageMilestoneData} />
                               </CardLoadingWrapper>
                             )}
                             {cardVisibility.showBrandCard && (
@@ -347,7 +348,7 @@ function HomeContent() {
                                 dependencies={[strategyMemberData]}
                                 className="w-full"
                               >
-                                <WebCard {...strategyMemberData} />
+                                <WebCard {...strategyMemberData} externalMilestoneData={pageMilestoneData} />
                               </CardLoadingWrapper>
                             )}
                             {cardVisibility.showBrandCard && (

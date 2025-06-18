@@ -13,21 +13,33 @@ import { Button } from "@/components/ui/button";
 import { StrategyMemberData } from "@/lib/supabase/getStrategyMemberData";
 import BookmarkLink from "@/components/shared/BookmarkLink";
 import MilestoneStepperComponent from "@/components/ui/comp-525";
-import { useAirtableTaskMilestones } from "@/hooks/useAirtableTaskMilestones";
-import { useAirtableAccount } from "@/hooks/useAirtableAccount";
+import { useAirtableAccount, convertMilestoneToSteps, MilestoneData } from "@/hooks/useAirtableAccount";
 import { globalConfig } from "@/config/globalConfig";
 
-export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
-  // Use Airtable task milestones with the same 3-step logic as the original milestone tracking
-  const { steps, currentStep, loading, error } = useAirtableTaskMilestones(
-    memberData.account,
-    0 // Start at first milestone - could be made dynamic based on account progress
-  );
+interface WebCardProps extends Partial<StrategyMemberData> {
+  externalMilestoneData?: MilestoneData | null;
+}
 
-  // Fetch comprehensive account data from Airtable (includes queue number and all other data)
-  const { queueNumber, loading: accountLoading, error: accountError } = useAirtableAccount(
-    globalConfig.components.airtableQueueNumber ? memberData.account : undefined
-  );
+export default function WebCard({ externalMilestoneData, ...memberData }: WebCardProps) {
+  // Only fetch account data if milestone data is not provided externally
+  const shouldFetchAccount = !externalMilestoneData && (globalConfig.components.airtableQueueNumber || globalConfig.components.airtableMilestoneStepper);
+  
+  // Fetch comprehensive account data from Airtable (includes queue number, milestone data, and all other data)
+  const { 
+    queueNumber, 
+    milestoneData, 
+    error: accountError 
+  } = useAirtableAccount(shouldFetchAccount ? memberData.account : undefined);
+
+  // Use external milestone data if provided, otherwise use fetched data
+  const finalMilestoneData = externalMilestoneData || milestoneData;
+  
+  // Convert milestone data to stepper format
+  const { steps, currentStep } = convertMilestoneToSteps(finalMilestoneData);
+  const hasMilestoneData = finalMilestoneData && finalMilestoneData.currentMilestone;
+
+  // If external milestone data is provided, don't show error states
+  const error = externalMilestoneData ? null : accountError;
 
   return (
     <motion.div
@@ -120,16 +132,20 @@ export default function WebCard(memberData: Partial<StrategyMemberData> = {}) {
           </h2>
           {error ? (
             <div className="text-center text-red-500 py-6 px-4">
-              <p className="text-sm">Error loading task milestones</p>
+              <p className="text-sm">Error loading milestone data</p>
               <p className="text-xs text-red-400 mt-1">{error}</p>
             </div>
-          ) : (
+          ) : hasMilestoneData ? (
             <MilestoneStepperComponent 
               steps={steps} 
               currentStep={currentStep} 
-              loading={loading}
+              loading={false}
               mode="grid"
             />
+          ) : (
+            <div className="text-center text-gray-500 py-6 px-4">
+              <p className="text-sm">No milestone data available</p>
+            </div>
           )}
         </div>
       )}

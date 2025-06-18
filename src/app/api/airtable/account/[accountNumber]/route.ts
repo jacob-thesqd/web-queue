@@ -38,6 +38,20 @@ function findDepartment(record: any): { department: string | null; usedFieldName
   return { department, usedFieldName };
 }
 
+// Helper function to parse milestone JSON data
+function parseMilestoneJSON(record: any): any {
+  try {
+    const milestoneJsonString = record.fields && record.fields['Milestone JSON (for automation)'];
+    if (milestoneJsonString && typeof milestoneJsonString === 'string') {
+      return JSON.parse(milestoneJsonString);
+    }
+    return null;
+  } catch (error) {
+    console.error('Error parsing milestone JSON:', error);
+    return null;
+  }
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ accountNumber: string }> }
@@ -105,6 +119,9 @@ export async function GET(
     const sundayPhotosValue = record.fields && record.fields['Sunday Photos This Week'] ? record.fields['Sunday Photos This Week'] : 0;
     const sundayPhotosUploaded = sundayPhotosValue === 1;
 
+    // Extract milestone data
+    const milestoneData = parseMilestoneJSON(record);
+
     return NextResponse.json({ 
       accountData,
       queueNumber: accountData.fields['Queue Number'],
@@ -122,6 +139,8 @@ export async function GET(
       // Sunday photos data
       sundayPhotosUploaded,
       sundayPhotosValue,
+      // Milestone data
+      milestoneData,
       memberNumber: parseInt(accountNumber)
     });
   } catch (error) {

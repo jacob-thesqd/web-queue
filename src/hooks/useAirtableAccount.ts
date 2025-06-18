@@ -1,6 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { AirtableAccountData } from '@/app/api/airtable/account/[accountNumber]/route';
+import { MilestoneStep } from '@/lib/airtable/types';
 import { globalConfig } from '@/config/globalConfig';
+
+export interface MilestoneData {
+  previousMilestone2: string | null;
+  previousMilestone1: string | null;
+  currentMilestone: string | null;
+  nextMilestone1: string | null;
+  nextMilestone2: string | null;
+}
 
 export interface UseAirtableAccountData {
   accountData: AirtableAccountData | null;
@@ -20,6 +29,8 @@ export interface UseAirtableAccountData {
   sundayPhotosUploaded: boolean;
   sundayPhotosValue: number;
   memberNumber: number | null;
+  // Milestone data
+  milestoneData: MilestoneData | null;
   loading: boolean;
   error: string | null;
 }
@@ -32,6 +43,90 @@ const accountDataCache: Record<string, {
 
 // Track ongoing fetch requests to prevent duplicates
 const ongoingRequests: Record<string, Promise<void>> = {};
+
+// Helper function to convert milestone data to stepper steps
+export function convertMilestoneToSteps(milestoneData: MilestoneData | null): {
+  steps: MilestoneStep[];
+  currentStep: number;
+} {
+  if (!milestoneData || !milestoneData.currentMilestone) {
+    return {
+      steps: [],
+      currentStep: 1
+    };
+  }
+
+  const { previousMilestone2, previousMilestone1, currentMilestone, nextMilestone1, nextMilestone2 } = milestoneData;
+
+  // Determine the positioning based on available milestones
+  if (!previousMilestone1) {
+    // At the beginning: current, next1, next2
+    return {
+      steps: [
+        {
+          step: 1,
+          title: currentMilestone,
+          description: "Current milestone"
+        },
+        {
+          step: 2,
+          title: nextMilestone1 || "Next Step",
+          description: "Next milestone"
+        },
+        {
+          step: 3,
+          title: nextMilestone2 || "Future Step",
+          description: "Following milestone"
+        }
+      ],
+      currentStep: 1
+    };
+  } else if (!nextMilestone1) {
+    // At the end: prev2, prev1, current
+    return {
+      steps: [
+        {
+          step: 1,
+          title: previousMilestone2 || "Previous Step",
+          description: "Completed milestone"
+        },
+        {
+          step: 2,
+          title: previousMilestone1,
+          description: "Completed milestone"
+        },
+        {
+          step: 3,
+          title: currentMilestone,
+          description: "Current milestone"
+        }
+      ],
+      currentStep: 3
+    };
+  } else {
+    // In the middle: prev1, current, next1
+    return {
+      steps: [
+        {
+          step: 1,
+          title: previousMilestone1,
+          description: "Completed milestone"
+        },
+        {
+          step: 2,
+          title: currentMilestone,
+          description: "Current milestone"
+        },
+        {
+          step: 3,
+          title: nextMilestone1,
+          description: "Next milestone"
+        }
+      ],
+      currentStep: 2
+    };
+  }
+}
 
 export function useAirtableAccount(accountNumber?: string | number): UseAirtableAccountData {
   const [data, setData] = useState<UseAirtableAccountData>({
@@ -52,6 +147,8 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
     sundayPhotosUploaded: false,
     sundayPhotosValue: 0,
     memberNumber: null,
+    // Milestone data
+    milestoneData: null,
     loading: false,
     error: null,
   });
@@ -120,6 +217,7 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
             sundayPhotosUploaded: false,
             sundayPhotosValue: 0,
             memberNumber: null,
+            milestoneData: null,
             loading: false,
             error: result.error,
           } : {
@@ -140,6 +238,8 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
             sundayPhotosUploaded: result.sundayPhotosUploaded || false,
             sundayPhotosValue: result.sundayPhotosValue || 0,
             memberNumber: result.memberNumber,
+            // Milestone data
+            milestoneData: result.milestoneData,
             loading: false,
             error: null,
           };
@@ -172,6 +272,7 @@ export function useAirtableAccount(accountNumber?: string | number): UseAirtable
             sundayPhotosUploaded: false,
             sundayPhotosValue: 0,
             memberNumber: null,
+            milestoneData: null,
             loading: false,
             error: err instanceof Error ? err.message : 'Failed to fetch account data',
           };
