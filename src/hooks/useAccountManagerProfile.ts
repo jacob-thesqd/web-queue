@@ -11,6 +11,14 @@ interface UseAccountManagerProfileResult {
 // Timeout configuration (milliseconds)
 const TIMEOUT_DURATION = 5000; // 5 seconds
 
+// Fallback data when no account manager is found
+const FALLBACK_ACCOUNT_MANAGER = {
+  account_manager_name: "Ariel Guptill",
+  email: "ariel@churchmediasquad.com",
+  profile_picture: "https://attachments.clickup.com/profilePictures/67230632_t11.jpg",
+  am_calendly: "https://calendly.com/ariel-churchmediasquad/check-in"
+};
+
 export function useAccountManagerProfile(accountNumber: number): UseAccountManagerProfileResult {
   const [data, setData] = useState<AccountManagerProfileData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,6 +48,13 @@ export function useAccountManagerProfile(accountNumber: number): UseAccountManag
       });
 
       clearTimeout(timeoutId);
+
+      // Handle 404 gracefully with fallback data
+      if (response.status === 404) {
+        console.log('📋 Account manager not found, using fallback data');
+        setData(FALLBACK_ACCOUNT_MANAGER);
+        return;
+      }
 
       if (!response.ok) {
         throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);

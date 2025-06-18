@@ -125,7 +125,7 @@ export default function WebCard({ externalMilestoneData, ...memberData }: WebCar
         </div>
       </CardHeader>
 
-      {globalConfig.components.airtableMilestoneStepper && (
+      {globalConfig.components.airtableMilestoneStepper && hasMilestoneData && (
         <div className="flex flex-col w-full px-4 sm:px-6 pb-4">
           <h2 className="text-base sm:text-lg font-[600] text-black text-left mb-4">
             Milestone Progress
@@ -135,17 +135,13 @@ export default function WebCard({ externalMilestoneData, ...memberData }: WebCar
               <p className="text-sm">Error loading milestone data</p>
               <p className="text-xs text-red-400 mt-1">{error}</p>
             </div>
-          ) : hasMilestoneData ? (
+          ) : (
             <MilestoneStepperComponent 
               steps={steps} 
               currentStep={currentStep} 
               loading={false}
               mode="grid"
             />
-          ) : (
-            <div className="text-center text-gray-500 py-6 px-4">
-              <p className="text-sm">No milestone data available</p>
-            </div>
           )}
         </div>
       )}
